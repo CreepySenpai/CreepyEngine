@@ -19,6 +19,6 @@ add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${EVENTENGINE} ${RENDERERENGINE
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/lib)
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw3.dll opengl32 gdi32)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
