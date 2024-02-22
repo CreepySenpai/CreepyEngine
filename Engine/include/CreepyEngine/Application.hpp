@@ -8,6 +8,7 @@
 #include "Renderer/Shader.hpp"
 #include "Renderer/VertexArray.hpp"
 #include "Renderer/Buffer.hpp"
+#include "Renderer/OrthographicCamera.hpp"
 
 namespace Creepy
 {
@@ -48,6 +49,9 @@ namespace Creepy
             std::shared_ptr<VertexArray> m_vertexArray;
             std::shared_ptr<VertexBuffer> m_vertexBuffer;
             std::shared_ptr<IndexBuffer> m_indexBuffer;
+
+            OrthographicCamera m_camera;
+            
         private:
 
             // No memory leak because point to this obj

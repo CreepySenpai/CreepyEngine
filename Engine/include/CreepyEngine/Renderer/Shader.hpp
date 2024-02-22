@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-
+#include <glm/glm.hpp>
 
 namespace Creepy
 {
@@ -13,6 +13,9 @@ namespace Creepy
             ~Shader() noexcept;
             void Bind() noexcept;
             void UnBind() noexcept;
+
+            void SetUniformMat4(const std::string& name, const glm::mat4& matrix) noexcept;
+
         private:
             unsigned int m_rendererID;
     }; 

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
 #include "RenderCommand.hpp"
+#include "OrthographicCamera.hpp"
+#include "Shader.hpp"
 
 namespace Creepy
 {
@@ -13,14 +16,21 @@ namespace Creepy
                 return RendererAPI::GetAPI();
             }
             
-            static void BeginScene() noexcept;
+            static void BeginScene(OrthographicCamera& camera) noexcept;
 
             static void EndScene() noexcept;
 
-            static void Submit(const std::shared_ptr<VertexArray>& vertexArray) noexcept;
+            static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray) noexcept;
 
         private:
             
+            struct SceneData {
+                glm::mat4 ViewProjectionMatrix;
+
+            };
+
+            static SceneData* m_sceneData;
+
     };
 
 }

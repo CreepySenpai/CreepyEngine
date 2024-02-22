@@ -101,4 +101,14 @@ namespace Creepy {
     void Shader::UnBind() noexcept {
         glUseProgram(0);
     }
+
+    void Shader::SetUniformMat4(const std::string& name, const glm::mat4& matrix) noexcept {
+
+        auto loc = glGetUniformLocation(m_rendererID, name.c_str());
+        if(loc < 0){
+            ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+        }
+        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(matrix));
+
+    }
 }

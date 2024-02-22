@@ -3,7 +3,10 @@
 namespace Creepy
 {
 
-    void Renderer::BeginScene() noexcept {
+    Renderer::SceneData* Renderer::m_sceneData = new Renderer::SceneData();
+
+    void Renderer::BeginScene(OrthographicCamera& camera) noexcept {
+        m_sceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 
     }
 
@@ -11,7 +14,9 @@ namespace Creepy
 
     }
 
-    void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray) noexcept {
+    void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray) noexcept {
+        shader->Bind();
+        shader->SetUniformMat4("u_viewProjectionMatrix", m_sceneData->ViewProjectionMatrix);
         vertexArray->Bind();
         RenderCommand::DrawIndex(vertexArray);
     }
