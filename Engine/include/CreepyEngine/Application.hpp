@@ -9,6 +9,7 @@
 #include "Renderer/VertexArray.hpp"
 #include "Renderer/Buffer.hpp"
 #include "Renderer/OrthographicCamera.hpp"
+#include "Core/TimeStep.hpp"
 
 namespace Creepy
 {
@@ -42,15 +43,9 @@ namespace Creepy
 
             std::unique_ptr<Window> m_window;
             ImGuiLayer* m_imGuiLayer;
-            bool m_isRunning{true};
             LayerStack m_layerStack;
-
-            std::shared_ptr<Shader> m_shader;
-            std::shared_ptr<VertexArray> m_vertexArray;
-            std::shared_ptr<VertexBuffer> m_vertexBuffer;
-            std::shared_ptr<IndexBuffer> m_indexBuffer;
-
-            OrthographicCamera m_camera;
+            float m_lastFrameTime;
+            bool m_isRunning{true};
             
         private:
 

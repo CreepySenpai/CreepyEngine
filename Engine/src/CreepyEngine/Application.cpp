@@ -15,93 +15,39 @@ namespace Creepy {
 
     
 
-    Application::Application() noexcept : m_camera{-1.0f, 1.0f, -1.0f, 1.0f} {
+    Application::Application() noexcept {
+
+        if(instance){
+            ENGINE_LOG_ERROR("Only Once Instance Exit");
+        }
+
         // Because we create a pointer point to this obj, when we create obj we create it by smart pointer so when proc die it will
         // dealloc -> no memory leak when we use raw pointer
         // In imguilayer we get instance of this class so we need init this first in this program to dont be nullptr error
         instance = this;
 
-        if(instance){
-            ENGINE_LOG_ERROR("Only Once Instance Exit");
-        }
 
         m_window = Window::Create();
         m_window->SetEventCallBack(std::bind_front(&Application::OnEvent, this));
         m_imGuiLayer = new ImGuiLayer();
         
         this->PushLayer(m_imGuiLayer);  // No memory leak because layerStack will free it
-
-        m_vertexArray.reset(VertexArray::Create());
-        
-        float vertex[] {
-            -0.5f, -0.5f, 0.0f,
-             0.0f, 0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-        };
-
-        m_vertexBuffer.reset(VertexBuffer::Create(vertex, sizeof(vertex)));
-        
-        BufferLayout vertexBufferLayout{
-            {ShaderDataType::Float3, "a_position"}
-        };
-
-        m_vertexBuffer->SetLayout(vertexBufferLayout);
-
-        m_vertexArray->AddVertexBuffer(m_vertexBuffer); // We need add buffer after it add layout, if not it will empty
-
-        uint32_t index[] {
-            0, 1, 2,
-        };
-
-        m_indexBuffer.reset(IndexBuffer::Create(index, 3));
-        
-        m_vertexArray->SetIndexBuffer(m_indexBuffer);
-
-        std::string vertexSources {R"-(#version 460 core
-        
-        layout(location = 0) in vec3 a_position;
-
-        uniform mat4 u_viewProjectionMatrix;
-
-        void main(){
-            gl_Position = u_viewProjectionMatrix * vec4(a_position, 1.0);
-        }
-        
-        )-"};
-
-        std::string fragmentSources {R"-(#version 460 core
-        
-        out vec4 color;
-        
-
-        void main(){
-            color = vec4(1.0, 0.1, 0.1, 1.0);
-        }
-
-        )-"};
-
-        m_shader.reset(new Shader(vertexSources, fragmentSources));
     }
 
     void Application::Run() noexcept {
 
         while(m_isRunning){
-            
-            RenderCommand::Clear();
+            // Get current time
+            float time = static_cast<float>(glfwGetTime());
 
-            RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
+            // We get current time - last time -> delta time and save it
+            TimeStep timeStep{time - m_lastFrameTime};
 
-            m_camera.SetRotation(30.0f);
-
-            Renderer::BeginScene(m_camera);
-
-            Renderer::Submit(m_shader, m_vertexArray);
-
-            Renderer::EndScene();
-            
+            // Save current time
+            m_lastFrameTime = time;
 
             for(auto&& layer : m_layerStack){
-                layer->OnUpdate();
+                layer->OnUpdate(timeStep);
             }
 
             // Render All Data For ImGui Layer
@@ -114,6 +60,7 @@ namespace Creepy {
             m_imGuiLayer->End();
 
             m_window->OnUpdate();
+
         }
         
     }
@@ -131,6 +78,8 @@ namespace Creepy {
         for(auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); it++) {
             (*it)->OnEvent(event);
 
+            // If we set event was handle so we dont need pass event information to another layer, so if event is unique or only that func
+            // handle, we need set == true, if not we set == false
             if(event.IsHandled()) {
                 break;
             }

@@ -29,7 +29,7 @@ namespace Creepy
 
             };
 
-            static SceneData* m_sceneData;
+            static std::unique_ptr<SceneData> m_sceneData;
 
     };
 

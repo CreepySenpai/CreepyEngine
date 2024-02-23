@@ -3,7 +3,7 @@
 namespace Creepy
 {
 
-    Renderer::SceneData* Renderer::m_sceneData = new Renderer::SceneData();
+    std::unique_ptr<Renderer::SceneData> Renderer::m_sceneData = std::make_unique<Renderer::SceneData>();
 
     void Renderer::BeginScene(OrthographicCamera& camera) noexcept {
         m_sceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
