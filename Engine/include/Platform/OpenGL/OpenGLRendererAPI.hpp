@@ -13,7 +13,7 @@ namespace Creepy
 
             void Clear() noexcept override;
 
-            void DrawIndex(const std::shared_ptr<VertexArray>& vertexArray) noexcept override;
+            void DrawIndex(const Ref<VertexArray>& vertexArray) noexcept override;
 
         private:
             

@@ -138,10 +138,10 @@ class GameLayer : public Creepy::Layer
         }
 
     private:
-        std::shared_ptr<Creepy::Shader> m_shader;
-        std::shared_ptr<Creepy::VertexArray> m_vertexArray;
-        std::shared_ptr<Creepy::VertexBuffer> m_vertexBuffer;
-        std::shared_ptr<Creepy::IndexBuffer> m_indexBuffer;
+        Creepy::Ref<Creepy::Shader> m_shader;
+        Creepy::Ref<Creepy::VertexArray> m_vertexArray;
+        Creepy::Ref<Creepy::VertexBuffer> m_vertexBuffer;
+        Creepy::Ref<Creepy::IndexBuffer> m_indexBuffer;
 
         Creepy::OrthographicCamera m_camera;
 

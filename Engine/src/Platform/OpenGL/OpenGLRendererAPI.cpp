@@ -13,7 +13,7 @@ namespace Creepy {
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    void OpenGLRendererAPI::DrawIndex(const std::shared_ptr<VertexArray> &vertexArray) noexcept
+    void OpenGLRendererAPI::DrawIndex(const Ref<VertexArray> &vertexArray) noexcept
     {
         glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
         

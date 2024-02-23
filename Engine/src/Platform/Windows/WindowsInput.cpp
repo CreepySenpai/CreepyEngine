@@ -4,7 +4,7 @@
 
 namespace Creepy
 {
-    std::shared_ptr<Input> Input::instance = std::make_shared<WindowsInput>();
+    Ref<Input> Input::instance = std::make_shared<WindowsInput>();
 
     bool WindowsInput::IsKeyPressedImpl(int keyCode) noexcept
     {

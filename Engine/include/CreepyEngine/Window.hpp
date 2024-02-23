@@ -4,6 +4,7 @@
 #include <memory>
 #include <functional>
 #include "Events/Event.hpp"
+#include "Core.hpp"
 
 namespace Creepy {
     struct WindowProperty {
@@ -31,7 +32,7 @@ namespace Creepy {
             constexpr virtual void SetVSync(bool setting) noexcept = 0;
             constexpr virtual bool IsVSyncEnable() const noexcept = 0;
 
-            static std::unique_ptr<Window> Create(const WindowProperty& windowProperty = WindowProperty());
+            static Scope<Window> Create(const WindowProperty& windowProperty = WindowProperty());
 
             constexpr virtual void* GetNativeWindow() const noexcept = 0;
 

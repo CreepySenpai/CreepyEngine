@@ -41,7 +41,7 @@ namespace Creepy
             virtual std::pair<float, float> GetMousePositionImpl() noexcept = 0;
 
         private:
-            static std::shared_ptr<Input> instance;
+            static Ref<Input> instance;
     };
     
 }

@@ -28,14 +28,6 @@ namespace Creepy
             float m_time{0.0f};
 
         private:
-            // bool OnWindowResizedEvent(WindowResizeEvent& event) noexcept;
-            // bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& event) noexcept;
-            // bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& event) noexcept;
-            // bool OnMouseMovedEvent(MouseMovedEvent& event) noexcept;
-            // bool OnMouseScrolledEvent(MouseScrolledEvent& event) noexcept;
-            // bool OnKeyPressedEvent(KeyPressedEvent& event) noexcept;
-            // bool OnKeyReleasedEvent(KeyReleasedEvent& event) noexcept;
-            // bool OnKeyTypedEvent(KeyTypedEvent& event) noexcept;
 
             constexpr inline static ImGuiKey Creepy_Key_To_ImGui(int keyCode) noexcept
             {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <CreepyEngine/Core.hpp>
 #include "RenderCommand.hpp"
 #include "OrthographicCamera.hpp"
 #include "Shader.hpp"
@@ -20,7 +21,7 @@ namespace Creepy
 
             static void EndScene() noexcept;
 
-            static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f)) noexcept;
+            static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f)) noexcept;
 
         private:
             
@@ -29,7 +30,7 @@ namespace Creepy
 
             };
 
-            static std::unique_ptr<SceneData> m_sceneData;
+            static Scope<SceneData> m_sceneData;
 
     };
 

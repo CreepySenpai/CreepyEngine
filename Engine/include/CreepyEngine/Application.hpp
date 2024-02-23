@@ -41,7 +41,7 @@ namespace Creepy
         private:
             bool OnWindowClose(WindowCloseEvent& event) noexcept;
 
-            std::unique_ptr<Window> m_window;
+            Scope<Window> m_window;
             ImGuiLayer* m_imGuiLayer;
             LayerStack m_layerStack;
             float m_lastFrameTime;
@@ -53,5 +53,5 @@ namespace Creepy
             static Application* instance;   //singleton
     };
 
-    std::unique_ptr<Application> CreateApplication();
+    Scope<Application> CreateApplication();
 }

@@ -4,7 +4,7 @@
 #include "Log.hpp"
 #include "Core.hpp"
 
-extern std::unique_ptr<Creepy::Application> Creepy::CreateApplication();
+extern Creepy::Scope<Creepy::Application> Creepy::CreateApplication();
 
 
 int main(int argc, char** argv){

@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <CreepyEngine/Core.hpp>
 #include "RendererAPI.hpp"
 
 namespace Creepy
@@ -22,6 +23,6 @@ namespace Creepy
             }
 
         private:
-            static std::unique_ptr<RendererAPI> s_rendererAPI;
+            static Scope<RendererAPI> s_rendererAPI;
     };
 }

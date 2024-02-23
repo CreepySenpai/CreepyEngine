@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <glm/glm.hpp>
+#include <CreepyEngine/Core.hpp>
 #include "VertexArray.hpp"
 
 namespace Creepy
@@ -19,7 +20,7 @@ namespace Creepy
             virtual void SetClearColor(const glm::vec4& color) noexcept = 0;
             virtual void Clear() noexcept = 0;
 
-            virtual void DrawIndex(const std::shared_ptr<VertexArray>& vertexArray) noexcept = 0;
+            virtual void DrawIndex(const Ref<VertexArray>& vertexArray) noexcept = 0;
 
             constexpr inline static API GetAPI() noexcept {
                 return s_api;

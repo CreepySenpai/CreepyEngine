@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <CreepyEngine/Window.hpp>
 #include <CreepyEngine/Renderer/GraphicContext.hpp>
+#include <CreepyEngine/Core.hpp>
 
 namespace Creepy {
     class WindowsWindow : public Window {
@@ -35,7 +36,7 @@ namespace Creepy {
             constexpr void AttachEvent() noexcept;
             constexpr virtual void ShutDown() noexcept;
 
-            std::shared_ptr<GLFWwindow> m_window;
+            Ref<GLFWwindow> m_window;
 
             struct WindowData {
                 std::string Title{};
@@ -46,6 +47,6 @@ namespace Creepy {
 
             WindowData m_windowData;
 
-            std::shared_ptr<GraphicContext> m_context;
+            Ref<GraphicContext> m_context;
     };
 }

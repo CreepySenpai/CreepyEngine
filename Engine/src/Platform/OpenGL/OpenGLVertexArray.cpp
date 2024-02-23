@@ -48,7 +48,7 @@ namespace Creepy
         glBindVertexArray(0);
     }
 
-    void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer> &vertexBuffer) noexcept {
+    void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer> &vertexBuffer) noexcept {
         if(vertexBuffer->GetLayout().GetElements().size() == 0){
             ENGINE_LOG_ERROR("VertexBuffer Has No Layout!!!");
             return;
@@ -70,7 +70,7 @@ namespace Creepy
         m_vertexBuffers.emplace_back(vertexBuffer);
     }
 
-    void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer> &indexBuffer) noexcept {
+    void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer> &indexBuffer) noexcept {
         if(indexBuffer->GetCount() == 0){
             ENGINE_LOG_ERROR("IndexBuffer Has No Setup!!!");
             return;

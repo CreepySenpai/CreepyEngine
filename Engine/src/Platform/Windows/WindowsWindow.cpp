@@ -14,7 +14,7 @@ namespace Creepy {
         ENGINE_LOG_ERROR("GLFW ERROR ({} : {})", errorCode, description);
     }
 
-    std::unique_ptr<Window> Window::Create(const WindowProperty& windowProperty) {
+    Scope<Window> Window::Create(const WindowProperty& windowProperty) {
         return std::make_unique<WindowsWindow>(windowProperty);
     }
 

@@ -3,7 +3,7 @@
 namespace Creepy
 {
 
-    std::unique_ptr<Renderer::SceneData> Renderer::m_sceneData = std::make_unique<Renderer::SceneData>();
+    Scope<Renderer::SceneData> Renderer::m_sceneData = std::make_unique<Renderer::SceneData>();
 
     void Renderer::BeginScene(OrthographicCamera& camera) noexcept {
         m_sceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
@@ -14,7 +14,7 @@ namespace Creepy
 
     }
 
-    void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform) noexcept {
+    void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform) noexcept {
         shader->Bind();
 
         std::dynamic_pointer_cast<OpenGLShader>(shader)->SetUniformMat4("u_viewProjectionMatrix", m_sceneData->ViewProjectionMatrix);

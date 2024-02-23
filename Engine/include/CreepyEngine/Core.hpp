@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "Log.hpp"
 
 // Some Macro Here
@@ -30,5 +31,11 @@ namespace Creepy {
     static consteval inline size_t GetArraySize(T (&array)[Size]) {
         return Size;
     }
+
+    template <typename T>
+    using Ref = std::shared_ptr<T>;
+
+    template <typename T>
+    using Scope = std::unique_ptr<T>;
 
 }

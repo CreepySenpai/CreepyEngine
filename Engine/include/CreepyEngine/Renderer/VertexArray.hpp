@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <CreepyEngine/Core.hpp>
 #include "Buffer.hpp"
 
 namespace Creepy
@@ -14,13 +15,13 @@ namespace Creepy
 
             virtual void UnBind() const noexcept = 0;
 
-            virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) noexcept = 0;
+            virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) noexcept = 0;
 
-            virtual void SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) noexcept = 0;
+            virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) noexcept = 0;
 
-            virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const noexcept = 0;
+            virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const noexcept = 0;
 
-            virtual const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const noexcept = 0;
+            virtual const Ref<IndexBuffer>& GetIndexBuffer() const noexcept = 0;
 
             static VertexArray* Create() noexcept;
     };

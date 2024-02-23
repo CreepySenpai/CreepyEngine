@@ -15,22 +15,22 @@ namespace Creepy
 
             void UnBind() const noexcept override;
 
-            void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) noexcept override;
+            void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) noexcept override;
 
-            void SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) noexcept override;
+            void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) noexcept override;
 
-            inline const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const noexcept override {
+            inline const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const noexcept override {
                 return m_vertexBuffers;
             }
 
-            inline const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const noexcept override {
+            inline const Ref<IndexBuffer>& GetIndexBuffer() const noexcept override {
                 return m_indexBuffer;
             }
 
         private:
             uint32_t m_renderID;
-            std::vector<std::shared_ptr<VertexBuffer>> m_vertexBuffers;
-            std::shared_ptr<IndexBuffer> m_indexBuffer;
+            std::vector<Ref<VertexBuffer>> m_vertexBuffers;
+            Ref<IndexBuffer> m_indexBuffer;
     };
     
 }
