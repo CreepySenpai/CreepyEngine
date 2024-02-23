@@ -48,17 +48,17 @@ class GameLayer : public Creepy::Layer
 
             std::string fragmentSources {R"-(#version 460 core
             
+            uniform vec4 u_color;
             out vec4 color;
             
 
             void main(){
-                color = vec4(1.0, 0.1, 0.1, 1.0);
+                color = u_color;
             }
 
             )-"};
 
-            m_shader.reset(new Creepy::Shader(vertexSources, fragmentSources));
-
+            m_shader.reset(Creepy::Shader::Create(vertexSources, fragmentSources));
         }
 
         constexpr virtual void OnAttach() noexcept override {
@@ -99,7 +99,6 @@ class GameLayer : public Creepy::Layer
                 m_playerPosition.x += moveSpeed * timeStep.GetSeconds();
             }
 
-
             m_camera.SetPosition(m_cameraPosition);
 
             glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_playerPosition);
@@ -109,13 +108,20 @@ class GameLayer : public Creepy::Layer
             Creepy::RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
 
             Creepy::Renderer::BeginScene(m_camera);
+            
+            m_shader->Bind();
+
+            std::dynamic_pointer_cast<Creepy::OpenGLShader>(m_shader)->SetUniformFloat4("u_color", m_playerColor);
 
             Creepy::Renderer::Submit(m_shader, m_vertexArray, transform);
 
             Creepy::Renderer::EndScene();
         }
-        constexpr virtual void OnImGuiRender() noexcept override {
 
+        constexpr virtual void OnImGuiRender() noexcept override {
+            ImGui::Begin("Color Picker");
+            ImGui::ColorEdit4("My Color", glm::value_ptr(m_playerColor));
+            ImGui::End();
         }
 
         constexpr virtual void OnEvent(Creepy::Event &event) noexcept override {
@@ -141,6 +147,7 @@ class GameLayer : public Creepy::Layer
 
         glm::vec3 m_cameraPosition{0.0f, 0.0f, 0.0f};
         glm::vec3 m_playerPosition{0.0f, 0.0f, 0.0f};
+        glm::vec4 m_playerColor{1.0f, 0.0f, 0.0f, 1.0f};
 };
 
 class SandboxApplication : public Creepy::Application {
