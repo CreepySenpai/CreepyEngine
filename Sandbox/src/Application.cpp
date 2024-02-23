@@ -38,9 +38,10 @@ class GameLayer : public Creepy::Layer
             layout(location = 0) in vec3 a_position;
 
             uniform mat4 u_viewProjectionMatrix;
+            uniform mat4 u_transformMatrix;
 
             void main(){
-                gl_Position = u_viewProjectionMatrix * vec4(a_position, 1.0);
+                gl_Position = u_viewProjectionMatrix * u_transformMatrix * vec4(a_position, 1.0);
             }
             
             )-"};
@@ -85,7 +86,23 @@ class GameLayer : public Creepy::Layer
                 m_cameraPosition.y -= moveSpeed * timeStep.GetSeconds();
             }
 
+            if(Creepy::Input::IsKeyPressed(CREEPY_KEY_W)){
+                m_playerPosition.y += moveSpeed * timeStep.GetSeconds();
+            }
+            else if(Creepy::Input::IsKeyPressed(CREEPY_KEY_S)){
+                m_playerPosition.y -= moveSpeed * timeStep.GetSeconds();
+            }
+            else if(Creepy::Input::IsKeyPressed(CREEPY_KEY_A)){
+                m_playerPosition.x -= moveSpeed * timeStep.GetSeconds();
+            }
+            else if(Creepy::Input::IsKeyPressed(CREEPY_KEY_D)){
+                m_playerPosition.x += moveSpeed * timeStep.GetSeconds();
+            }
+
+
             m_camera.SetPosition(m_cameraPosition);
+
+            glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_playerPosition);
 
             Creepy::RenderCommand::Clear();
             
@@ -93,7 +110,7 @@ class GameLayer : public Creepy::Layer
 
             Creepy::Renderer::BeginScene(m_camera);
 
-            Creepy::Renderer::Submit(m_shader, m_vertexArray);
+            Creepy::Renderer::Submit(m_shader, m_vertexArray, transform);
 
             Creepy::Renderer::EndScene();
         }
@@ -123,6 +140,7 @@ class GameLayer : public Creepy::Layer
         Creepy::OrthographicCamera m_camera;
 
         glm::vec3 m_cameraPosition{0.0f, 0.0f, 0.0f};
+        glm::vec3 m_playerPosition{0.0f, 0.0f, 0.0f};
 };
 
 class SandboxApplication : public Creepy::Application {

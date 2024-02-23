@@ -14,9 +14,12 @@ namespace Creepy
 
     }
 
-    void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray) noexcept {
+    void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform) noexcept {
         shader->Bind();
         shader->SetUniformMat4("u_viewProjectionMatrix", m_sceneData->ViewProjectionMatrix);
+    
+        // Transform per obj
+        shader->SetUniformMat4("u_transformMatrix", transform);
         vertexArray->Bind();
         RenderCommand::DrawIndex(vertexArray);
     }
