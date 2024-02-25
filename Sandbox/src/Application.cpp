@@ -10,15 +10,17 @@ class GameLayer : public Creepy::Layer
             m_vertexArray.reset(Creepy::VertexArray::Create());
         
             float vertex[] {
-                -0.5f, -0.5f, 0.0f,
-                0.0f, 0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f,
+                -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+                0.5f, -0.5f, 0.0f,  1.0f, 0.0f,
+                0.5f, 0.5f, 0.0f,   1.0f, 1.0f,
+                -0.5f, 0.5f, 0.0f,  0.0f, 1.0f,
             };
 
             m_vertexBuffer.reset(Creepy::VertexBuffer::Create(vertex, sizeof(vertex)));
             
             Creepy::BufferLayout vertexBufferLayout{
-                {Creepy::ShaderDataType::Float3, "a_position"}
+                {Creepy::ShaderDataType::Float3, "a_position"},
+                {Creepy::ShaderDataType::Float2, "a_textureCoord"}
             };
 
             m_vertexBuffer->SetLayout(vertexBufferLayout);
@@ -26,21 +28,25 @@ class GameLayer : public Creepy::Layer
             m_vertexArray->AddVertexBuffer(m_vertexBuffer); // We need add buffer after it add layout, if not it will empty
 
             uint32_t index[] {
-                0, 1, 2,
+                0, 1, 2, 2, 3, 0
             };
 
-            m_indexBuffer.reset(Creepy::IndexBuffer::Create(index, 3));
+            m_indexBuffer.reset(Creepy::IndexBuffer::Create(index, sizeof(index)));
             
             m_vertexArray->SetIndexBuffer(m_indexBuffer);
 
             std::string vertexSources {R"-(#version 460 core
             
             layout(location = 0) in vec3 a_position;
-
+            layout(location = 1) in vec2 a_textureCoord;
+            
             uniform mat4 u_viewProjectionMatrix;
             uniform mat4 u_transformMatrix;
 
+            out vec2 textureCoord;
+
             void main(){
+                textureCoord = a_textureCoord;
                 gl_Position = u_viewProjectionMatrix * u_transformMatrix * vec4(a_position, 1.0);
             }
             
@@ -49,16 +55,24 @@ class GameLayer : public Creepy::Layer
             std::string fragmentSources {R"-(#version 460 core
             
             uniform vec4 u_color;
-            out vec4 color;
-            
+            uniform sampler2D u_texture;
 
+            out vec4 color;
+            in vec2 textureCoord;
+            
             void main(){
-                color = u_color;
+                vec4 c = u_color;
+                color = texture(u_texture, textureCoord);
             }
 
             )-"};
 
             m_shader.reset(Creepy::Shader::Create(vertexSources, fragmentSources));
+
+            m_texture = Creepy::Texture2D::Create("./assets/textures/SpecularMap.png");
+            m_texture->Bind(0);
+            
+            std::dynamic_pointer_cast<Creepy::OpenGLShader>(m_shader)->SetUniformInt1("u_texture", 0);
         }
 
         constexpr virtual void OnAttach() noexcept override {
@@ -113,6 +127,8 @@ class GameLayer : public Creepy::Layer
 
             std::dynamic_pointer_cast<Creepy::OpenGLShader>(m_shader)->SetUniformFloat4("u_color", m_playerColor);
 
+           
+
             Creepy::Renderer::Submit(m_shader, m_vertexArray, transform);
 
             Creepy::Renderer::EndScene();
@@ -142,6 +158,7 @@ class GameLayer : public Creepy::Layer
         Creepy::Ref<Creepy::VertexArray> m_vertexArray;
         Creepy::Ref<Creepy::VertexBuffer> m_vertexBuffer;
         Creepy::Ref<Creepy::IndexBuffer> m_indexBuffer;
+        Creepy::Ref<Creepy::Texture2D> m_texture;
 
         Creepy::OrthographicCamera m_camera;
 

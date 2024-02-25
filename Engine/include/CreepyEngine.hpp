@@ -34,6 +34,7 @@
 #include <CreepyEngine/Renderer/RenderCommand.hpp>
 #include <CreepyEngine/Renderer/Renderer.hpp>
 #include <CreepyEngine/Renderer/Shader.hpp>
+#include <CreepyEngine/Renderer/Texture.hpp>
 
 // Timer
 #include <CreepyEngine/Core/TimeStep.hpp>
