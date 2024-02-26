@@ -8,25 +8,25 @@ namespace Creepy {
     {
         switch (Renderer::GetRenderAPI())
         {
-        case RendererAPI::API::NONE:
-        {
-            ENGINE_LOG_ERROR("Not support");
-            return nullptr;
-        }
-        case RendererAPI::API::OPENGL:
-        {
-            return new OpenGLShader(vertexShaderSources, fragmentShaderSources);
-        }
-        case RendererAPI::API::VULKAN:
-        {
-            ENGINE_LOG_ERROR("Not support");
-            return nullptr;
-        }
-        case RendererAPI::API::DIRECTX:
-        {
-            ENGINE_LOG_ERROR("Not support");
-            return nullptr;
-        }
+            case RendererAPI::API::NONE:
+            {
+                ENGINE_LOG_ERROR("Not support");
+                return nullptr;
+            }
+            case RendererAPI::API::OPENGL:
+            {
+                return new OpenGLShader(vertexShaderSources, fragmentShaderSources);
+            }
+            case RendererAPI::API::VULKAN:
+            {
+                ENGINE_LOG_ERROR("Not support");
+                return nullptr;
+            }
+            case RendererAPI::API::DIRECTX:
+            {
+                ENGINE_LOG_ERROR("Not support");
+                return nullptr;
+            }
         }
 
         std::unreachable();
@@ -34,4 +34,32 @@ namespace Creepy {
         return nullptr;
     }
     
+    Shader* Create(const std::string& filePath) noexcept {
+        switch (Renderer::GetRenderAPI())
+        {
+            case RendererAPI::API::NONE:
+            {
+                ENGINE_LOG_ERROR("Not support");
+                return nullptr;
+            }
+            case RendererAPI::API::OPENGL:
+            {
+                return new OpenGLShader(filePath);
+            }
+            case RendererAPI::API::VULKAN:
+            {
+                ENGINE_LOG_ERROR("Not support");
+                return nullptr;
+            }
+            case RendererAPI::API::DIRECTX:
+            {
+                ENGINE_LOG_ERROR("Not support");
+                return nullptr;
+            }
+        }
+
+        std::unreachable();
+        ENGINE_LOG_ERROR("Unknow API");
+        return nullptr;
+    }
 }

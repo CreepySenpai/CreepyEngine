@@ -32,6 +32,8 @@ namespace Creepy {
         m_imGuiLayer = new ImGuiLayer();
         
         this->PushLayer(m_imGuiLayer);  // No memory leak because layerStack will free it
+
+        Renderer::Init();
     }
 
     void Application::Run() noexcept {

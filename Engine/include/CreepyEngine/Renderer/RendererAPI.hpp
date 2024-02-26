@@ -17,6 +17,9 @@ namespace Creepy
             };
 
         public:
+            
+            virtual void Init() noexcept = 0;
+
             virtual void SetClearColor(const glm::vec4& color) noexcept = 0;
             virtual void Clear() noexcept = 0;
 

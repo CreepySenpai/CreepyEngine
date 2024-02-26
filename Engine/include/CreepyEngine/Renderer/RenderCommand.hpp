@@ -9,6 +9,10 @@ namespace Creepy
     {
         public:
             // RenderCommand();
+
+            constexpr static inline void Init() noexcept {
+                s_rendererAPI->Init();
+            }
             
             constexpr static inline void DrawIndex(const std::shared_ptr<VertexArray>& vertexArray) noexcept {
                 s_rendererAPI->DrawIndex(vertexArray);

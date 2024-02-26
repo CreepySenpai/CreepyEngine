@@ -2,12 +2,14 @@
 
 #include <CreepyEngine/Renderer/Shader.hpp>
 #include <glm/glm.hpp>
+#include <unordered_map>
 
 namespace Creepy {
 
     class OpenGLShader : public Shader
     {
         public:
+            OpenGLShader(const std::string& filePath) noexcept;
             OpenGLShader(const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept;
             ~OpenGLShader() noexcept;
             void Bind() const noexcept override;
@@ -24,6 +26,12 @@ namespace Creepy {
             void SetUniformMat4(const std::string& name, const glm::mat4& matrix) noexcept;
         private:
             unsigned int m_rendererID;
+            
+            using GLenum = unsigned int;
+
+            std::string ReadFile(const std::string& filePath) noexcept;
+            std::unordered_map<GLenum, std::string> PreProcess(const std::string& sources) noexcept;
+            void Compile(const std::unordered_map<GLenum, std::string>& shaderSources) noexcept;
     };
 
 }

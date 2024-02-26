@@ -13,5 +13,7 @@ namespace Creepy
             virtual void UnBind() const noexcept = 0;
 
             static Shader* Create(const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept;
+
+            static Shader* Create(const std::string& filePath) noexcept;
     }; 
 }

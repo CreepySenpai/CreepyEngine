@@ -5,6 +5,10 @@ namespace Creepy
 
     Scope<Renderer::SceneData> Renderer::m_sceneData = std::make_unique<Renderer::SceneData>();
 
+    void Renderer::Init() noexcept {
+        RenderCommand::Init();
+    }
+
     void Renderer::BeginScene(OrthographicCamera& camera) noexcept {
         m_sceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 

@@ -16,6 +16,8 @@ namespace Creepy
             static constexpr inline RendererAPI::API GetRenderAPI() noexcept {
                 return RendererAPI::GetAPI();
             }
+
+            static void Init() noexcept;
             
             static void BeginScene(OrthographicCamera& camera) noexcept;
 

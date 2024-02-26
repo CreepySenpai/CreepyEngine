@@ -35,37 +35,34 @@ class GameLayer : public Creepy::Layer
             
             m_vertexArray->SetIndexBuffer(m_indexBuffer);
 
-            std::string vertexSources {R"-(#version 460 core
-            
-            layout(location = 0) in vec3 a_position;
-            layout(location = 1) in vec2 a_textureCoord;
-            
+            std::string vertexSources = R"(#version 460 core
+
+            layout(location=0)in vec3 a_position;
+            layout(location=1)in vec2 a_textureCoord;
+
             uniform mat4 u_viewProjectionMatrix;
             uniform mat4 u_transformMatrix;
 
             out vec2 textureCoord;
 
             void main(){
-                textureCoord = a_textureCoord;
-                gl_Position = u_viewProjectionMatrix * u_transformMatrix * vec4(a_position, 1.0);
+                textureCoord=a_textureCoord;
+                gl_Position=u_viewProjectionMatrix*u_transformMatrix*vec4(a_position,1.);
             }
-            
-            )-"};
+            )";
 
-            std::string fragmentSources {R"-(#version 460 core
-            
+            std::string fragmentSources = R"(#version 460 core
+
             uniform vec4 u_color;
             uniform sampler2D u_texture;
 
             out vec4 color;
             in vec2 textureCoord;
-            
-            void main(){
-                vec4 c = u_color;
-                color = texture(u_texture, textureCoord);
-            }
 
-            )-"};
+            void main(){
+                vec4 c=u_color;
+                color=texture(u_texture,textureCoord);
+            })";
 
             m_shader.reset(Creepy::Shader::Create(vertexSources, fragmentSources));
 
