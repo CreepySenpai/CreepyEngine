@@ -23,9 +23,20 @@ namespace Creepy {
         auto shaderSources = PreProcess(sources);
 
         Compile(shaderSources);
+
+        auto lastSlash = filePath.find_last_of("/\\");
+        
+        lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
+
+        auto lastDot = filePath.rfind('.');
+
+        auto count = lastDot == std::string::npos ? filePath.size() - lastSlash : lastDot - lastSlash;
+        
+        m_name = filePath.substr(lastSlash, count);
+
     }
 
-    OpenGLShader::OpenGLShader(const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept {
+    OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept : m_name{name} {
         std::unordered_map<GLenum, std::string> shaderSources;
         shaderSources[GL_VERTEX_SHADER] = vertexShaderSources;
         shaderSources[GL_FRAGMENT_SHADER] = fragmentShaderSources;
@@ -46,63 +57,113 @@ namespace Creepy {
     }
 
     void OpenGLShader::SetUniformInt1(const std::string& name, int value) noexcept {
-        auto loc = glGetUniformLocation(m_rendererID, name.c_str());
-        if(loc < 0){
-            ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+        if(m_locationCache.contains(name)){
+            glUniform1i(m_locationCache.at(name), value);
+        } else {
+            auto loc = glGetUniformLocation(m_rendererID, name.c_str());
+            if(loc < 0){
+                ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+                return;
+            }
+            glUniform1i(loc, value);
+            m_locationCache[name] = loc;
         }
-        glUniform1i(loc, value);
+        
     }
 
     void OpenGLShader::SetUniformFloat1(const std::string &name, float value) noexcept {
-        auto loc = glGetUniformLocation(m_rendererID, name.c_str());
-        if(loc < 0){
-            ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+        if(m_locationCache.contains(name)){
+            glUniform1f(m_locationCache.at(name), value);
         }
-        glUniform1f(loc, value);
+        else {
+            auto loc = glGetUniformLocation(m_rendererID, name.c_str());
+            if(loc < 0){
+                ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+                return;
+            }
+            glUniform1f(loc, value);
+            m_locationCache[name] = loc;
+        }
     }
     void OpenGLShader::SetUniformFloat2(const std::string &name, const glm::vec2 &vec) noexcept {
-        auto loc = glGetUniformLocation(m_rendererID, name.c_str());
-        if(loc < 0){
-            ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+        if(m_locationCache.contains(name)){
+            glUniform2fv(m_locationCache.at(name), 1, glm::value_ptr(vec));
         }
-        
-        glUniform2fv(loc, 1, glm::value_ptr(vec));
+        else {
+            auto loc = glGetUniformLocation(m_rendererID, name.c_str());
+            if(loc < 0){
+                ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+                return;
+            }
+            glUniform2fv(loc, 1, glm::value_ptr(vec));
+            m_locationCache[name] = loc;
+        }
     }
     void OpenGLShader::SetUniformFloat3(const std::string &name, const glm::vec3 &vec) noexcept {
-        auto loc = glGetUniformLocation(m_rendererID, name.c_str());
-        if(loc < 0){
-            ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+
+        if(m_locationCache.contains(name)){
+            glUniform3fv(m_locationCache.at(name), 1, glm::value_ptr(vec));
         }
-        glUniform3fv(loc, 1, glm::value_ptr(vec));
+        else {
+            auto loc = glGetUniformLocation(m_rendererID, name.c_str());
+            if(loc < 0){
+                ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+                return;
+            }
+            glUniform3fv(loc, 1, glm::value_ptr(vec));
+            m_locationCache[name] = loc;
+        }
+
     }
 
     void OpenGLShader::SetUniformFloat4(const std::string& name, const glm::vec4& vec) noexcept {
 
-        auto loc = glGetUniformLocation(m_rendererID, name.c_str());
-        if(loc < 0){
-            ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+        if(m_locationCache.contains(name)){
+            glUniform4fv(m_locationCache.at(name), 1, glm::value_ptr(vec));
+        }
+        else {
+            auto loc = glGetUniformLocation(m_rendererID, name.c_str());
+            if(loc < 0){
+                ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+                return;
+            }
+            glUniform4fv(loc, 1, glm::value_ptr(vec));
+            m_locationCache[name] = loc;
         }
 
-        glUniform4fv(loc, 1, glm::value_ptr(vec));
-        
     }
 
     void OpenGLShader::SetUniformMat3(const std::string& name, const glm::mat3& matrix) noexcept {
-        auto loc = glGetUniformLocation(m_rendererID, name.c_str());
-        if(loc < 0){
-            ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+
+        if(m_locationCache.contains(name)){
+            glUniformMatrix3fv(m_locationCache.at(name), 1, GL_FALSE, glm::value_ptr(matrix));
+        }
+        else {
+            auto loc = glGetUniformLocation(m_rendererID, name.c_str());
+            if(loc < 0){
+                ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+                return;
+            }
+            glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(matrix));
+            m_locationCache[name] = loc;
         }
 
-        glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
     void OpenGLShader::SetUniformMat4(const std::string& name, const glm::mat4& matrix) noexcept {
 
-        auto loc = glGetUniformLocation(m_rendererID, name.c_str());
-        if(loc < 0){
-            ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+        if(m_locationCache.contains(name)){
+            glUniformMatrix4fv(m_locationCache.at(name), 1, GL_FALSE, glm::value_ptr(matrix));
         }
-        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(matrix));
+        else {
+            auto loc = glGetUniformLocation(m_rendererID, name.c_str());
+            if(loc < 0){
+                ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+                return;
+            }
+            glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(matrix));
+            m_locationCache[name] = loc;
+        }
 
     }
 
@@ -148,11 +209,10 @@ namespace Creepy {
     void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources) noexcept {
         m_rendererID = glCreateProgram();
 
-        std::vector<GLenum> shaderIDs(shaderSources.size());
+        std::vector<GLenum> shaderIDs;
+        shaderIDs.reserve(shaderSources.size());
 
-        for(auto& shaderSource : shaderSources) {
-            GLenum shaderType = shaderSource.first;
-            auto& sources = shaderSource.second;
+        for(auto& [shaderType, sources] : shaderSources) {
 
             GLuint shader = glCreateShader(shaderType);
 
@@ -179,7 +239,7 @@ namespace Creepy {
             }
 
             glAttachShader(m_rendererID, shader);
-            shaderIDs.push_back(shader);
+            shaderIDs.emplace_back(shader);
         }
 
         glLinkProgram(m_rendererID);

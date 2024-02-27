@@ -10,10 +10,14 @@ namespace Creepy {
     {
         public:
             OpenGLShader(const std::string& filePath) noexcept;
-            OpenGLShader(const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept;
+            OpenGLShader(const std::string& name, const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept;
             ~OpenGLShader() noexcept;
             void Bind() const noexcept override;
             void UnBind() const noexcept override;
+
+            inline const std::string& GetName() const noexcept override {
+                return m_name;
+            }
             
             void SetUniformInt1(const std::string& name, int value) noexcept;
             
@@ -26,8 +30,13 @@ namespace Creepy {
             void SetUniformMat4(const std::string& name, const glm::mat4& matrix) noexcept;
         private:
             unsigned int m_rendererID;
-            
+            std::string m_name;
+
             using GLenum = unsigned int;
+            using GLint = int;
+
+            std::unordered_map<std::string, GLint> m_locationCache;
+            
 
             std::string ReadFile(const std::string& filePath) noexcept;
             std::unordered_map<GLenum, std::string> PreProcess(const std::string& sources) noexcept;

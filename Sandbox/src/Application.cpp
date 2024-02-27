@@ -60,16 +60,18 @@ class GameLayer : public Creepy::Layer
             in vec2 textureCoord;
 
             void main(){
-                vec4 c=u_color;
-                color=texture(u_texture,textureCoord);
+                vec4 c = u_color;
+                color = u_color * texture(u_texture,textureCoord);
             })";
 
-            m_shader.reset(Creepy::Shader::Create(vertexSources, fragmentSources));
+            m_shader = Creepy::Shader::Create("myShader",vertexSources, fragmentSources);
 
             m_texture = Creepy::Texture2D::Create("./assets/textures/SpecularMap.png");
             m_texture->Bind(0);
             
             std::dynamic_pointer_cast<Creepy::OpenGLShader>(m_shader)->SetUniformInt1("u_texture", 0);
+
+            m_shaderLibrary.Add(m_shader);
         }
 
         constexpr virtual void OnAttach() noexcept override {
@@ -162,6 +164,8 @@ class GameLayer : public Creepy::Layer
         glm::vec3 m_cameraPosition{0.0f, 0.0f, 0.0f};
         glm::vec3 m_playerPosition{0.0f, 0.0f, 0.0f};
         glm::vec4 m_playerColor{1.0f, 0.0f, 0.0f, 1.0f};
+
+        Creepy::ShaderLibrary m_shaderLibrary;
 };
 
 class SandboxApplication : public Creepy::Application {

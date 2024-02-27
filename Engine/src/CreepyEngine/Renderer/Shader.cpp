@@ -4,7 +4,7 @@
 
 namespace Creepy {
     
-    Shader* Shader::Create(const std::string &vertexShaderSources, const std::string &fragmentShaderSources) noexcept
+    Ref<Shader> Shader::Create(const std::string& name, const std::string &vertexShaderSources, const std::string &fragmentShaderSources) noexcept
     {
         switch (Renderer::GetRenderAPI())
         {
@@ -15,7 +15,7 @@ namespace Creepy {
             }
             case RendererAPI::API::OPENGL:
             {
-                return new OpenGLShader(vertexShaderSources, fragmentShaderSources);
+                return std::make_shared<OpenGLShader>(name, vertexShaderSources, fragmentShaderSources);
             }
             case RendererAPI::API::VULKAN:
             {
@@ -34,7 +34,7 @@ namespace Creepy {
         return nullptr;
     }
     
-    Shader* Create(const std::string& filePath) noexcept {
+    Ref<Shader> Shader::Create(const std::string& filePath) noexcept {
         switch (Renderer::GetRenderAPI())
         {
             case RendererAPI::API::NONE:
@@ -44,7 +44,7 @@ namespace Creepy {
             }
             case RendererAPI::API::OPENGL:
             {
-                return new OpenGLShader(filePath);
+                return std::make_shared<OpenGLShader>(filePath);
             }
             case RendererAPI::API::VULKAN:
             {
@@ -61,5 +61,43 @@ namespace Creepy {
         std::unreachable();
         ENGINE_LOG_ERROR("Unknow API");
         return nullptr;
+    }
+
+    void ShaderLibrary::Add(Ref<Shader> &shader) noexcept {
+        auto& shaderName = shader->GetName();
+        
+        if(m_shaders.contains(shaderName)){
+            ENGINE_LOG_ERROR("Shader {} already exist!!!", shaderName);
+        }
+
+        m_shaders[shaderName] = shader;
+
+    }
+
+    void ShaderLibrary::Add(const std::string& name, Ref<Shader>& shader) noexcept {
+        if(m_shaders.contains(name)){
+            ENGINE_LOG_ERROR("Shader {} already exist!!!", name);
+        }
+
+        m_shaders[name] = shader;
+    }
+
+    Ref<Shader> ShaderLibrary::Load(const std::string &filePath) noexcept {
+        auto shader = Shader::Create(filePath);
+        Add(shader);
+        return shader;
+    }
+
+    Ref<Shader> ShaderLibrary::Load(const std::string &name, const std::string &filePath) noexcept {
+        auto shader = Shader::Create(filePath);
+        Add(name, shader);
+        return shader;
+    }
+
+    Ref<Shader> ShaderLibrary::Get(const std::string &name) const noexcept {
+        if(!m_shaders.contains(name)){
+            ENGINE_LOG_ERROR("Shader {} not exist!!!", name);
+        }
+        return m_shaders.at(name);
     }
 }
