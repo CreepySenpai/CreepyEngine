@@ -9,6 +9,13 @@ namespace Creepy {
         m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
         
     }
+
+    void OrthographicCamera::SetProjection(float left, float right, float bottom, float top) noexcept {
+        m_projectionMatrix = glm::ortho(left, right, bottom, top);
+        m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
+
+        calculateViewMatrix();
+    }
     
     void OrthographicCamera::calculateViewMatrix() noexcept {
 

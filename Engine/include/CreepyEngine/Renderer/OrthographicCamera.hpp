@@ -41,6 +41,8 @@ namespace Creepy {
                 return m_viewProjectionMatrix;
             }
 
+            void SetProjection(float left, float right, float bottom, float top) noexcept;
+
         private:
             // After we change value of position and rotation we need to recalculate view matrix
             void calculateViewMatrix() noexcept;

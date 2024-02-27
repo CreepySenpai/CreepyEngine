@@ -5,7 +5,7 @@ class GameLayer : public Creepy::Layer
 {
     public:
 
-        GameLayer() noexcept : Creepy::Layer{"Game Layer"}, m_camera{-1.0f, 1.0f, -1.0f, 1.0f} {
+        GameLayer() noexcept : Creepy::Layer{"Game Layer"}, m_cameraController{1280.0f / 720.0f}{
             
             m_vertexArray.reset(Creepy::VertexArray::Create());
         
@@ -72,6 +72,8 @@ class GameLayer : public Creepy::Layer
             std::dynamic_pointer_cast<Creepy::OpenGLShader>(m_shader)->SetUniformInt1("u_texture", 0);
 
             m_shaderLibrary.Add(m_shader);
+
+            
         }
 
         constexpr virtual void OnAttach() noexcept override {
@@ -84,20 +86,9 @@ class GameLayer : public Creepy::Layer
         constexpr virtual void OnUpdate(const Creepy::TimeStep& timeStep) noexcept override {
             float moveSpeed{0.1f};
 
-            APP_LOG_INFO("Delta Time: {}, {}", timeStep.GetSeconds(), timeStep.GetMilliseconds());
+            // APP_LOG_INFO("Delta Time: {}, {}", timeStep.GetSeconds(), timeStep.GetMilliseconds());
 
-            if(Creepy::Input::IsKeyPressed(CREEPY_KEY_RIGHT)){
-                m_cameraPosition.x += moveSpeed * timeStep.GetSeconds();
-            }
-            else if(Creepy::Input::IsKeyPressed(CREEPY_KEY_LEFT)){
-                m_cameraPosition.x -= moveSpeed * timeStep.GetSeconds();
-            }
-            else if(Creepy::Input::IsKeyPressed(CREEPY_KEY_UP)){
-                m_cameraPosition.y += moveSpeed * timeStep.GetSeconds();
-            }
-            else if(Creepy::Input::IsKeyPressed(CREEPY_KEY_DOWN)){
-                m_cameraPosition.y -= moveSpeed * timeStep.GetSeconds();
-            }
+            m_cameraController.OnUpdate(timeStep);
 
             if(Creepy::Input::IsKeyPressed(CREEPY_KEY_W)){
                 m_playerPosition.y += moveSpeed * timeStep.GetSeconds();
@@ -112,7 +103,7 @@ class GameLayer : public Creepy::Layer
                 m_playerPosition.x += moveSpeed * timeStep.GetSeconds();
             }
 
-            m_camera.SetPosition(m_cameraPosition);
+            
 
             glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_playerPosition);
 
@@ -120,7 +111,7 @@ class GameLayer : public Creepy::Layer
             
             Creepy::RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
 
-            Creepy::Renderer::BeginScene(m_camera);
+            Creepy::Renderer::BeginScene(m_cameraController.GetCamera());
             
             m_shader->Bind();
 
@@ -145,6 +136,7 @@ class GameLayer : public Creepy::Layer
 
             dispatcher.Dispatch<Creepy::KeyPressedEvent>(std::bind_front(GameLayer::OnKeyPressed, this));
 
+            m_cameraController.OnEvent(event);
         }
 
         constexpr bool OnKeyPressed(Creepy::KeyPressedEvent& event) noexcept {
@@ -159,9 +151,9 @@ class GameLayer : public Creepy::Layer
         Creepy::Ref<Creepy::IndexBuffer> m_indexBuffer;
         Creepy::Ref<Creepy::Texture2D> m_texture;
 
-        Creepy::OrthographicCamera m_camera;
+        Creepy::OrthographicCameraController m_cameraController;
 
-        glm::vec3 m_cameraPosition{0.0f, 0.0f, 0.0f};
+        
         glm::vec3 m_playerPosition{0.0f, 0.0f, 0.0f};
         glm::vec4 m_playerColor{1.0f, 0.0f, 0.0f, 1.0f};
 
