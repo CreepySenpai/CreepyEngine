@@ -1,4 +1,4 @@
-#include <CreepyEngine/Core.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 #include <CreepyEngine/Renderer/Buffer.hpp>
 #include <CreepyEngine/Renderer/Renderer.hpp>
 #include <Platform/OpenGL/OpenGLBuffer.hpp>

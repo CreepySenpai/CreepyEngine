@@ -1,5 +1,5 @@
 #include <Platform/OpenGL/OpenGLContext.hpp>
-#include <CreepyEngine/Core.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 #include <glad/glad.h>
 
 namespace Creepy {

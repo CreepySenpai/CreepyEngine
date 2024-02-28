@@ -5,19 +5,19 @@
 #pragma once
 
 // Core
-#include <CreepyEngine/Application.hpp>
+#include <CreepyEngine/Core/Application.hpp>
 
-#include <CreepyEngine/EntryPoint.hpp>
+#include <CreepyEngine/Core/EntryPoint.hpp>
 
-#include <CreepyEngine/Log.hpp>
+#include <CreepyEngine/Core/Log.hpp>
 
-#include <CreepyEngine/Core.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 
-#include <CreepyEngine/Input.hpp>
+#include <CreepyEngine/Core/Input.hpp>
 
-#include <CreepyEngine/KeyCode.hpp>
+#include <CreepyEngine/Core/KeyCode.hpp>
 
-#include <CreepyEngine/MouseButtonCode.hpp>
+#include <CreepyEngine/Core/MouseButtonCode.hpp>
 
 // Layer
 #include <CreepyEngine/Debug/ImGuiLayer.hpp>

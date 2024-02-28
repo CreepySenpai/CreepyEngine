@@ -1,6 +1,6 @@
-#include <CreepyEngine/Application.hpp>
-#include <CreepyEngine/Input.hpp>
-#include <CreepyEngine/MouseButtonCode.hpp>
+#include <CreepyEngine/Core/Application.hpp>
+#include <CreepyEngine/Core/Input.hpp>
+#include <CreepyEngine/Core/MouseButtonCode.hpp>
 #include <vector>
 #include <ranges>
 #include <iostream>
@@ -108,6 +108,8 @@ namespace Creepy {
         }
 
         m_minimized = false;
+
+        Renderer::WindowResize(event.GetWindowWidth(), event.GetWindowHeight());
 
         return false;
     }

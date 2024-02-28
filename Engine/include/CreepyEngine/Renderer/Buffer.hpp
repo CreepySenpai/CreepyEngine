@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
-#include <CreepyEngine/Core.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 
 namespace Creepy {
 

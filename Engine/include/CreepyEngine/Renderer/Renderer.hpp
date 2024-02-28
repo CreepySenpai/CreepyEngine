@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <CreepyEngine/Core.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 #include "RenderCommand.hpp"
 #include "OrthographicCamera.hpp"
 #include "Shader.hpp"

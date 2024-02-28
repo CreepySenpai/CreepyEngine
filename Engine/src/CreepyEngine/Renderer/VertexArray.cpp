@@ -1,6 +1,5 @@
 #include <CreepyEngine/Renderer/VertexArray.hpp>
 #include <CreepyEngine/Renderer/Renderer.hpp>
-// #include <CreepyEngine/Renderer/RendererAPI.hpp>
 #include <Platform/OpenGL/OpenGLVertexArray.hpp>
 
 namespace Creepy {

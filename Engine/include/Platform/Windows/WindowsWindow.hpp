@@ -3,9 +3,9 @@
 #define GLFW_DLL
 #include <memory>
 #include <GLFW/glfw3.h>
-#include <CreepyEngine/Window.hpp>
+#include <CreepyEngine/Core/Window.hpp>
 #include <CreepyEngine/Renderer/GraphicContext.hpp>
-#include <CreepyEngine/Core.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 
 namespace Creepy {
     class WindowsWindow : public Window {

@@ -2,14 +2,14 @@
 
 #include <memory>
 #include "Window.hpp"
-#include "Events/ApplicationEvent.hpp"
 #include "LayerStack.hpp"
-#include "Debug/ImGuiLayer.hpp"
-#include "Renderer/Shader.hpp"
-#include "Renderer/VertexArray.hpp"
-#include "Renderer/Buffer.hpp"
-#include "Renderer/OrthographicCamera.hpp"
-#include "Core/TimeStep.hpp"
+#include <CreepyEngine/Events/ApplicationEvent.hpp>
+#include <CreepyEngine/Debug/ImGuiLayer.hpp>
+#include <CreepyEngine/Renderer/Shader.hpp>
+#include <CreepyEngine/Renderer/VertexArray.hpp>
+#include <CreepyEngine/Renderer/Buffer.hpp>
+#include <CreepyEngine/Renderer/OrthographicCamera.hpp>
+#include "TimeStep.hpp"
 
 namespace Creepy
 {

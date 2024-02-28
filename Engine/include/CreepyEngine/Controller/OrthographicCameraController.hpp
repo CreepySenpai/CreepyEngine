@@ -24,6 +24,14 @@ namespace Creepy
                 return m_camera;
             }
 
+            constexpr inline void SetZoomLevel(float zoomLevel) noexcept {
+                m_zoomLevel = zoomLevel;
+            }
+
+            constexpr inline float GetZoomLevel() const {
+                return m_zoomLevel;
+            }
+
         private:
             bool OnMouseScrolled(MouseScrolledEvent& event) noexcept;
             bool OnWindowResized(WindowResizeEvent& event) noexcept;

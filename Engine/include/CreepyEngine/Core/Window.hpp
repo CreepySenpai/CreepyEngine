@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 #include <functional>
-#include "Events/Event.hpp"
+#include <CreepyEngine/Events/Event.hpp>
 #include "Core.hpp"
 
 namespace Creepy {

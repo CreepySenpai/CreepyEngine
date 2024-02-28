@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Events/Event.hpp"
-#include "Core/TimeStep.hpp"
+#include <CreepyEngine/Events/Event.hpp>
+#include "TimeStep.hpp"
 
 namespace Creepy {
     class Layer

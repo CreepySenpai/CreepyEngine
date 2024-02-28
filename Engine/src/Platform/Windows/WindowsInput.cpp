@@ -1,4 +1,4 @@
-#include <CreepyEngine/Application.hpp>
+#include <CreepyEngine/Core/Application.hpp>
 #include <Platform/Windows/WindowsInput.hpp>
 #include <GLFW/glfw3.h>
 

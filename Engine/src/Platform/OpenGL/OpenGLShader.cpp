@@ -1,6 +1,6 @@
 #include <fstream>
 #include <Platform/OpenGL/OpenGLShader.hpp>
-#include <CreepyEngine/Core.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 #include <CreepyEngine/Renderer/Renderer.hpp>
 #include <glad/glad.h>
 

@@ -1,4 +1,4 @@
-#include <CreepyEngine/Input.hpp>
+#include <CreepyEngine/Core/Input.hpp>
 
 namespace Creepy
 {

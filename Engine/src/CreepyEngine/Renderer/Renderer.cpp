@@ -27,4 +27,8 @@ namespace Creepy
         vertexArray->Bind();
         RenderCommand::DrawIndex(vertexArray);
     }
+
+    void Renderer::WindowResize(uint32_t width, uint32_t height) noexcept {
+        RenderCommand::SetViewPort(0, 0, width, height);
+    }
 }

@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 project(CreepyEngine VERSION 0.1.0 LANGUAGES C CXX)
 
-file(GLOB COREENGINE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/*.cpp)
+file(GLOB COREENGINE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Core/*.cpp)
 file(GLOB EVENTENGINE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Events/*.cpp)
 file(GLOB RENDERERENGINE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Renderer/*.cpp)
 file(GLOB PLATFORMWINDOWS ${CMAKE_SOURCE_DIR}/src/Platform/Windows/*.cpp)

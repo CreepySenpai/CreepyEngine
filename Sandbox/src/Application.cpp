@@ -137,6 +137,14 @@ class GameLayer : public Creepy::Layer
             dispatcher.Dispatch<Creepy::KeyPressedEvent>(std::bind_front(GameLayer::OnKeyPressed, this));
 
             m_cameraController.OnEvent(event);
+
+            // if(event.GetEventType() == Creepy::EventType::WINDOW_RESIZE){
+            //     auto& resize = static_cast<Creepy::WindowResizeEvent&>(event);
+
+            //     float zoom = static_cast<float>(resize.GetWindowWidth()) / static_cast<float>(resize.GetWindowHeight());
+
+            //     m_cameraController.SetZoomLevel(zoom);
+            // }
         }
 
         constexpr bool OnKeyPressed(Creepy::KeyPressedEvent& event) noexcept {

@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <CreepyEngine/Core.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 #include "RendererAPI.hpp"
 
 namespace Creepy
@@ -24,6 +24,10 @@ namespace Creepy
 
             constexpr static inline void Clear() noexcept {
                 s_rendererAPI->Clear();
+            }
+
+            constexpr static inline void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept {
+                s_rendererAPI->SetViewPort(x, y, width, height);
             }
 
         private:

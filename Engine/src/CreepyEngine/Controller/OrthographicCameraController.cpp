@@ -1,6 +1,6 @@
 #include <CreepyEngine/Controller/OrthographicCameraController.hpp>
-#include <CreepyEngine/Input.hpp>
-#include <CreepyEngine/KeyCode.hpp>
+#include <CreepyEngine/Core/Input.hpp>
+#include <CreepyEngine/Core/KeyCode.hpp>
 
 namespace Creepy {
 

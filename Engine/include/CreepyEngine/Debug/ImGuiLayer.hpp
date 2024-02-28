@@ -1,7 +1,7 @@
 #pragma once
 
-#include <CreepyEngine/Layer.hpp>
-#include <CreepyEngine/KeyCode.hpp>
+#include <CreepyEngine/Core/Layer.hpp>
+#include <CreepyEngine/Core/KeyCode.hpp>
 #include <CreepyEngine/Events/MouseEvent.hpp>
 #include <CreepyEngine/Events/ApplicationEvent.hpp>
 #include <CreepyEngine/Events/KeyEvent.hpp>

@@ -2,7 +2,7 @@
 #include <CreepyEngine/Events/ApplicationEvent.hpp>
 #include <CreepyEngine/Events/KeyEvent.hpp>
 #include <CreepyEngine/Events/MouseEvent.hpp>
-#include <CreepyEngine/Log.hpp>
+#include <CreepyEngine/Core/Log.hpp>
 #include <Platform/OpenGL/OpenGLContext.hpp>
 
 

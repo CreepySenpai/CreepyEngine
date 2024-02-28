@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <CreepyEngine/Core.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 #include "Buffer.hpp"
 
 namespace Creepy
