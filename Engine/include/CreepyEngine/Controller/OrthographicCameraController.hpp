@@ -35,7 +35,7 @@ namespace Creepy
             glm::vec3 m_cameraPosition{0.0f, 0.0f, 0.0f};
             float m_cameraRotation{0.0f};
             float m_cameraMoveSpeed{1.0f};
-            float m_cameraRotateSpeed{1.0f};
+            float m_cameraRotateSpeed{10.0f};
             bool m_rotation;
 
     };

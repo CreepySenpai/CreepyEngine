@@ -4,8 +4,8 @@
 class GameLayer : public Creepy::Layer
 {
     public:
-
-        GameLayer() noexcept : Creepy::Layer{"Game Layer"}, m_cameraController{1280.0f / 720.0f}{
+        
+        GameLayer() noexcept : Creepy::Layer{"Game Layer"}, m_cameraController{600.0f / 600.0f, true}{
             
             m_vertexArray.reset(Creepy::VertexArray::Create());
         

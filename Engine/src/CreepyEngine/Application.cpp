@@ -48,9 +48,15 @@ namespace Creepy {
             // Save current time
             m_lastFrameTime = time;
 
-            for(auto&& layer : m_layerStack){
-                layer->OnUpdate(timeStep);
+            // Save CPU render when we minimize window
+            if(!m_minimized) {
+
+                for(auto&& layer : m_layerStack){
+                    layer->OnUpdate(timeStep);
+                }
+                
             }
+            
 
             // Render All Data For ImGui Layer
             m_imGuiLayer->Begin();
@@ -73,6 +79,7 @@ namespace Creepy {
         // We check all event, if event type == event have assign then we call it
         dispatcher.Dispatch<WindowCloseEvent>(std::bind_front(Application::OnWindowClose, this));
 
+        dispatcher.Dispatch<WindowResizeEvent>(std::bind_front(Application::OnWindowResize, this));
         
         // ENGINE_LOG_INFO("CALL EVENT {}", event.ToString());
 
@@ -92,6 +99,17 @@ namespace Creepy {
         m_isRunning = false;
 
         return true;    // handled
+    }
+
+    bool Application::OnWindowResize(WindowResizeEvent& event) noexcept {
+        if(event.GetWindowWidth() == 0 || event.GetWindowHeight() == 0) {
+            m_minimized = true;
+            return false;
+        }
+
+        m_minimized = false;
+
+        return false;
     }
 
     void Application::PushLayer(Layer* layer) noexcept {

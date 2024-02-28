@@ -25,6 +25,7 @@ namespace Creepy
 
             static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f)) noexcept;
 
+            static void WindowResize(uint32_t width, uint32_t height) noexcept;
         private:
             
             struct SceneData {

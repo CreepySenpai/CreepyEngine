@@ -40,13 +40,15 @@ namespace Creepy
 
         private:
             bool OnWindowClose(WindowCloseEvent& event) noexcept;
+            bool OnWindowResize(WindowResizeEvent& event) noexcept;
 
             Scope<Window> m_window;
             ImGuiLayer* m_imGuiLayer;
             LayerStack m_layerStack;
             float m_lastFrameTime;
             bool m_isRunning{true};
-            
+            bool m_minimized{false};
+
         private:
 
             // No memory leak because point to this obj
