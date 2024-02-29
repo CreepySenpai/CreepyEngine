@@ -1,6 +1,7 @@
 #pragma once
 
 #include "OrthographicCamera.hpp"
+#include "Texture.hpp"
 
 namespace Creepy {
 
@@ -15,6 +16,9 @@ namespace Creepy {
 
             static void DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) noexcept;
             static void DrawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color) noexcept;
+
+            static void DrawRect(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture) noexcept;
+            static void DrawRect(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture) noexcept;
     };
     
 }
