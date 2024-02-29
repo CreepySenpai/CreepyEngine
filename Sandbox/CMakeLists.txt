@@ -8,6 +8,10 @@ project(CreepySandbox VERSION 0.1.0 LANGUAGES C CXX)
 
 add_executable(${PROJECT_NAME} src/Application.cpp)
 
+file(GLOB COREAPP ${CMAKE_SOURCE_DIR}/src/Core/*.cpp)
+
+target_sources(${PROJECT_NAME} PUBLIC ${COREAPP})
+
 target_include_directories(${PROJECT_NAME} PUBLIC 
     ${CMAKE_SOURCE_DIR}/include
     ${CREEPYENGINE}/include

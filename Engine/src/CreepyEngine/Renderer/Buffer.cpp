@@ -5,7 +5,7 @@
 
 namespace Creepy
 {
-    VertexBuffer* VertexBuffer::Create(float* vertex, uint32_t size) {
+    Ref<VertexBuffer> VertexBuffer::Create(float* vertex, uint32_t size) {
 
         switch (Renderer::GetRenderAPI())
         {
@@ -14,7 +14,7 @@ namespace Creepy
                 return nullptr;
             }
             case RendererAPI::API::OPENGL: {
-                return new OpenGLVertexBuffer(vertex, size);
+                return std::make_shared<OpenGLVertexBuffer>(vertex, size);
             }
             case RendererAPI::API::VULKAN : {
                 ENGINE_LOG_ERROR("Not support vulkan!");
@@ -30,7 +30,7 @@ namespace Creepy
         return nullptr;
     }
 
-    IndexBuffer* IndexBuffer::Create(uint32_t* index, uint32_t count) {
+    Ref<IndexBuffer> IndexBuffer::Create(uint32_t* index, uint32_t count) {
 
         switch (Renderer::GetRenderAPI())
         {
@@ -39,7 +39,7 @@ namespace Creepy
                 return nullptr;
             }
             case RendererAPI::API::OPENGL: {
-                return new OpenGLIndexBuffer(index, count);
+                return std::make_shared<OpenGLIndexBuffer>(index, count);
             }
             case RendererAPI::API::VULKAN : {
                 ENGINE_LOG_ERROR("Not support vulkan!");

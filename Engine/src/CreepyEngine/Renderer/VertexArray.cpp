@@ -4,7 +4,7 @@
 
 namespace Creepy {
 
-    VertexArray* VertexArray::Create() noexcept {
+    Ref<VertexArray> VertexArray::Create() noexcept {
 
         switch (Renderer::GetRenderAPI())
         {
@@ -13,7 +13,7 @@ namespace Creepy {
                 return nullptr;
             }
             case RendererAPI::API::OPENGL: {
-                return new OpenGLVertexArray();
+                return std::make_shared<OpenGLVertexArray>();
             }
             case RendererAPI::API::VULKAN : {
                 ENGINE_LOG_ERROR("Not support vulkan!");

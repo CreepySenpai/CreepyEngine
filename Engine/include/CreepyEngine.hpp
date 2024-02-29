@@ -6,17 +6,10 @@
 
 // Core
 #include <CreepyEngine/Core/Application.hpp>
-
-#include <CreepyEngine/Core/EntryPoint.hpp>
-
 #include <CreepyEngine/Core/Log.hpp>
-
 #include <CreepyEngine/Core/Core.hpp>
-
 #include <CreepyEngine/Core/Input.hpp>
-
 #include <CreepyEngine/Core/KeyCode.hpp>
-
 #include <CreepyEngine/Core/MouseButtonCode.hpp>
 
 // Layer
@@ -35,6 +28,7 @@
 #include <CreepyEngine/Renderer/Renderer.hpp>
 #include <CreepyEngine/Renderer/Shader.hpp>
 #include <CreepyEngine/Renderer/Texture.hpp>
+#include <CreepyEngine/Renderer/Renderer2D.hpp>
 
 // Timer
 #include <CreepyEngine/Core/TimeStep.hpp>
