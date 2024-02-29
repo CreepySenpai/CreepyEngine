@@ -18,6 +18,8 @@ namespace Creepy
             }
 
             static void Init() noexcept;
+
+            static void ShutDown() noexcept;
             
             static void BeginScene(OrthographicCamera& camera) noexcept;
 

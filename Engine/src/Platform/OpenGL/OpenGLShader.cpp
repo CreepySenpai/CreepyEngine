@@ -18,23 +18,34 @@ namespace Creepy {
         return shaderType;
     }
 
-    OpenGLShader::OpenGLShader(const std::string& filePath) noexcept {
-        auto sources = ReadFile(filePath);
-        auto shaderSources = PreProcess(sources);
+    OpenGLShader::OpenGLShader(const std::string& vertexPath, const std::string& fragmentPath) noexcept : m_name{"Default"} {
+        auto vertexSource = ReadFile(vertexPath);
+        auto fragmentSource = ReadFile(fragmentPath);
 
-        Compile(shaderSources);
+        std::unordered_map<GLenum, std::string> shaderMap;
+        shaderMap[GL_VERTEX_SHADER] = vertexSource;
+        shaderMap[GL_FRAGMENT_SHADER] = fragmentSource;
 
-        auto lastSlash = filePath.find_last_of("/\\");
-        
-        lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
-
-        auto lastDot = filePath.rfind('.');
-
-        auto count = lastDot == std::string::npos ? filePath.size() - lastSlash : lastDot - lastSlash;
-        
-        m_name = filePath.substr(lastSlash, count);
-
+        Compile(shaderMap);
     }
+
+    // OpenGLShader::OpenGLShader(const std::string& filePath) noexcept {
+    //     auto sources = ReadFile(filePath);
+    //     auto shaderSources = PreProcess(sources);
+
+    //     Compile(shaderSources);
+
+    //     auto lastSlash = filePath.find_last_of("/\\");
+        
+    //     lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
+
+    //     auto lastDot = filePath.rfind('.');
+
+    //     auto count = lastDot == std::string::npos ? filePath.size() - lastSlash : lastDot - lastSlash;
+        
+    //     m_name = filePath.substr(lastSlash, count);
+
+    // }
 
     OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept : m_name{name} {
         std::unordered_map<GLenum, std::string> shaderSources;
@@ -180,31 +191,6 @@ namespace Creepy {
 
         return result;
     }
-    
-
-    std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& sources) noexcept {
-        std::unordered_map<GLenum, std::string> shaderSources;
-
-        std::string split{"#type"};
-        size_t splitLen = split.size();
-        size_t pos = sources.find(split, 0);
-
-        while(pos != std::string::npos) {
-            size_t eol = sources.find_first_not_of("\r\n", pos);
-
-            size_t begin = pos + splitLen + 1;
-            
-            std::string type = sources.substr(begin, eol - begin);
-
-            size_t nextLinePos = sources.find_first_not_of("\r\n", eol);
-
-            pos = sources.find(split, nextLinePos);
-
-            shaderSources[GetShaderType(type)] = sources.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? sources.size() - 1 : nextLinePos));
-        }
-
-        return shaderSources;
-    }
 
     void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources) noexcept {
         m_rendererID = glCreateProgram();
@@ -224,7 +210,9 @@ namespace Creepy {
 
             GLint compiled{0};
             glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+
             if(compiled == GL_FALSE) {
+                ENGINE_LOG_ERROR("Shader Compile Error 1!!!");
                 GLint logLength{0};
                 glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
 

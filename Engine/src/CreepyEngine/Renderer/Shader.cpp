@@ -34,7 +34,7 @@ namespace Creepy {
         return nullptr;
     }
     
-    Ref<Shader> Shader::Create(const std::string& filePath) noexcept {
+    Ref<Shader> Shader::Create(const std::string& vertexPath, const std::string& fragmentPath) noexcept {
         switch (Renderer::GetRenderAPI())
         {
             case RendererAPI::API::NONE:
@@ -44,7 +44,7 @@ namespace Creepy {
             }
             case RendererAPI::API::OPENGL:
             {
-                return std::make_shared<OpenGLShader>(filePath);
+                return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
             }
             case RendererAPI::API::VULKAN:
             {
@@ -82,14 +82,15 @@ namespace Creepy {
         m_shaders[name] = shader;
     }
 
-    Ref<Shader> ShaderLibrary::Load(const std::string &filePath) noexcept {
-        auto shader = Shader::Create(filePath);
+    Ref<Shader> ShaderLibrary::Load(const std::string& vertexPath, const std::string& fragmentPath) noexcept {
+        auto shader = Shader::Create(vertexPath, fragmentPath);
         Add(shader);
         return shader;
     }
 
-    Ref<Shader> ShaderLibrary::Load(const std::string &name, const std::string &filePath) noexcept {
-        auto shader = Shader::Create(filePath);
+    Ref<Shader> ShaderLibrary::Load(const std::string &name, const std::string& vertexPath, const std::string& fragmentPath) noexcept {
+        auto shader = Shader::Create(vertexPath, fragmentPath);
+        shader->SetName(name);
         Add(name, shader);
         return shader;
     }

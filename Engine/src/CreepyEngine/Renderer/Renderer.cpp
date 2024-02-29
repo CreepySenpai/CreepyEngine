@@ -1,5 +1,6 @@
 #include <CreepyEngine/Renderer/Renderer.hpp>
 #include <Platform/OpenGL/OpenGLShader.hpp>
+#include <CreepyEngine/Renderer/Renderer2D.hpp>
 namespace Creepy
 {
 
@@ -7,6 +8,11 @@ namespace Creepy
 
     void Renderer::Init() noexcept {
         RenderCommand::Init();
+        Renderer2D::Init();
+    }
+
+    void Renderer::ShutDown() noexcept {
+        Renderer2D::ShutDown();
     }
 
     void Renderer::BeginScene(OrthographicCamera& camera) noexcept {
@@ -21,9 +27,9 @@ namespace Creepy
     void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform) noexcept {
         shader->Bind();
 
-        std::dynamic_pointer_cast<OpenGLShader>(shader)->SetUniformMat4("u_viewProjectionMatrix", m_sceneData->ViewProjectionMatrix);
+        shader->SetUniformMat4("u_viewProjectionMatrix", m_sceneData->ViewProjectionMatrix);
         // Transform per obj
-        std::dynamic_pointer_cast<OpenGLShader>(shader)->SetUniformMat4("u_transformMatrix", transform);
+        shader->SetUniformMat4("u_transformMatrix", transform);
         vertexArray->Bind();
         RenderCommand::DrawIndex(vertexArray);
     }
