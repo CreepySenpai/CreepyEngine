@@ -1,6 +1,7 @@
 #pragma once
 
 #include <CreepyEngine.hpp>
+#include <vector>
 
 class Sandbox2D : public Creepy::Layer
 {
@@ -22,4 +23,11 @@ class Sandbox2D : public Creepy::Layer
         Creepy::Ref<Creepy::Texture2D> m_texture;
 
         glm::vec4 m_playerColor{1.0f, 0.0f, 0.0f, 1.0f};
+
+        struct ProfileResult{
+            const char* Name;
+            float Duration;
+        };
+
+        std::vector<ProfileResult> m_profiles;
 };

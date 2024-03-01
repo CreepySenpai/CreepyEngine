@@ -33,8 +33,5 @@
 // Timer
 #include <CreepyEngine/Core/TimeStep.hpp>
 
-// Platform
-#include <Platform/OpenGL/OpenGLShader.hpp>
-
 // Controller
 #include <CreepyEngine/Controller/OrthographicCameraController.hpp>
