@@ -12,6 +12,9 @@ namespace Creepy
             virtual uint32_t GetHeight() const noexcept = 0;
 
             virtual void Bind(uint32_t slot = 0) const noexcept = 0;
+            virtual void UnBind() const noexcept = 0;
+
+            virtual void SetData(void* data, uint32_t size) noexcept = 0;
 
             virtual ~Texture() noexcept = default;
            
@@ -22,6 +25,8 @@ namespace Creepy
     {
         public:
             virtual ~Texture2D() noexcept = default;
+
+            static Ref<Texture2D> Create(uint32_t width, uint32_t height) noexcept;
 
             static Ref<Texture2D> Create(const std::string& filePath) noexcept;
 

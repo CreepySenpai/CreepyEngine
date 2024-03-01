@@ -24,7 +24,9 @@ namespace Creepy {
     void OpenGLRendererAPI::DrawIndex(const Ref<VertexArray> &vertexArray) noexcept
     {
         glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
-        
+
+        // TODO: Maybe need to remove it
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void OpenGLRendererAPI::SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept {

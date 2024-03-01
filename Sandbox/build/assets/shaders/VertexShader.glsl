@@ -6,7 +6,9 @@ layout(location = 1) in vec2 a_textureCoord;
 uniform mat4 u_viewProjectionMatrix;
 uniform mat4 u_transformMatrix;
 
+out vec2 textureCoord;
+
 void main(){
-    vec2 t = a_textureCoord;
+    textureCoord = a_textureCoord;
     gl_Position = u_viewProjectionMatrix * u_transformMatrix * vec4(a_position,1.0);
 }

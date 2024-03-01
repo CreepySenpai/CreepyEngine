@@ -11,8 +11,8 @@ namespace Creepy {
 
     struct Renderer2DStorage {
         Ref<VertexArray> vertexArray;
-        Ref<Shader> nonTextureShader;
-        Ref<Shader> textureShader;
+        Ref<Shader> shader;
+        Ref<Texture2D> whiteTexture;
     };
 
     static Renderer2DStorage* s_renderer2dStorage;
@@ -49,13 +49,17 @@ namespace Creepy {
 
         s_renderer2dStorage->vertexArray->SetIndexBuffer(indexBuffer);
 
-        s_renderer2dStorage->nonTextureShader = Shader::Create("./assets/shaders/VertexShader.glsl", "./assets/shaders/FragmentShader.glsl");
+        s_renderer2dStorage->whiteTexture = Texture2D::Create(1, 1);
 
-        s_renderer2dStorage->textureShader = Shader::Create("./assets/shaders/VertexShaderWithTexture.glsl", "./assets/shaders/FragmentShaderWithTexture.glsl");
+        uint32_t whiteTextureData = 0xffffffff;
 
-        s_renderer2dStorage->textureShader->Bind();
+        s_renderer2dStorage->whiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+
+        s_renderer2dStorage->shader = Shader::Create("./assets/shaders/VertexShader.glsl", "./assets/shaders/FragmentShader.glsl");
+
+        s_renderer2dStorage->shader->Bind();
         // We need to init default texture unit
-        s_renderer2dStorage->textureShader->SetUniformInt1("u_texture", 0);
+        s_renderer2dStorage->shader->SetUniformInt1("u_texture", 0);
     }
 
     void Renderer2D::ShutDown() noexcept {
@@ -63,14 +67,9 @@ namespace Creepy {
     }
 
     void Renderer2D::BeginScene(const OrthographicCamera &camera) noexcept {
-        
-        s_renderer2dStorage->nonTextureShader->Bind();
-        
-        s_renderer2dStorage->nonTextureShader->SetUniformMat4("u_viewProjectionMatrix", camera.GetViewProjectionMatrix());
+        s_renderer2dStorage->shader->Bind();
 
-        s_renderer2dStorage->textureShader->Bind();
-
-        s_renderer2dStorage->textureShader->SetUniformMat4("u_viewProjectionMatrix", camera.GetViewProjectionMatrix());
+        s_renderer2dStorage->shader->SetUniformMat4("u_viewProjectionMatrix", camera.GetViewProjectionMatrix());
 
     }
 
@@ -83,8 +82,10 @@ namespace Creepy {
     }
     
     void Renderer2D::DrawRect(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color) noexcept {
-        s_renderer2dStorage->nonTextureShader->Bind();
-        s_renderer2dStorage->nonTextureShader->SetUniformFloat4("u_color", color);
+        s_renderer2dStorage->shader->Bind();
+        s_renderer2dStorage->shader->SetUniformFloat4("u_color", color);
+
+        s_renderer2dStorage->whiteTexture->Bind();
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
 
@@ -92,7 +93,7 @@ namespace Creepy {
 
         transform = glm::scale(transform, {size.x, size.y, 1.0f});
 
-        s_renderer2dStorage->nonTextureShader->SetUniformMat4("u_transformMatrix", transform);
+        s_renderer2dStorage->shader->SetUniformMat4("u_transformMatrix", transform);
 
         s_renderer2dStorage->vertexArray->Bind();
         RenderCommand::DrawIndex(s_renderer2dStorage->vertexArray);
@@ -103,7 +104,12 @@ namespace Creepy {
     }
 
     void Renderer2D::DrawRect(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture) noexcept {
-        s_renderer2dStorage->textureShader->Bind();
+        s_renderer2dStorage->shader->Bind();
+        
+        // We bind pure white color to keep texture color
+        s_renderer2dStorage->shader->SetUniformFloat4("u_color", glm::vec4(1.0f));
+
+        texture->Bind();
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
 
@@ -111,12 +117,13 @@ namespace Creepy {
 
         transform = glm::scale(transform, {size.x, size.y, 1.0f});
 
-        s_renderer2dStorage->textureShader->SetUniformMat4("u_transformMatrix", transform);
+        s_renderer2dStorage->shader->SetUniformMat4("u_transformMatrix", transform);
 
-        texture->Bind();
 
         s_renderer2dStorage->vertexArray->Bind();
         RenderCommand::DrawIndex(s_renderer2dStorage->vertexArray);
+
+        // texture->UnBind();
     }
 
 }
