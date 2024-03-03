@@ -9,11 +9,11 @@ extern Creepy::Scope<Creepy::Application> Creepy::CreateApplication();
 
 int main(int argc, char** argv){
     Creepy::Log::Init();
-
-    ENGINE_LOG_ERROR("{} rat dep trai\n", "Anh");
-    APP_LOG_INFO("{} hello\n", "APP");
-
     auto app = Creepy::CreateApplication();
+
+    DEBUG_PROFILE_BEGIN_SESSION("App_Run", "appRun.json");
     app->Run();
+    DEBUG_PROFILE_END_SESSION();
+    
     return 0;
 }

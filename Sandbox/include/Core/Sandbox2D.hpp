@@ -28,6 +28,5 @@ class Sandbox2D : public Creepy::Layer
             const char* Name;
             float Duration;
         };
-
-        std::vector<ProfileResult> m_profiles;
+        
 };
