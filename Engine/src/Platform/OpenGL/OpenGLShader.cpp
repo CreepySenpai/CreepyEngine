@@ -29,24 +29,6 @@ namespace Creepy {
         Compile(shaderMap);
     }
 
-    // OpenGLShader::OpenGLShader(const std::string& filePath) noexcept {
-    //     auto sources = ReadFile(filePath);
-    //     auto shaderSources = PreProcess(sources);
-
-    //     Compile(shaderSources);
-
-    //     auto lastSlash = filePath.find_last_of("/\\");
-        
-    //     lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
-
-    //     auto lastDot = filePath.rfind('.');
-
-    //     auto count = lastDot == std::string::npos ? filePath.size() - lastSlash : lastDot - lastSlash;
-        
-    //     m_name = filePath.substr(lastSlash, count);
-
-    // }
-
     OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept : m_name{name} {
         std::unordered_map<GLenum, std::string> shaderSources;
         shaderSources[GL_VERTEX_SHADER] = vertexShaderSources;

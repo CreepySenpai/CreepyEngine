@@ -84,12 +84,11 @@ namespace Creepy {
     void Renderer2D::DrawRect(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color) noexcept {
         s_renderer2dStorage->shader->Bind();
         s_renderer2dStorage->shader->SetUniformFloat4("u_color", color);
+        s_renderer2dStorage->shader->SetUniformFloat1("u_tilingFactor", 1.0f);
 
         s_renderer2dStorage->whiteTexture->Bind();
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
-
-        // TODO: Add rotation here
 
         transform = glm::scale(transform, {size.x, size.y, 1.0f});
 
@@ -106,14 +105,13 @@ namespace Creepy {
     void Renderer2D::DrawRect(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture) noexcept {
         s_renderer2dStorage->shader->Bind();
         
-        // We bind pure white color to keep texture color
+        // We set pure white color to keep texture color
         s_renderer2dStorage->shader->SetUniformFloat4("u_color", glm::vec4(1.0f));
+        s_renderer2dStorage->shader->SetUniformFloat1("u_tilingFactor", 1.0f);
 
         texture->Bind();
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
-
-        // TODO: Add rotation here
 
         transform = glm::scale(transform, {size.x, size.y, 1.0f});
 
@@ -124,6 +122,57 @@ namespace Creepy {
         RenderCommand::DrawIndex(s_renderer2dStorage->vertexArray);
 
         // texture->UnBind();
+    }
+
+    void Renderer2D::DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) noexcept {
+
+        DrawRotRect({position.x, position.y, 0.0f}, size, rotation, color);
+
+    }
+    void Renderer2D::DrawRotRect(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color) noexcept {
+        s_renderer2dStorage->shader->Bind();
+        s_renderer2dStorage->shader->SetUniformFloat4("u_color", color);
+        s_renderer2dStorage->shader->SetUniformFloat1("u_tilingFactor", 1.0f);
+
+        s_renderer2dStorage->whiteTexture->Bind();
+
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
+
+        transform = glm::rotate(transform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        transform = glm::scale(transform, {size.x, size.y, 1.0f});
+
+        s_renderer2dStorage->shader->SetUniformMat4("u_transformMatrix", transform);
+
+        s_renderer2dStorage->vertexArray->Bind();
+        RenderCommand::DrawIndex(s_renderer2dStorage->vertexArray);
+    }
+ 
+    void Renderer2D::DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture) noexcept {
+
+        DrawRotRect(glm::vec3(position.x, position.y, 0.0f), size, rotation, texture);
+
+    }
+    void Renderer2D::DrawRotRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture) noexcept {
+        s_renderer2dStorage->shader->Bind();
+        
+        // We set pure white color to keep texture color
+        s_renderer2dStorage->shader->SetUniformFloat4("u_color", glm::vec4(1.0f));
+        s_renderer2dStorage->shader->SetUniformFloat1("u_tilingFactor", 1.0f);
+
+        texture->Bind();
+
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
+
+        transform = glm::rotate(transform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        transform = glm::scale(transform, {size.x, size.y, 1.0f});
+
+        s_renderer2dStorage->shader->SetUniformMat4("u_transformMatrix", transform);
+
+
+        s_renderer2dStorage->vertexArray->Bind();
+        RenderCommand::DrawIndex(s_renderer2dStorage->vertexArray);
     }
 
 }

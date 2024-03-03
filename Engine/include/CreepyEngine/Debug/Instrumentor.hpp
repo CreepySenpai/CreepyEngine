@@ -37,7 +37,7 @@ namespace Creepy
             {
                 WriteFooter();
 
-                ClearUp();
+                clearUp();
 
                 m_fileStream.close();
                 delete m_currentSession;
@@ -62,7 +62,7 @@ namespace Creepy
 
             void WriteHeader() noexcept
             {
-                m_fileStream << "{\"otherData\": {}, \"traceEvent\": [";
+                m_fileStream << "{\"otherData\": {}, \"traceEvents\": [";
                 m_fileStream.flush();
             }
 
@@ -72,7 +72,20 @@ namespace Creepy
                 m_fileStream.flush();
             }
 
-            void ClearUp() noexcept {
+
+            inline static Instrumentor &GetInstance() noexcept
+            {
+                static Instrumentor instance;
+                return instance;
+            }
+
+        private:
+            InstrumentationSession *m_currentSession{nullptr};
+            std::fstream m_fileStream;
+            int m_profileCount{0};
+            
+
+            void clearUp() noexcept {
                 m_fileStream.seekp(0, std::ios::end);
                 auto pos = m_fileStream.tellp();
 
@@ -96,16 +109,6 @@ namespace Creepy
                 
             }
 
-            inline static Instrumentor &GetInstance() noexcept
-            {
-                static Instrumentor instance;
-                return instance;
-            }
-
-        private:
-            InstrumentationSession *m_currentSession{nullptr};
-            std::fstream m_fileStream;
-            int m_profileCount{0};
     };
 
     class InstrumentTimer

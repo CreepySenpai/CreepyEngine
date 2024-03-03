@@ -19,6 +19,13 @@ namespace Creepy {
 
             static void DrawRect(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture) noexcept;
             static void DrawRect(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture) noexcept;
+
+
+            static void DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) noexcept;
+            static void DrawRotRect(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color) noexcept;
+ 
+            static void DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture) noexcept;
+            static void DrawRotRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture) noexcept;
     };
     
 }
