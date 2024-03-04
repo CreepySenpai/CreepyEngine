@@ -38,6 +38,8 @@ namespace Creepy {
         uint32_t TextureSlotIndex{1};   // 0: white texture
 
         glm::vec4 RectVertexPosition[4];
+
+        Renderer2D::Statistics Stats;
     };
 
     static Renderer2DStorage s_renderer2dStorage;
@@ -121,6 +123,7 @@ namespace Creepy {
 
     void Renderer2D::ShutDown() noexcept {
         
+        delete[] s_renderer2dStorage.RectVertexBufferBase;
     }
 
     void Renderer2D::BeginScene(const OrthographicCamera &camera) noexcept {
@@ -153,9 +156,17 @@ namespace Creepy {
 
         RenderCommand::DrawIndex(s_renderer2dStorage.vertexArray, s_renderer2dStorage.RectIndexCount);
 
-        // delete[] s_renderer2dStorage.RectVertexBufferBase;
-        // s_renderer2dStorage.RectVertexBufferBase = nullptr;
-        // s_renderer2dStorage.RectVertexBufferPointer = nullptr;
+        ++s_renderer2dStorage.Stats.DrawCalls;
+    }
+
+    void Renderer2D::flushAndReset() noexcept {
+
+        EndScene();
+
+        s_renderer2dStorage.RectIndexCount = 0;
+        s_renderer2dStorage.RectVertexBufferPointer = s_renderer2dStorage.RectVertexBufferBase;
+
+        s_renderer2dStorage.TextureSlotIndex = 1;
     }
 
     void Renderer2D::DrawRect(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color) noexcept {
@@ -163,6 +174,11 @@ namespace Creepy {
     }
     
     void Renderer2D::DrawRect(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color) noexcept {
+
+        // For sure if we draw too much rect > limit, we need to reset it and then start new scene to draw fit rect
+        if(s_renderer2dStorage.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+            flushAndReset();
+        }
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
         transform = glm::scale(transform, {size.x, size.y, 1.0f});
@@ -196,6 +212,8 @@ namespace Creepy {
         s_renderer2dStorage.RectVertexBufferPointer++;
 
         s_renderer2dStorage.RectIndexCount += 6;
+
+        ++s_renderer2dStorage.Stats.RectCount;
     }
 
     void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, const glm::vec4& tilingColor) noexcept {
@@ -203,6 +221,12 @@ namespace Creepy {
     }
 
     void Renderer2D::DrawRect(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, const glm::vec4& tilingColor) noexcept {
+
+        // For sure if we draw too much rect > limit, we need to reset it and then start new scene to draw fit rect
+        if(s_renderer2dStorage.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+            flushAndReset();
+        }
+
         constexpr glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
 
         // We check if texture already exit on array
@@ -257,6 +281,8 @@ namespace Creepy {
 
         s_renderer2dStorage.RectIndexCount += 6;
 
+
+        ++s_renderer2dStorage.Stats.RectCount;
     }
 
     void Renderer2D::DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) noexcept {
@@ -266,6 +292,11 @@ namespace Creepy {
     }
     void Renderer2D::DrawRotRect(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color) noexcept {
 
+        // For sure if we draw too much rect > limit, we need to reset it and then start new scene to draw fit rect
+        if(s_renderer2dStorage.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+            flushAndReset();
+        }
+
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
         transform = glm::rotate(transform, glm::radians(rotation), {0.0f, 0.0f, 1.0f});
         transform = glm::scale(transform, {size.x, size.y, 1.0f});
@@ -300,6 +331,8 @@ namespace Creepy {
 
         s_renderer2dStorage.RectIndexCount += 6;
 
+
+        ++s_renderer2dStorage.Stats.RectCount;
     }
  
     void Renderer2D::DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, const glm::vec4& tilingColor) noexcept {
@@ -309,6 +342,11 @@ namespace Creepy {
     }
     void Renderer2D::DrawRotRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, const glm::vec4& tilingColor) noexcept {
         
+        // For sure if we draw too much rect > limit, we need to reset it and then start new scene to draw fit rect
+        if(s_renderer2dStorage.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+            flushAndReset();
+        }
+
         constexpr glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
 
         // We check if texture already exit on array
@@ -363,7 +401,18 @@ namespace Creepy {
         s_renderer2dStorage.RectVertexBufferPointer++;
 
         s_renderer2dStorage.RectIndexCount += 6;
-        
+
+        ++s_renderer2dStorage.Stats.RectCount;
+    }
+
+
+    void Renderer2D::ResetStatistics() noexcept {
+        s_renderer2dStorage.Stats.DrawCalls = 0;
+        s_renderer2dStorage.Stats.RectCount = 0;
+    }
+
+    Renderer2D::Statistics Renderer2D::GetStatistics() noexcept {
+        return s_renderer2dStorage.Stats;
     }
 
 }

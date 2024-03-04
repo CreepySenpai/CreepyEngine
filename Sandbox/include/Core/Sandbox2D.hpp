@@ -9,6 +9,8 @@ class Sandbox2D : public Creepy::Layer
 
         Sandbox2D() noexcept;
 
+        virtual ~Sandbox2D() noexcept;
+
         void OnAttach() noexcept override;
 
         void OnDetach() noexcept override;
