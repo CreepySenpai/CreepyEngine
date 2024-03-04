@@ -23,7 +23,8 @@ namespace Creepy {
             }
             
             void SetUniformInt1(const std::string& name, int value) noexcept override;
-            
+            void SetUniformIntArray(const std::string& name, std::span<int> values) noexcept override;
+
             void SetUniformFloat1(const std::string& name, float value) noexcept override;
             void SetUniformFloat2(const std::string& name, const glm::vec2& vec) noexcept override;
             void SetUniformFloat3(const std::string& name, const glm::vec3& vec) noexcept override;

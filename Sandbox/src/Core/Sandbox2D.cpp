@@ -26,9 +26,7 @@ void Sandbox2D::OnUpdate(const Creepy::TimeStep &timeStep) noexcept
 
     Creepy::Renderer2D::BeginScene(m_cameraController.GetCamera());
 
-    // Creepy::Renderer2D::DrawRect({1.0f, 2.0f, 1.0f}, {5.f, 5.f}, m_playerColor);
-
-    Creepy::Renderer2D::DrawRotRect({1.0f, 2.0f, 1.0f}, {5.f, 5.f}, 30.0f, m_playerColor);
+    Creepy::Renderer2D::DrawRect({1.0f, 2.0f, 1.0f}, {5.f, 5.f}, m_playerColor);
 
     Creepy::Renderer2D::DrawRect({6.0f, 7.0f, 1.0f}, {10.f, 5.f}, m_texture);
     
@@ -37,7 +35,7 @@ void Sandbox2D::OnUpdate(const Creepy::TimeStep &timeStep) noexcept
 
 void Sandbox2D::OnImGuiRender() noexcept
 {
-    DEBUG_PROFILE_SCOPE("ImGuiRender");
+    // DEBUG_PROFILE_SCOPE("ImGuiRender");
     ImGui::Begin("Color Picker");
     ImGui::ColorEdit4("My Color", glm::value_ptr(m_playerColor));
 

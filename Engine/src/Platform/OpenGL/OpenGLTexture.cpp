@@ -77,5 +77,5 @@ namespace Creepy {
         }
         glTextureSubImage2D(m_rendererID, 0, 0, 0, m_width, m_height, m_dataFormat, GL_UNSIGNED_BYTE, data);
     }
-    
+
 }

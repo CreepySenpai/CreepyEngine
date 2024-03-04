@@ -195,8 +195,11 @@ namespace Creepy {
             
             virtual const BufferLayout& GetLayout() const noexcept = 0;
             virtual void SetLayout(const BufferLayout& layout) noexcept = 0;
+            
+            virtual void SetData(const void* data, uint32_t size) noexcept = 0;
 
-            static Ref<VertexBuffer> Create(float* vertex, uint32_t size);
+            static Ref<VertexBuffer> Create(float* vertex, uint32_t size) noexcept;
+            static Ref<VertexBuffer> Create(uint32_t size) noexcept;
     };
 
     class IndexBuffer
@@ -210,7 +213,7 @@ namespace Creepy {
 
             virtual uint32_t GetCount() const noexcept = 0;
 
-            static Ref<IndexBuffer> Create(uint32_t* index, uint32_t size);
+            static Ref<IndexBuffer> Create(uint32_t* index, uint32_t count) noexcept;
     };
 
     

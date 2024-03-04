@@ -155,4 +155,4 @@ namespace Creepy
 #define DEBUG_PROFILE_BEGIN_SESSION(name, filePath) Creepy::Instrumentor::GetInstance().BeginSession(name, filePath)
 #define DEBUG_PROFILE_END_SESSION() Creepy::Instrumentor::GetInstance().EndSession()
 #define DEBUG_PROFILE_SCOPE(name) Creepy::InstrumentTimer timer##__LINE__{name}
-#define DEBUG_PROFILE_FUNCTION() DEBUG_PROFILE_SCOPE(__FUNCSIG__)
+#define DEBUG_PROFILE_FUNCTION() DEBUG_PROFILE_SCOPE(__FUNCTION__)

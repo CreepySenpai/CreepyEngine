@@ -6,6 +6,7 @@ namespace Creepy {
 
     class OpenGLVertexBuffer : public VertexBuffer {
         public:
+            OpenGLVertexBuffer(uint32_t size) noexcept;
             OpenGLVertexBuffer(float* vertex, uint32_t size) noexcept;
             virtual ~OpenGLVertexBuffer() noexcept;
             void Bind() const noexcept override;
@@ -19,6 +20,8 @@ namespace Creepy {
             inline void SetLayout(const BufferLayout& layout) noexcept override {
                 m_layout = layout;
             }
+
+            void SetData(const void* data, uint32_t size) noexcept override;
 
         private:
             uint32_t m_rendererID;

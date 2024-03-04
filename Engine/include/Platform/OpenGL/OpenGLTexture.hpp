@@ -21,12 +21,21 @@ namespace Creepy {
                 return m_height;
             }
 
+            constexpr inline uint32_t GetRendererID() const noexcept override {
+                return m_rendererID;
+            }
+
             void Bind(uint32_t slot = 0) const noexcept override;
 
             void UnBind() const noexcept override;
 
             void SetData(void* data, uint32_t size) noexcept override;
+
+            bool operator==(const Texture& other) const noexcept override {
+                return m_rendererID == other.GetRendererID();
+            }
             
+
         private:
             uint32_t m_width;
             uint32_t m_height;

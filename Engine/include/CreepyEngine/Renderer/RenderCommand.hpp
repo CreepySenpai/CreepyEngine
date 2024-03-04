@@ -14,8 +14,8 @@ namespace Creepy
                 s_rendererAPI->Init();
             }
             
-            constexpr static inline void DrawIndex(const std::shared_ptr<VertexArray>& vertexArray) noexcept {
-                s_rendererAPI->DrawIndex(vertexArray);
+            constexpr static inline void DrawIndex(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0) noexcept {
+                s_rendererAPI->DrawIndex(vertexArray, indexCount);
             }
 
             constexpr static inline void SetClearColor(const glm::vec4& color) noexcept {

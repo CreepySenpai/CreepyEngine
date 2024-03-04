@@ -3,6 +3,7 @@
 #include <string>
 #include <CreepyEngine/Core/Core.hpp>
 #include <glm/glm.hpp>
+#include <span>
 
 namespace Creepy
 {
@@ -17,7 +18,7 @@ namespace Creepy
             virtual void SetName(const std::string& name) noexcept = 0;
 
             virtual void SetUniformInt1(const std::string& name, int value) noexcept = 0;
-            
+            virtual void SetUniformIntArray(const std::string& name, std::span<int> values) noexcept = 0;
             virtual void SetUniformFloat1(const std::string& name, float value) noexcept = 0;
             virtual void SetUniformFloat2(const std::string& name, const glm::vec2& vec) noexcept = 0;
             virtual void SetUniformFloat3(const std::string& name, const glm::vec3& vec) noexcept = 0;

@@ -64,6 +64,23 @@ namespace Creepy {
         
     }
 
+
+    void OpenGLShader::SetUniformIntArray(const std::string& name, std::span<int> values) noexcept {
+
+        if(m_locationCache.contains(name)){
+            glUniform1iv(m_locationCache.at(name), values.size(), values.data());
+        } else {
+            auto loc = glGetUniformLocation(m_rendererID, name.c_str());
+            if(loc < 0){
+                ENGINE_LOG_ERROR("Uniform {} doesn't exit!", name);
+                return;
+            }
+            glUniform1iv(loc, values.size(), values.data());
+            m_locationCache[name] = loc;
+        }
+        
+    }
+
     void OpenGLShader::SetUniformFloat1(const std::string &name, float value) noexcept {
         if(m_locationCache.contains(name)){
             glUniform1f(m_locationCache.at(name), value);

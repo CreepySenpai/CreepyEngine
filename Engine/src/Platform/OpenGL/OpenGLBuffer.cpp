@@ -3,6 +3,14 @@
 
 namespace Creepy
 {
+    OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size) noexcept {
+        glCreateBuffers(1, &m_rendererID);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
+
+        glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+    }
+
     OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertex, uint32_t size) noexcept {
         glCreateBuffers(1, &m_rendererID);
 
@@ -21,6 +29,11 @@ namespace Creepy
 
     void OpenGLVertexBuffer::UnBind() const noexcept {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    void OpenGLVertexBuffer::SetData(const void* data, uint32_t size) noexcept {
+        glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
     }
 
     ////////////////////////////////////////////////////////
