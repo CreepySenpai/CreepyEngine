@@ -285,6 +285,83 @@ namespace Creepy {
         ++s_renderer2dStorage.Stats.RectCount;
     }
 
+    void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const Ref<SubTexture2D>& subTexture, const glm::vec4& tilingColor) noexcept {
+        DrawRect(glm::vec3(position.x, position.y, 0.0f), size, subTexture, tilingColor);
+    }
+
+    void Renderer2D::DrawRect(const glm::vec3& position, const glm::vec2& size, const Ref<SubTexture2D>& subTexture, const glm::vec4& tilingColor) noexcept {
+
+        // For sure if we draw too much rect > limit, we need to reset it and then start new scene to draw fit rect
+        if(s_renderer2dStorage.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+            flushAndReset();
+        }
+
+        constexpr glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+
+        const auto& textureCoords = subTexture->GetTextureCoords();
+
+        const auto& texture = subTexture->GetTexture();
+
+        // We check if texture already exit on array
+        float textureIndex{0.0f};
+        
+        for(uint32_t i{1}; i < s_renderer2dStorage.TextureSlotIndex; i++){
+
+            if(*s_renderer2dStorage.TextureSlots[i].get() == *texture.get()){
+                textureIndex = static_cast<float>(i);
+                break;
+            }
+
+        }
+
+        // If it not exit we add texture to texture array
+        if(std::is_eq(textureIndex <=> 0.0f)){
+
+            textureIndex = static_cast<float>(s_renderer2dStorage.TextureSlotIndex);
+
+            s_renderer2dStorage.TextureSlots[s_renderer2dStorage.TextureSlotIndex] = texture;
+
+            ++s_renderer2dStorage.TextureSlotIndex;
+
+        }
+
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
+        transform = glm::scale(transform, {size.x, size.y, 1.0f});
+
+        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[0];
+        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(0);
+        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+
+        s_renderer2dStorage.RectVertexBufferPointer++;
+
+        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[1];
+        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(1);
+        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+
+        s_renderer2dStorage.RectVertexBufferPointer++;
+
+        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[2];
+        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(2);
+        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+
+        s_renderer2dStorage.RectVertexBufferPointer++;
+
+        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[3];
+        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(3);
+        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+
+        s_renderer2dStorage.RectVertexBufferPointer++;
+
+        s_renderer2dStorage.RectIndexCount += 6;
+
+
+        ++s_renderer2dStorage.Stats.RectCount;
+    }
+
     void Renderer2D::DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) noexcept {
 
         DrawRotRect({position.x, position.y, 0.0f}, size, rotation, color);
@@ -298,7 +375,7 @@ namespace Creepy {
         }
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
-        transform = glm::rotate(transform, glm::radians(rotation), {0.0f, 0.0f, 1.0f});
+        transform = glm::rotate(transform, rotation, {0.0f, 0.0f, 1.0f});
         transform = glm::scale(transform, {size.x, size.y, 1.0f});
         
         s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[0];
@@ -369,7 +446,7 @@ namespace Creepy {
         }
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
-        transform = glm::rotate(transform, glm::radians(rotation), {0.0f, 0.0f, 1.0f});
+        transform = glm::rotate(transform, rotation, {0.0f, 0.0f, 1.0f});
         transform = glm::scale(transform, {size.x, size.y, 1.0f});
 
         s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[0];
@@ -396,6 +473,81 @@ namespace Creepy {
         s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[3];
         s_renderer2dStorage.RectVertexBufferPointer->Color = color;
         s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = {0.0f, 1.0f};
+        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+
+        s_renderer2dStorage.RectVertexBufferPointer++;
+
+        s_renderer2dStorage.RectIndexCount += 6;
+
+        ++s_renderer2dStorage.Stats.RectCount;
+    }
+
+
+    void Renderer2D::DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<SubTexture2D>& subTexture, const glm::vec4& tilingColor) noexcept {
+
+        DrawRotRect(glm::vec3(position.x, position.y, 0.0f), size, rotation, subTexture, tilingColor);
+
+    }
+    void Renderer2D::DrawRotRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<SubTexture2D>& subTexture, const glm::vec4& tilingColor) noexcept {
+        
+        // For sure if we draw too much rect > limit, we need to reset it and then start new scene to draw fit rect
+        if(s_renderer2dStorage.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+            flushAndReset();
+        }
+
+        constexpr glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+
+        const auto& textureCoords = subTexture->GetTextureCoords();
+
+        const auto& texture = subTexture->GetTexture();
+
+        // We check if texture already exit on array
+        float textureIndex{0.0f};
+        
+        for(uint32_t i{1}; i < s_renderer2dStorage.TextureSlotIndex; i++){
+            if(*s_renderer2dStorage.TextureSlots[i].get() == *texture.get()){
+                textureIndex = static_cast<float>(i);
+                break;
+            }
+        }
+
+        // If it not exit we add texture to texture array
+        if(std::is_eq(textureIndex <=> 0.0f)){
+            textureIndex = static_cast<float>(s_renderer2dStorage.TextureSlotIndex);
+
+            s_renderer2dStorage.TextureSlots[s_renderer2dStorage.TextureSlotIndex] = texture;
+
+            ++s_renderer2dStorage.TextureSlotIndex;
+        }
+
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
+        transform = glm::rotate(transform, rotation, {0.0f, 0.0f, 1.0f});
+        transform = glm::scale(transform, {size.x, size.y, 1.0f});
+
+        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[0];
+        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(0);
+        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+
+        s_renderer2dStorage.RectVertexBufferPointer++;
+
+        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[1];
+        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(1);
+        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+
+        s_renderer2dStorage.RectVertexBufferPointer++;
+
+        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[2];
+        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(2);
+        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+
+        s_renderer2dStorage.RectVertexBufferPointer++;
+
+        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[3];
+        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(3);
         s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
 
         s_renderer2dStorage.RectVertexBufferPointer++;

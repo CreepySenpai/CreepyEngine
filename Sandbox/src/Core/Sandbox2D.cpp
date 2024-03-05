@@ -4,7 +4,8 @@
 
 Sandbox2D::Sandbox2D() noexcept : Creepy::Layer{"SandBox"}, m_cameraController{600.0f / 600.0f, true}{
     Creepy::Renderer::Init();
-    m_texture = Creepy::Texture2D::Create("./assets/textures/SpecularMap.png");
+    m_texture = Creepy::Texture2D::Create("./assets/textures/RPGpack.png");
+    m_subTexture = Creepy::SubTexture2D::CreateFromCoords(m_texture, {0, 1}, {128.0f, 128.0f}, {1.0f, 2.0f});
 }
 
 Sandbox2D::~Sandbox2D() noexcept {
@@ -31,9 +32,11 @@ void Sandbox2D::OnUpdate(const Creepy::TimeStep &timeStep) noexcept
     Creepy::Renderer2D::ResetStatistics();
     Creepy::Renderer2D::BeginScene(m_cameraController.GetCamera());
 
-    Creepy::Renderer2D::DrawRect({1.0f, 2.0f, 1.0f}, {5.f, 5.f}, m_playerColor);
+    // Creepy::Renderer2D::DrawRect({1.0f, 2.0f, 1.0f}, {5.f, 5.f}, m_playerColor);
 
-    Creepy::Renderer2D::DrawRect({6.0f, 7.0f, 1.0f}, {10.f, 5.f}, m_texture);
+    Creepy::Renderer2D::DrawRect({6.0f, 7.0f, 1.0f}, {1.f, 1.f}, m_texture);
+
+    Creepy::Renderer2D::DrawRect({0.0f, 1.0f, 0.0f}, {1.0f, 2.0f}, m_subTexture);
     
     Creepy::Renderer2D::EndScene();
 }

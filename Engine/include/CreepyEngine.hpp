@@ -28,6 +28,7 @@
 #include <CreepyEngine/Renderer/Renderer.hpp>
 #include <CreepyEngine/Renderer/Shader.hpp>
 #include <CreepyEngine/Renderer/Texture.hpp>
+#include <CreepyEngine/Renderer/SubTexture2D.hpp>
 #include <CreepyEngine/Renderer/Renderer2D.hpp>
 
 // Timer

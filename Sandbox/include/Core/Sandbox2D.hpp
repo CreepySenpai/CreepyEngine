@@ -23,6 +23,7 @@ class Sandbox2D : public Creepy::Layer
     private:
         Creepy::OrthographicCameraController m_cameraController;
         Creepy::Ref<Creepy::Texture2D> m_texture;
+        Creepy::Ref<Creepy::SubTexture2D> m_subTexture;
 
         glm::vec4 m_playerColor{1.0f, 0.0f, 0.0f, 1.0f};
 
