@@ -8,16 +8,19 @@ namespace Creepy {
         switch (Renderer::GetRenderAPI())
         {
             case RendererAPI::API::NONE: {
-                ENGINE_LOG_ERROR("");
+                ENGINE_LOG_ERROR("Dont Support!!!");
+                return nullptr;
             }
             case RendererAPI::API::OPENGL: {
                 return std::make_shared<OpenGLTexture2D>(width, height);
             }
             case RendererAPI::API::VULKAN: {
-                ENGINE_LOG_ERROR("");
+                ENGINE_LOG_ERROR("Dont Support!!!");
+                return nullptr;
             }
             case RendererAPI::API::DIRECTX: {
-                ENGINE_LOG_ERROR("");
+                ENGINE_LOG_ERROR("Dont Support!!!");
+                return nullptr;
             }
         }
 
@@ -31,16 +34,19 @@ namespace Creepy {
         switch (Renderer::GetRenderAPI())
         {
             case RendererAPI::API::NONE: {
-                ENGINE_LOG_ERROR("");
+                ENGINE_LOG_ERROR("Dont Support!!!");
+                return nullptr;
             }
             case RendererAPI::API::OPENGL: {
                 return std::make_shared<OpenGLTexture2D>(filePath);
             }
             case RendererAPI::API::VULKAN: {
-                ENGINE_LOG_ERROR("");
+                ENGINE_LOG_ERROR("Dont Support!!!");
+                return nullptr;
             }
             case RendererAPI::API::DIRECTX: {
-                ENGINE_LOG_ERROR("");
+                ENGINE_LOG_ERROR("Dont Support!!!");
+                return nullptr;
             }
         }
 

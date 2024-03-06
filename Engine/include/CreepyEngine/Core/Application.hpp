@@ -16,10 +16,12 @@ namespace Creepy
     class Application
     {
         public:
-            Application() noexcept;
+            Application(const std::string& title = "App", uint32_t w = 600, uint32_t h = 600) noexcept;
             virtual ~Application() = default;
 
             void Run() noexcept;
+
+            void Close() noexcept;
 
             void OnEvent(Event& event) noexcept;
             //
@@ -55,5 +57,5 @@ namespace Creepy
             static Application* instance;   //singleton
     };
 
-    Scope<Application> CreateApplication();
+    Scope<Application> CreateApplication() noexcept;
 }

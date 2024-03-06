@@ -26,6 +26,7 @@ namespace Creepy
 
             constexpr inline void SetZoomLevel(float zoomLevel) noexcept {
                 m_zoomLevel = zoomLevel;
+                calculateView();
             }
 
             constexpr inline float GetZoomLevel() const {
@@ -36,6 +37,8 @@ namespace Creepy
             bool OnMouseScrolled(MouseScrolledEvent& event) noexcept;
             bool OnWindowResized(WindowResizeEvent& event) noexcept;
 
+            void calculateView() noexcept;
+
         private:
             float m_aspectRatio;
             float m_zoomLevel{1.0f};
@@ -45,6 +48,11 @@ namespace Creepy
             float m_cameraMoveSpeed{1.0f};
             float m_cameraRotateSpeed{10.0f};
             bool m_rotation;
+
+            struct ScreenBound{
+                float Left, Right, Bottom, Top;
+            };
+            ScreenBound m_bound{};
 
     };
     

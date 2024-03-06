@@ -241,6 +241,11 @@ namespace Creepy {
 
         // If it not exit we add texture to texture array
         if(std::is_eq(textureIndex <=> 0.0f)){
+
+            if(s_renderer2dStorage.TextureSlotIndex >= s_renderer2dStorage.MaxTextureSlots){
+                flushAndReset();
+            }
+
             textureIndex = static_cast<float>(s_renderer2dStorage.TextureSlotIndex);
 
             s_renderer2dStorage.TextureSlots[s_renderer2dStorage.TextureSlotIndex] = texture;
@@ -316,6 +321,10 @@ namespace Creepy {
 
         // If it not exit we add texture to texture array
         if(std::is_eq(textureIndex <=> 0.0f)){
+
+            if(s_renderer2dStorage.TextureSlotIndex >= s_renderer2dStorage.MaxTextureSlots){
+                flushAndReset();
+            }
 
             textureIndex = static_cast<float>(s_renderer2dStorage.TextureSlotIndex);
 
@@ -438,6 +447,11 @@ namespace Creepy {
 
         // If it not exit we add texture to texture array
         if(std::is_eq(textureIndex <=> 0.0f)){
+            
+            if(s_renderer2dStorage.TextureSlotIndex >= s_renderer2dStorage.MaxTextureSlots){
+                flushAndReset();
+            }
+
             textureIndex = static_cast<float>(s_renderer2dStorage.TextureSlotIndex);
 
             s_renderer2dStorage.TextureSlots[s_renderer2dStorage.TextureSlotIndex] = texture;
@@ -513,6 +527,11 @@ namespace Creepy {
 
         // If it not exit we add texture to texture array
         if(std::is_eq(textureIndex <=> 0.0f)){
+            
+            if(s_renderer2dStorage.TextureSlotIndex >= s_renderer2dStorage.MaxTextureSlots){
+                flushAndReset();
+            }
+
             textureIndex = static_cast<float>(s_renderer2dStorage.TextureSlotIndex);
 
             s_renderer2dStorage.TextureSlots[s_renderer2dStorage.TextureSlotIndex] = texture;

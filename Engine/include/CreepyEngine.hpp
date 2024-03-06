@@ -30,6 +30,7 @@
 #include <CreepyEngine/Renderer/Texture.hpp>
 #include <CreepyEngine/Renderer/SubTexture2D.hpp>
 #include <CreepyEngine/Renderer/Renderer2D.hpp>
+#include <CreepyEngine/Renderer/FrameBuffer.hpp>
 
 // Timer
 #include <CreepyEngine/Core/TimeStep.hpp>

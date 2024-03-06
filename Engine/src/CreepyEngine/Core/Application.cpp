@@ -13,9 +13,7 @@ namespace Creepy {
 
     Application* Application::instance = nullptr;
 
-    
-
-    Application::Application() noexcept {
+    Application::Application(const std::string& title, uint32_t w, uint32_t h) noexcept {
 
         if(instance){
             ENGINE_LOG_ERROR("Only Once Instance Exit");
@@ -26,12 +24,13 @@ namespace Creepy {
         // In imguilayer we get instance of this class so we need init this first in this program to dont be nullptr error
         instance = this;
 
+        WindowProperty property{title, w, h};
 
-        m_window = Window::Create();
+        m_window = Window::Create(property);
         m_window->SetEventCallBack(std::bind_front(&Application::OnEvent, this));
         m_imGuiLayer = new ImGuiLayer();
         
-        this->PushLayer(m_imGuiLayer);  // No memory leak because layerStack will free it
+        this->PushOverlay(m_imGuiLayer);  // No memory leak because layerStack will free it
 
         Renderer::Init();
     }
@@ -71,6 +70,10 @@ namespace Creepy {
 
         }
         
+    }
+
+    void Application::Close() noexcept {
+        m_isRunning = false;
     }
 
     void Application::OnEvent(Event& event) noexcept {

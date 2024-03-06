@@ -24,7 +24,6 @@ namespace Creepy {
 
     constexpr void WindowsWindow::OnUpdate() noexcept {
         glfwPollEvents();
-        // glfwSwapBuffers(m_window.get());
         m_context->SwapBuffers();
     }
 

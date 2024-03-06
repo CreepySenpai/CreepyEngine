@@ -85,15 +85,15 @@ namespace Creepy
 
     void ImGuiLayer::OnImGuiRender() noexcept {
 
-        ImGui::Begin("Start");
+        // ImGui::Begin("Start");
 
-        ImGui::Text("This is some useful text.");
+        // ImGui::Text("This is some useful text.");
 
-        static char buffer[512] = "Anh Dep Trai";
+        // static char buffer[512] = "Anh Dep Trai";
 
-        ImGui::InputText("Text", buffer, GetArraySize(buffer));
+        // ImGui::InputText("Text", buffer, GetArraySize(buffer));
 
-        ImGui::End();
+        // ImGui::End();
         
         
     }
@@ -120,6 +120,7 @@ namespace Creepy
             ImGui::RenderPlatformWindowsDefault();
             glfwMakeContextCurrent(backup_current_context);
         }
+        
     }
 
     // void ImGuiLayer::OnEvent(Event& event) noexcept {

@@ -61,15 +61,25 @@ namespace Creepy {
     bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent &event) noexcept {
         m_zoomLevel -= event.GetYOffset() * 0.25f;
         m_zoomLevel = std::max(m_zoomLevel, 0.25f);
-        m_camera.SetProjection(-m_aspectRatio * m_zoomLevel, m_aspectRatio * m_zoomLevel, -m_zoomLevel, m_zoomLevel);
+        calculateView();
+        
         ENGINE_LOG_ERROR("Zoom: {}", m_zoomLevel);
         return false;
     }
 
     bool OrthographicCameraController::OnWindowResized(WindowResizeEvent &event) noexcept {
         m_aspectRatio = static_cast<float>(event.GetWindowWidth()) / static_cast<float>(event.GetWindowHeight());
-        m_camera.SetProjection(-m_aspectRatio * m_zoomLevel, m_aspectRatio * m_zoomLevel, -m_zoomLevel, m_zoomLevel);
+        calculateView();
+
         ENGINE_LOG_ERROR("Asp: {}", m_aspectRatio);
         return false;
+    }
+
+    void OrthographicCameraController::calculateView() noexcept {
+
+        m_bound = {.Left = -m_aspectRatio * m_zoomLevel, .Right = m_aspectRatio * m_zoomLevel, .Bottom = -m_zoomLevel, .Top = m_zoomLevel};
+
+        m_camera.SetProjection(m_bound.Left, m_bound.Right, m_bound.Bottom, m_bound.Top);
+
     }
 }

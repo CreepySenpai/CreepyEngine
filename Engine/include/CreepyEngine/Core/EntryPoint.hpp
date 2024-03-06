@@ -4,7 +4,7 @@
 #include "Log.hpp"
 #include "Core.hpp"
 
-extern Creepy::Scope<Creepy::Application> Creepy::CreateApplication();
+extern Creepy::Scope<Creepy::Application> Creepy::CreateApplication() noexcept;
 
 
 int main(int argc, char** argv){

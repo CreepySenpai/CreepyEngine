@@ -8,7 +8,6 @@ namespace Creepy
     class RenderCommand
     {
         public:
-            // RenderCommand();
 
             constexpr static inline void Init() noexcept {
                 s_rendererAPI->Init();
@@ -28,6 +27,14 @@ namespace Creepy
 
             constexpr static inline void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept {
                 s_rendererAPI->SetViewPort(x, y, width, height);
+            }
+
+            constexpr static inline void EnableDepth() noexcept {
+                s_rendererAPI->EnableDepth();
+            }
+
+            constexpr static inline void DisableDepth() noexcept {
+                s_rendererAPI->DisableDepth();
             }
 
         private:

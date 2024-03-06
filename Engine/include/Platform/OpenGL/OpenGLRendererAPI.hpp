@@ -19,6 +19,9 @@ namespace Creepy
 
             void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept override;
 
+
+            void EnableDepth() noexcept override;
+            void DisableDepth() noexcept override;
         private:
             
     }; 
