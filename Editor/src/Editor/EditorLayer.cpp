@@ -45,7 +45,6 @@ namespace Creepy {
     void EditorLayer::OnImGuiRender() noexcept {
         static bool p_open = false;
         static bool opt_fullscreen = true;
-        static bool opt_padding = false;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
         // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
@@ -69,14 +68,8 @@ namespace Creepy {
 
         if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
             window_flags |= ImGuiWindowFlags_NoBackground;
-
-        if (!opt_padding)
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
         
         ImGui::Begin("DockSpace Demo", &p_open, window_flags);
-        if (!opt_padding)
-            ImGui::PopStyleVar();
 
         if (opt_fullscreen)
             ImGui::PopStyleVar(2);
@@ -97,7 +90,6 @@ namespace Creepy {
                 // Disabling fullscreen would allow the window to be moved to the front of other windows,
                 // which we can't undo at the moment without finer window depth/z control.
                 ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen);
-                ImGui::MenuItem("Padding", NULL, &opt_padding);
                 ImGui::Separator();
 
                 if (ImGui::MenuItem("Close", NULL, false)){

@@ -10,7 +10,7 @@ namespace Creepy
     class RendererAPI
     {
         public:
-            virtual ~RendererAPI() = default;
+            virtual ~RendererAPI() noexcept = default;
 
             enum class API : int {
                 NONE = 0, OPENGL, VULKAN, DIRECTX

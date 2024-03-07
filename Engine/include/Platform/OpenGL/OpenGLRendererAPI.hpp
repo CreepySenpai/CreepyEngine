@@ -7,8 +7,7 @@ namespace Creepy
     class OpenGLRendererAPI : public RendererAPI
     {
         public:
-            // OpenGLRendererAPI() noexcept = default;
-
+        
             void Init() noexcept override;
 
             void SetClearColor(const glm::vec4& color) noexcept override;

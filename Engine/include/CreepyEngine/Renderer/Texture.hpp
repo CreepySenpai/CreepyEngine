@@ -7,7 +7,8 @@ namespace Creepy
     class Texture
     {
         public:
-            
+            virtual ~Texture() noexcept = default;
+
             virtual uint32_t GetWidth() const noexcept = 0;
             virtual uint32_t GetHeight() const noexcept = 0;
             virtual uint32_t GetRendererID() const noexcept = 0;
@@ -19,8 +20,6 @@ namespace Creepy
 
 
             virtual bool operator==(const Texture& other) const noexcept = 0;
-
-            virtual ~Texture() noexcept = default;
            
     };
     

@@ -1,12 +1,10 @@
 #include <CreepyEngine/Core/Application.hpp>
-#include <Platform/Windows/WindowsInput.hpp>
+#include <CreepyEngine/Core/Input.hpp>
 #include <GLFW/glfw3.h>
 
-namespace Creepy
-{
-    Ref<Input> Input::instance = std::make_shared<WindowsInput>();
+namespace Creepy {
 
-    bool WindowsInput::IsKeyPressedImpl(int keyCode) noexcept
+    bool Input::IsKeyPressed(int keyCode) noexcept
     {
         auto&& window = reinterpret_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
 
@@ -15,7 +13,7 @@ namespace Creepy
         return (state == GLFW_PRESS) || (state == GLFW_REPEAT);
     }
     
-    bool WindowsInput::IsMouseButtonPressedImpl(int mouseButton) noexcept {
+    bool Input::IsMouseButtonPressed(int mouseButton) noexcept {
         auto&& window = reinterpret_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
 
         int state = glfwGetMouseButton(window, mouseButton);
@@ -23,19 +21,19 @@ namespace Creepy
         return (state == GLFW_PRESS);
     }
 
-    float WindowsInput::GetMouseXImpl() noexcept {
-        auto [x, _] = GetMousePositionImpl();
+    float Input::GetMouseX() noexcept {
+        auto [x, _] = GetMousePosition();
 
         return x;
     }
 
-    float WindowsInput::GetMouseYImpl() noexcept {
-        auto [_, y] = GetMousePositionImpl();
+    float Input::GetMouseY() noexcept {
+        auto [_, y] = GetMousePosition();
 
         return y;
     }
 
-    std::pair<float, float> WindowsInput::GetMousePositionImpl() noexcept {
+    std::pair<float, float> Input::GetMousePosition() noexcept {
         auto&& window = reinterpret_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
         
         double x{0.0}, y{0.0};
@@ -44,5 +42,5 @@ namespace Creepy
 
         return std::make_pair<float, float>(static_cast<float>(x), static_cast<float>(y));
     }
-
+    
 }

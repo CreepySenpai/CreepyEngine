@@ -35,7 +35,6 @@ namespace Creepy {
             static Scope<Window> Create(const WindowProperty& windowProperty = WindowProperty());
 
             constexpr virtual void* GetNativeWindow() const noexcept = 0;
-
-            // virtual float GetTime() noexcept;
+            
     };
 }
