@@ -33,6 +33,8 @@ namespace Creepy
                 return m_zoomLevel;
             }
 
+            void OnResize(float width, float height) noexcept;
+
         private:
             bool OnMouseScrolled(MouseScrolledEvent& event) noexcept;
             bool OnWindowResized(WindowResizeEvent& event) noexcept;

@@ -17,6 +17,8 @@ namespace Creepy
 
             void UnBind() noexcept override;
 
+            void Resize(uint32_t width, uint32_t height) noexcept override;
+
             inline uint32_t GetFrameBufferID() const noexcept override {
                 return m_rendererID;
             }
@@ -33,9 +35,9 @@ namespace Creepy
                 return m_data;
             }
         private:
-            uint32_t m_rendererID;
-            uint32_t m_colorBuffer;
-            uint32_t m_depthBuffer;
+            uint32_t m_rendererID{};
+            uint32_t m_colorBuffer{};
+            uint32_t m_depthBuffer{};
             FrameBufferSpecification m_data;
     };
     

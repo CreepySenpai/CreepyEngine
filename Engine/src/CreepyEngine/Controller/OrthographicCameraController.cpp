@@ -68,11 +68,18 @@ namespace Creepy {
     }
 
     bool OrthographicCameraController::OnWindowResized(WindowResizeEvent &event) noexcept {
-        m_aspectRatio = static_cast<float>(event.GetWindowWidth()) / static_cast<float>(event.GetWindowHeight());
-        calculateView();
+
+        this->OnResize(static_cast<float>(event.GetWindowWidth()), static_cast<float>(event.GetWindowHeight()));
 
         ENGINE_LOG_ERROR("Asp: {}", m_aspectRatio);
         return false;
+    }
+
+    void OrthographicCameraController::OnResize(float width, float height) noexcept {
+        
+        m_aspectRatio = width / height;
+
+        calculateView();
     }
 
     void OrthographicCameraController::calculateView() noexcept {
@@ -82,4 +89,5 @@ namespace Creepy {
         m_camera.SetProjection(m_bound.Left, m_bound.Right, m_bound.Bottom, m_bound.Top);
 
     }
+    
 }

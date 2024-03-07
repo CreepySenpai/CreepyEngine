@@ -49,52 +49,7 @@ namespace Creepy
         ImGui::DestroyContext();
     }
 
-    // void ImGuiLayer::OnUpdate() noexcept {
-    //     // auto& io = ImGui::GetIO();
-    //     // auto& app = Application::GetInstance();
-    //     // io.DisplaySize = ImVec2(app.GetWindow().GetWindowWidth(), app.GetWindow().GetWindowHeight());
-
-    //     // float time = (float)glfwGetTime();
-
-        
-    //     // io.DeltaTime = m_time > 0.0f ? (time - m_time) : ( 1.0f / 60.0f);
-    //     // m_time = time;
-
-
-    //     // // We must setup it before call it
-    //     // ImGui_ImplOpenGL3_NewFrame();
-    //     // ImGui::NewFrame();
-        
-
-    //     // // Draw Data Here
-
-    //     // ImGui::Begin("Start");
-
-    //     // ImGui::Text("This is some useful text.");
-
-    //     // static char buffer[512] = "Anh Dep Trai";
-
-    //     // ImGui::InputText("Text", buffer, GetArraySize(buffer));
-
-    //     // ImGui::End();
-
-    //     // ImGui::Render();
-    //     // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    // }
-
-    void ImGuiLayer::OnImGuiRender() noexcept {
-
-        // ImGui::Begin("Start");
-
-        // ImGui::Text("This is some useful text.");
-
-        // static char buffer[512] = "Anh Dep Trai";
-
-        // ImGui::InputText("Text", buffer, GetArraySize(buffer));
-
-        // ImGui::End();
-        
+    void ImGuiLayer::OnImGuiRender() noexcept {    
         
     }
 

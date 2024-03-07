@@ -20,6 +20,8 @@ namespace Creepy {
 
             virtual void UnBind() noexcept = 0;
 
+            virtual void Resize(uint32_t width, uint32_t height) noexcept = 0;
+
             virtual uint32_t GetFrameBufferID() const noexcept = 0;
 
             virtual uint32_t GetColorAttachmentID() const noexcept = 0;

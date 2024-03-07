@@ -7,6 +7,9 @@ namespace Creepy {
     EditorLayer::EditorLayer() noexcept : Layer{"LevelEditor"}, m_cameraController{1.0f} {
         Renderer::Init();
 
+        FrameBufferSpecification spec{.Width = 700, .Height = 700};
+        m_frameBuffer = FrameBuffer::Create(spec);
+
         m_texture = Texture2D::Create("./assets/textures/SpecularMap.png");
     }
 
@@ -25,7 +28,9 @@ namespace Creepy {
     void EditorLayer::OnUpdate(const TimeStep &timeStep) noexcept {
         m_cameraController.OnUpdate(timeStep);
 
-        RenderCommand::SetClearColor({1.0f, 0.0f, 0.0f, 1.0f});
+        m_frameBuffer->Bind();
+
+        RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
         RenderCommand::Clear();
 
         Renderer2D::BeginScene(m_cameraController.GetCamera());
@@ -33,6 +38,8 @@ namespace Creepy {
         Renderer2D::DrawRect({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, m_texture);
 
         Renderer2D::EndScene();
+
+        m_frameBuffer->UnBind();
     }
 
     void EditorLayer::OnImGuiRender() noexcept {
@@ -60,16 +67,9 @@ namespace Creepy {
             dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
         }
 
-        // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-        // and handle the pass-thru hole, so we ask Begin() to not render a background.
         if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
             window_flags |= ImGuiWindowFlags_NoBackground;
 
-        // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-        // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-        // all active windows docked into it will lose their parent and become undocked.
-        // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-        // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
         if (!opt_padding)
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
@@ -110,12 +110,27 @@ namespace Creepy {
             ImGui::EndMenuBar();
         }
 
-        ImGui::Begin("Color Picker");
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
+        ImGui::Begin("ViewPort");
 
-        auto id = m_texture->GetRendererID();
-        ImGui::Image((void*)id, ImVec2{320.0f, 320.0f});
+        auto viewPortSize = ImGui::GetContentRegionAvail();
 
+        // Check if view port change we resize it
+        if((m_viewPortSize.x != viewPortSize.x) || (m_viewPortSize.y != viewPortSize.y)) {
+            m_viewPortSize.x = viewPortSize.x;
+            m_viewPortSize.y = viewPortSize.y;
+
+            m_frameBuffer->Resize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+
+            m_cameraController.OnResize(m_viewPortSize.x, m_viewPortSize.y);
+        }
+        
+
+        // auto id = m_texture->GetRendererID();
+        auto id = m_frameBuffer->GetColorAttachmentID();
+        ImGui::Image((void*)id, ImVec2{viewPortSize.x, viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
         ImGui::End();
+        ImGui::PopStyleVar();
 
 
         ImGui::End();

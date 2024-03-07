@@ -23,7 +23,9 @@ namespace Creepy {
             void OnEvent(Event &event) noexcept override;
         private:
             OrthographicCameraController m_cameraController;
+            Ref<FrameBuffer> m_frameBuffer;
             Ref<Texture2D> m_texture;
+            glm::vec2 m_viewPortSize;
     };
     
     
