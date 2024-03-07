@@ -30,8 +30,12 @@ namespace Creepy {
 
     }
 
-    void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height) noexcept {
+    static constexpr uint32_t maxFrameSize = 9000;
 
+    void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height) noexcept {
+        if((width == 0) || (height == 0) || (width > maxFrameSize) || (height > maxFrameSize)){
+            return;
+        }
         m_data.Width = width;
         m_data.Height = height;
 

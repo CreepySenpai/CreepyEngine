@@ -1,13 +1,6 @@
 #include <CreepyEngine/Core/Application.hpp>
-#include <CreepyEngine/Core/Input.hpp>
-#include <CreepyEngine/Core/MouseButtonCode.hpp>
-#include <vector>
-#include <ranges>
-#include <iostream>
-#include <GLFW/glfw3.h>
-
 #include <CreepyEngine/Renderer/Renderer.hpp>
-
+#include <GLFW/glfw3.h>
 
 namespace Creepy {
 

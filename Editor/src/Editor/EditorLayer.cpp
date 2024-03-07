@@ -2,7 +2,7 @@
 
 
 namespace Creepy {
-
+    static char buffer[256];
 
     EditorLayer::EditorLayer() noexcept : Layer{"LevelEditor"}, m_cameraController{1.0f} {
         Renderer::Init();
@@ -26,7 +26,10 @@ namespace Creepy {
     }
 
     void EditorLayer::OnUpdate(const TimeStep &timeStep) noexcept {
-        m_cameraController.OnUpdate(timeStep);
+
+        if(m_viewPortFocused){
+            m_cameraController.OnUpdate(timeStep);
+        }
 
         m_frameBuffer->Bind();
 
@@ -35,6 +38,7 @@ namespace Creepy {
 
         Renderer2D::BeginScene(m_cameraController.GetCamera());
 
+        Renderer2D::DrawRotRect({10.0f, 4.0f, 0.0f}, {2.0f, 1.5f}, glm::radians(45.0f), {0.0f, 1.0f, 0.0f, 1.0f});
         Renderer2D::DrawRect({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, m_texture);
 
         Renderer2D::EndScene();
@@ -47,8 +51,7 @@ namespace Creepy {
         static bool opt_fullscreen = true;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-        // because it would be confusing to have two docking targets within each others.
+        
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
         if (opt_fullscreen)
         {
@@ -85,7 +88,7 @@ namespace Creepy {
 
         if (ImGui::BeginMenuBar())
         {
-            if (ImGui::BeginMenu("Options"))
+            if (ImGui::BeginMenu("File"))
             {
                 // Disabling fullscreen would allow the window to be moved to the front of other windows,
                 // which we can't undo at the moment without finer window depth/z control.
@@ -102,8 +105,20 @@ namespace Creepy {
             ImGui::EndMenuBar();
         }
 
+        ImGui::Begin("Test");
+        
+        ImGui::InputText("Input Something", buffer, 256);
+
+        ImGui::End();
+
+
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
         ImGui::Begin("ViewPort");
+
+        m_viewPortFocused = ImGui::IsWindowFocused();
+        m_viewPortHovered = ImGui::IsWindowHovered();
+
+        Application::GetInstance().GetImGuiLayer()->BlockEvents(!m_viewPortFocused || !m_viewPortHovered);
 
         auto viewPortSize = ImGui::GetContentRegionAvail();
 
@@ -129,6 +144,10 @@ namespace Creepy {
     }
 
     void EditorLayer::OnEvent(Event &event) noexcept {
-        m_cameraController.OnEvent(event);
+        if(m_viewPortFocused){
+
+            m_cameraController.OnEvent(event);
+
+        }
     }
 }

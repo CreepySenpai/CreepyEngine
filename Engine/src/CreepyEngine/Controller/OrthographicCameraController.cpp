@@ -13,19 +13,19 @@ namespace Creepy {
 
     void OrthographicCameraController::OnUpdate(const TimeStep &timeStep) noexcept {
 
-        if (Input::IsKeyPressed(CREEPY_KEY_RIGHT))
+        if (Input::IsKeyPressed(KeyCode::KEY_RIGHT))
         {
             m_cameraPosition.x += m_cameraMoveSpeed * timeStep.GetSeconds();
         }
-        else if (Input::IsKeyPressed(CREEPY_KEY_LEFT))
+        else if (Input::IsKeyPressed(KeyCode::KEY_LEFT))
         {
             m_cameraPosition.x -= m_cameraMoveSpeed * timeStep.GetSeconds();
         }
-        else if (Input::IsKeyPressed(CREEPY_KEY_UP))
+        else if (Input::IsKeyPressed(KeyCode::KEY_UP))
         {
             m_cameraPosition.y += m_cameraMoveSpeed * timeStep.GetSeconds();
         }
-        else if (Input::IsKeyPressed(CREEPY_KEY_DOWN))
+        else if (Input::IsKeyPressed(KeyCode::KEY_DOWN))
         {
             m_cameraPosition.y -= m_cameraMoveSpeed * timeStep.GetSeconds();
         }
@@ -34,12 +34,12 @@ namespace Creepy {
 
         if(m_rotation){
 
-            if (Input::IsKeyPressed(CREEPY_KEY_Q))
+            if (Input::IsKeyPressed(KeyCode::KEY_Q))
             {
                 m_cameraRotation += m_cameraRotateSpeed * timeStep.GetSeconds();
             }
 
-            if (Input::IsKeyPressed(CREEPY_KEY_E))
+            if (Input::IsKeyPressed(KeyCode::KEY_E))
             {
                 m_cameraRotation -= m_cameraRotateSpeed * timeStep.GetSeconds();
             }

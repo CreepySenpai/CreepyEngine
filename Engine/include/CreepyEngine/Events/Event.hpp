@@ -26,8 +26,8 @@ namespace Creepy {
 
     class Event
     {
+
         public:
-            friend class EventDispatcher;
             constexpr virtual EventType GetEventType() const noexcept = 0;
             constexpr virtual std::string GetEventName() const noexcept = 0;
             constexpr virtual int GetCategoryFlags() const noexcept = 0;
@@ -38,11 +38,11 @@ namespace Creepy {
             }
 
             constexpr inline bool IsHandled() const noexcept {
-                return m_handled;
+                return Handled;
             }
 
-        protected:
-            bool m_handled{false};
+            bool Handled{false};
+
     };
     
     class EventDispatcher {
@@ -55,7 +55,7 @@ namespace Creepy {
             template <typename T>
             bool Dispatch(std::function<bool(T&)> func) {
                 if(m_event.GetEventType() == T::GetStaticEventType()) {
-                    m_event.m_handled = func(*(dynamic_cast<T*>(&m_event)));    // Cast Event To Real Type Then Call It
+                    m_event.Handled = func(*(dynamic_cast<T*>(&m_event)));    // Cast Event To Real Type Then Call It
                     return true;
                 }
 

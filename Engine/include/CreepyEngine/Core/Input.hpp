@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include "KeyCode.hpp"
+#include "MouseButtonCode.hpp"
 
 namespace Creepy
 {
@@ -8,9 +10,9 @@ namespace Creepy
     {
         public:
             
-            static bool IsKeyPressed(int keyCode) noexcept;
+            static bool IsKeyPressed(KeyCode keyCode) noexcept;
 
-            static bool IsMouseButtonPressed(int mouseButton) noexcept;
+            static bool IsMouseButtonPressed(MouseButtonCode mouseButton) noexcept;
 
             static float GetMouseX() noexcept;
 

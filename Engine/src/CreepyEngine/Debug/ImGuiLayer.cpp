@@ -12,13 +12,6 @@ namespace Creepy
     }
 
     void ImGuiLayer::OnAttach() noexcept {
-        // ImGui::CreateContext();
-        // ImGui::StyleColorsDark();
-
-        // ImGuiIO& io = ImGui::GetIO();
-        // io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-
-        // io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
         
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
@@ -78,104 +71,16 @@ namespace Creepy
         
     }
 
-    // void ImGuiLayer::OnEvent(Event& event) noexcept {
-    //     EventDispatcher dispatcher{event};
-
-    //     // We bind every func and check if current event match type of event func then we handle it
-    //     dispatcher.Dispatch<WindowResizeEvent>(std::bind_front(ImGuiLayer::OnWindowResizedEvent, this));
-
-    //     dispatcher.Dispatch<MouseButtonPressedEvent>(std::bind_front(ImGuiLayer::OnMouseButtonPressedEvent, this));
-
-    //     dispatcher.Dispatch<MouseButtonReleasedEvent>(std::bind_front(ImGuiLayer::OnMouseButtonReleasedEvent, this));
-
-    //     dispatcher.Dispatch<MouseMovedEvent>(std::bind_front(ImGuiLayer::OnMouseMovedEvent, this));
-
-    //     dispatcher.Dispatch<MouseScrolledEvent>(std::bind_front(ImGuiLayer::OnMouseScrolledEvent, this));
-
-    //     dispatcher.Dispatch<KeyPressedEvent>(std::bind_front(ImGuiLayer::OnKeyPressedEvent, this));
-
-    //     dispatcher.Dispatch<KeyReleasedEvent>(std::bind_front(ImGuiLayer::OnKeyReleasedEvent, this));
-
-    //     dispatcher.Dispatch<KeyTypedEvent>(std::bind_front(ImGuiLayer::OnKeyTypedEvent, this));
-    // }
-
-
-    // // All ImGui Event We Get Just To Get Information To Handle Debug Data, So We Dont Need To Set Handle = true
-    // bool ImGuiLayer::OnWindowResizedEvent(WindowResizeEvent &event) noexcept
-    // {
-    //     auto&& io = ImGui::GetIO();
-    //     io.DisplaySize = ImVec2(static_cast<float>(event.GetWindowWidth()), static_cast<float>(event.GetWindowHeight()));
-    //     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-    //     glViewport(0, 0, event.GetWindowWidth(), event.GetWindowHeight());
-
-    //     return false;
-    // }
-
-    // bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent &event) noexcept
-    // {
-    //     auto&& io = ImGui::GetIO();
-    //     // io.MouseDown[event.GetButton()] = true;
-    //     io.AddMouseButtonEvent(event.GetButton(), true);
-    //     return false;
-    // }
-
-    // bool ImGuiLayer::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent &event) noexcept
-    // {
-    //     auto&& io = ImGui::GetIO();
-    //     // io.MouseDown[event.GetButton()] = false;
-    //     io.AddMouseButtonEvent(event.GetButton(), false);
-    //     return false;
-    // }
-
-    // bool ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent &event) noexcept
-    // {
-    //     auto&& io = ImGui::GetIO();
-    //     // io.MousePos = ImVec2(static_cast<float>(event.GetMouseX()), static_cast<float>(event.GetMouseY()));
-    //     io.AddMousePosEvent(static_cast<float>(event.GetMouseX()), static_cast<float>(event.GetMouseY()));
-    //     return false;
-    // }
-    // bool ImGuiLayer::OnMouseScrolledEvent(MouseScrolledEvent &event) noexcept
-    // {
-    //     auto&& io = ImGui::GetIO();
-    //     // io.MouseWheel += event.GetYOffset();
-    //     // io.MouseWheelH += event.GetXOffset();
-    //     io.AddMouseWheelEvent(static_cast<float>(event.GetXOffset()), static_cast<float>(event.GetYOffset()));
-    //     return false;
-    // }
-    // bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent &event) noexcept
-    // {
-    //     auto&& io = ImGui::GetIO();
-
-    //     io.AddKeyEvent(Creepy_Key_To_ImGui(event.GetKeyCode()), true);
+    void ImGuiLayer::OnEvent(Event& event) noexcept {
         
-    //     io.KeyCtrl = ImGui::IsKeyDown(Creepy_Key_To_ImGui(CREEPY_KEY_LEFT_CONTROL)) 
-    //                 || ImGui::IsKeyDown(Creepy_Key_To_ImGui(CREEPY_KEY_RIGHT_CONTROL));
+        // Some event handle by ImGui so we don't need send it to application
+        if(m_blockEvents){
+            auto& io = ImGui::GetIO();
+            event.Handled |= event.IsInCategory(EventCategory::MOUSE) & io.WantCaptureMouse;
+            event.Handled |= event.IsInCategory(EventCategory::KEYBOARD) & io.WantCaptureKeyboard;
+        }
 
-    //     io.KeyShift = ImGui::IsKeyDown(Creepy_Key_To_ImGui(CREEPY_KEY_LEFT_SHIFT)) 
-    //                 || ImGui::IsKeyDown(Creepy_Key_To_ImGui(CREEPY_KEY_RIGHT_SHIFT));
 
-    //     io.KeyAlt = ImGui::IsKeyDown(Creepy_Key_To_ImGui(CREEPY_KEY_LEFT_ALT)) 
-    //                 || ImGui::IsKeyDown(Creepy_Key_To_ImGui(CREEPY_KEY_RIGHT_ALT));
-
-    //     io.KeySuper = ImGui::IsKeyDown(Creepy_Key_To_ImGui(CREEPY_KEY_LEFT_SUPER)) 
-    //                 || ImGui::IsKeyDown(Creepy_Key_To_ImGui(CREEPY_KEY_RIGHT_SUPER));
-
-    //     return false;
-    // }
-    // bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent &event) noexcept
-    // {
-    //     auto&& io = ImGui::GetIO();
-                
-    //     io.AddKeyEvent(Creepy_Key_To_ImGui(event.GetKeyCode()), false);
-    //     return false;
-    // }
-    // bool ImGuiLayer::OnKeyTypedEvent(KeyTypedEvent &event) noexcept
-    // {
-    //     auto&& io = ImGui::GetIO();
-
-    //     io.AddInputCharacter(static_cast<uint32_t>(event.GetKeyCode()));
-
-    //     return false;
-    // }
+    }
 }
 

@@ -4,19 +4,19 @@
 
 namespace Creepy {
 
-    bool Input::IsKeyPressed(int keyCode) noexcept
+    bool Input::IsKeyPressed(KeyCode keyCode) noexcept
     {
         auto&& window = reinterpret_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
 
-        int state = glfwGetKey(window, keyCode);
+        int state = glfwGetKey(window, std::to_underlying(keyCode));
 
         return (state == GLFW_PRESS) || (state == GLFW_REPEAT);
     }
     
-    bool Input::IsMouseButtonPressed(int mouseButton) noexcept {
+    bool Input::IsMouseButtonPressed(MouseButtonCode mouseButton) noexcept {
         auto&& window = reinterpret_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
 
-        int state = glfwGetMouseButton(window, mouseButton);
+        int state = glfwGetMouseButton(window, std::to_underlying(mouseButton));
 
         return (state == GLFW_PRESS);
     }

@@ -26,6 +26,9 @@ namespace Creepy {
             Ref<FrameBuffer> m_frameBuffer;
             Ref<Texture2D> m_texture;
             glm::vec2 m_viewPortSize;
+            bool m_viewPortFocused;
+            bool m_viewPortHovered;
+
     };
     
     

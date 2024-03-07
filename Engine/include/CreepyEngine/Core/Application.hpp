@@ -36,6 +36,10 @@ namespace Creepy
                 return *m_window;
             }
 
+            inline ImGuiLayer* GetImGuiLayer() noexcept {
+                return m_imGuiLayer;
+            }
+
             static inline Application& GetInstance() noexcept {
                 return *instance;
             }
