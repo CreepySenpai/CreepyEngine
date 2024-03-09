@@ -25,6 +25,8 @@ namespace Creepy {
             OrthographicCameraController m_cameraController;
             Ref<FrameBuffer> m_frameBuffer;
             Ref<Texture2D> m_texture;
+            Ref<Scene> m_scene;
+            Entity m_entity;
             glm::vec2 m_viewPortSize;
             bool m_viewPortFocused;
             bool m_viewPortHovered;

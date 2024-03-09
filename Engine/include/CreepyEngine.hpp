@@ -37,3 +37,8 @@
 
 // Controller
 #include <CreepyEngine/Controller/OrthographicCameraController.hpp>
+
+// Scene
+#include <CreepyEngine/Scene/Scene.hpp>
+#include <CreepyEngine/Scene/Entity.hpp>
+#include <CreepyEngine/Scene/Components.hpp>

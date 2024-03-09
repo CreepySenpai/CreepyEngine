@@ -8,7 +8,7 @@ Sandbox2D::Sandbox2D() noexcept : Creepy::Layer{"SandBox"}, m_cameraController{6
     m_texture = Creepy::Texture2D::Create("./assets/textures/RPGpack.png");
     m_subTexture = Creepy::SubTexture2D::CreateFromCoords(m_texture, {0, 1}, {128.0f, 128.0f}, {1.0f, 2.0f});
 
-
+    // m_scene = std::make_shared<Creepy::Scene>();
 }
 
 Sandbox2D::~Sandbox2D() noexcept {

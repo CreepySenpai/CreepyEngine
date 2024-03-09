@@ -9,11 +9,11 @@ namespace Creepy
 
             }
 
-            constexpr float GetSeconds() const noexcept {
+            [[nodiscard]] constexpr float GetSeconds() const noexcept {
                 return m_time;
             }
 
-            constexpr float GetMilliseconds() const noexcept {
+            [[nodiscard]] constexpr float GetMilliseconds() const noexcept {
                 return m_time * 1000.0f;
             }
 

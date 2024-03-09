@@ -25,19 +25,19 @@ namespace Creepy {
                 calculateViewMatrix();
             }
 
-            constexpr inline float GetRotation() const noexcept {
+            [[nodiscard]] constexpr inline float GetRotation() const noexcept {
                 return m_rotation;
             }
 
-            constexpr inline const glm::mat4& GetProjectionMatrix() const noexcept {
+            [[nodiscard]] constexpr inline const glm::mat4& GetProjectionMatrix() const noexcept {
                 return m_projectionMatrix;
             }
 
-            constexpr inline const glm::mat4& GetViewMatrix() const noexcept {
+            [[nodiscard]] constexpr inline const glm::mat4& GetViewMatrix() const noexcept {
                 return m_viewMatrix;
             }
 
-            constexpr inline const glm::mat4& GetViewProjectionMatrix() const noexcept {
+            [[nodiscard]] constexpr inline const glm::mat4& GetViewProjectionMatrix() const noexcept {
                 return m_viewProjectionMatrix;
             }
 

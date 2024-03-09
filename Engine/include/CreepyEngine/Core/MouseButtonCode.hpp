@@ -17,12 +17,12 @@ namespace Creepy {
 
     };
 
-    enum class MouseButtonStateCode : uint32_t {
+    enum class MouseCode : uint32_t {
 
-        MOUSE_BUTTON_LAST      = 7,
-        MOUSE_BUTTON_LEFT      = 0,
-        MOUSE_BUTTON_RIGHT     = 1,
-        MOUSE_BUTTON_MIDDLE    = 2,
+        MOUSE_LAST      = 7,
+        MOUSE_LEFT      = 0,
+        MOUSE_RIGHT     = 1,
+        MOUSE_MIDDLE    = 2,
 
     };
 

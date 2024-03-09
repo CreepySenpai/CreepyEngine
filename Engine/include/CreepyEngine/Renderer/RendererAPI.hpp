@@ -30,7 +30,7 @@ namespace Creepy
 
             virtual void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept = 0;
 
-            constexpr inline static API GetAPI() noexcept {
+            [[nodiscard]] constexpr inline static API GetAPI() noexcept {
                 return s_api;
             }
             

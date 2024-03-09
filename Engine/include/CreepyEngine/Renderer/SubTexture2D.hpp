@@ -12,11 +12,11 @@ namespace Creepy
         public:
             SubTexture2D(const Ref<Texture2D>& texture, const glm::vec2& minBound, const glm::vec2& maxBound) noexcept;
             
-            constexpr inline const auto& GetTexture() const noexcept {
+            [[nodiscard]] constexpr inline const auto& GetTexture() const noexcept {
                 return m_texture;
             }
 
-            constexpr inline const auto& GetTextureCoords() const noexcept {
+            [[nodiscard]] constexpr inline const auto& GetTextureCoords() const noexcept {
                 return m_textureCoords;
             }
 

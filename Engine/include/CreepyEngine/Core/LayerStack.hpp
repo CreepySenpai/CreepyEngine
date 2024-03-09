@@ -37,7 +37,7 @@ namespace Creepy
             }
             // void
         private:
-            std::vector<Layer *> m_layers;
+            std::vector<Layer*> m_layers;
             size_t m_layerInsertIndex{0};
     };
 

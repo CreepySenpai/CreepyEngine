@@ -4,7 +4,7 @@
 
 namespace Creepy {
     
-    enum class KeyCode : uint64_t {
+    enum class KeyCode : uint32_t {
         KEY_SPACE       =       32,
         KEY_APOSTROPHE  =       39,  /* ' */
         KEY_COMMA       =       44,  /* , */

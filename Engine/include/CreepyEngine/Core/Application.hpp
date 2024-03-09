@@ -24,7 +24,6 @@ namespace Creepy
             void Close() noexcept;
 
             void OnEvent(Event& event) noexcept;
-            //
 
             void PushLayer(Layer* layer) noexcept;
             void PopLayer(Layer* layer) noexcept;
@@ -36,8 +35,8 @@ namespace Creepy
                 return *m_window;
             }
 
-            inline ImGuiLayer* GetImGuiLayer() noexcept {
-                return m_imGuiLayer;
+            inline ImGuiLayer& GetImGuiLayer() noexcept {
+                return *m_imGuiLayer;
             }
 
             static inline Application& GetInstance() noexcept {

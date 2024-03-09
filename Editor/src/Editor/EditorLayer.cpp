@@ -10,7 +10,13 @@ namespace Creepy {
         FrameBufferSpecification spec{.Width = 700, .Height = 700};
         m_frameBuffer = FrameBuffer::Create(spec);
 
+        m_scene = std::make_shared<Scene>();
+
         m_texture = Texture2D::Create("./assets/textures/SpecularMap.png");
+
+        m_entity = m_scene->CreateEntity();
+
+        m_entity.AddComponent<SpriteComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
     }
 
     EditorLayer::~EditorLayer() noexcept {
@@ -31,6 +37,7 @@ namespace Creepy {
             m_cameraController.OnUpdate(timeStep);
         }
 
+
         m_frameBuffer->Bind();
 
         RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
@@ -38,11 +45,13 @@ namespace Creepy {
 
         Renderer2D::BeginScene(m_cameraController.GetCamera());
 
-        Renderer2D::DrawRotRect({10.0f, 4.0f, 0.0f}, {2.0f, 1.5f}, glm::radians(45.0f), {0.0f, 1.0f, 0.0f, 1.0f});
-        Renderer2D::DrawRect({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, m_texture);
+        m_scene->OnUpdate(timeStep);
+
+        // Renderer2D::DrawRotRect({10.0f, 4.0f, 0.0f}, {2.0f, 1.5f}, glm::radians(45.0f), {0.0f, 1.0f, 0.0f, 1.0f});
+        // Renderer2D::DrawRect({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, m_texture);
 
         Renderer2D::EndScene();
-
+        
         m_frameBuffer->UnBind();
     }
 
@@ -109,6 +118,8 @@ namespace Creepy {
         
         ImGui::InputText("Input Something", buffer, 256);
 
+        auto& cl = m_entity.GetComponent<SpriteComponent>().Color;
+        ImGui::ColorEdit4("Edit Color", glm::value_ptr(cl));
         ImGui::End();
 
 
@@ -118,7 +129,7 @@ namespace Creepy {
         m_viewPortFocused = ImGui::IsWindowFocused();
         m_viewPortHovered = ImGui::IsWindowHovered();
 
-        Application::GetInstance().GetImGuiLayer()->BlockEvents(!m_viewPortFocused || !m_viewPortHovered);
+        Application::GetInstance().GetImGuiLayer().BlockEvents(!m_viewPortFocused || !m_viewPortHovered);
 
         auto viewPortSize = ImGui::GetContentRegionAvail();
 
