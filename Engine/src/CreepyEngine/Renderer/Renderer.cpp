@@ -15,7 +15,11 @@ namespace Creepy
         Renderer2D::ShutDown();
     }
 
-    void Renderer::BeginScene(OrthographicCamera& camera) noexcept {
+    void Renderer::BeginScene(const Camera& camera) noexcept {
+        
+    }
+
+    void Renderer::BeginScene(const OrthographicCamera& camera) noexcept {
         m_sceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 
     }

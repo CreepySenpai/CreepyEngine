@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Camera.hpp"
 #include "OrthographicCamera.hpp"
 #include "Texture.hpp"
 #include "SubTexture2D.hpp"
@@ -12,6 +13,10 @@ namespace Creepy {
             static void Init() noexcept;
             static void ShutDown() noexcept;
 
+            // TODO: Replace view matrix
+            static void BeginScene(const Camera& camera, const glm::mat4& transform) noexcept;
+
+            // TODO: Remove
             static void BeginScene(const OrthographicCamera& camera) noexcept;
             static void EndScene() noexcept;
             static void Flush() noexcept;

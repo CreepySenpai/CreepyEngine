@@ -3,6 +3,7 @@
 #include <memory>
 #include <CreepyEngine/Core/Core.hpp>
 #include "RenderCommand.hpp"
+#include "Camera.hpp"
 #include "OrthographicCamera.hpp"
 #include "Shader.hpp"
 
@@ -21,7 +22,9 @@ namespace Creepy
 
             static void ShutDown() noexcept;
             
-            static void BeginScene(OrthographicCamera& camera) noexcept;
+            static void BeginScene(const Camera& camera) noexcept;
+
+            static void BeginScene(const OrthographicCamera& camera) noexcept;
 
             static void EndScene() noexcept;
 

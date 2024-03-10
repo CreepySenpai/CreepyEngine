@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <string>
 
+#include "SceneCamera.hpp"
+
 namespace Creepy {
 
     struct TagComponent{
@@ -33,5 +35,13 @@ namespace Creepy {
 
     };
     
+    struct CameraComponent {
+        SceneCamera Camera;
+        bool IsPrimary{true};
+        bool FixedAspectRatio{false};
+
+        CameraComponent() noexcept = default;
+
+    };
 
 }

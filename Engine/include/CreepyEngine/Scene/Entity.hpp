@@ -16,28 +16,28 @@ namespace Creepy {
             friend class Scene;
 
             template <typename T>
-            T& AddComponent(auto&&... args) noexcept {
-                return m_scene->m_registry.emplace<T>(m_entityHandle, std::forward<decltype(args)>(args)...);
+            constexpr std::remove_cvref_t<T>& AddComponent(auto&&... args) noexcept {
+                return m_scene->m_registry.emplace<std::remove_cvref_t<T>>(m_entityHandle, std::forward<decltype(args)>(args)...);
             }
 
             template <typename T>
-            [[nodiscard]] T& GetComponent() noexcept {
-                return m_scene->m_registry.get<T>(m_entityHandle);
+            [[nodiscard]] constexpr std::remove_cvref_t<T>& GetComponent() noexcept {
+                return m_scene->m_registry.get<std::remove_cvref_t<T>>(m_entityHandle);
             }
 
             template <typename T>
-            [[nodiscard]] bool HasComponent() noexcept {
-                return m_scene->m_registry.all_of<T>(m_entityHandle);
+            [[nodiscard]] constexpr bool HasComponent() noexcept {
+                return m_scene->m_registry.all_of<std::remove_cvref_t<T>>(m_entityHandle);
             }
 
             template <typename... T>
-            [[nodiscard]] bool HasComponents() noexcept {
-                return m_scene->m_registry.all_of<T...>(m_entityHandle);
+            [[nodiscard]] constexpr bool HasComponents() noexcept {
+                return m_scene->m_registry.all_of<std::remove_cvref_t<T>...>(m_entityHandle);
             }
 
             template <typename T>
-            void RemoveComponent() noexcept {
-                m_scene->m_registry.remove<T>(m_entityHandle);
+            constexpr void RemoveComponent() noexcept {
+                m_scene->m_registry.remove<std::remove_cvref_t<T>>(m_entityHandle);
             }
 
         private:

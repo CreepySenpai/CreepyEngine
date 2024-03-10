@@ -126,6 +126,21 @@ namespace Creepy {
         delete[] s_renderer2dStorage.RectVertexBufferBase;
     }
 
+    void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform) noexcept {
+
+        glm::mat4 viewProjection = camera.GetProjection() * glm::inverse(transform);
+        
+        s_renderer2dStorage.shader->Bind();
+
+        s_renderer2dStorage.shader->SetUniformMat4("u_viewProjectionMatrix", viewProjection);
+
+        // Reset
+        s_renderer2dStorage.RectIndexCount = 0;
+        s_renderer2dStorage.RectVertexBufferPointer = s_renderer2dStorage.RectVertexBufferBase;
+
+        s_renderer2dStorage.TextureSlotIndex = 1;
+    }
+
     void Renderer2D::BeginScene(const OrthographicCamera &camera) noexcept {
         s_renderer2dStorage.shader->Bind();
 

@@ -17,6 +17,9 @@ namespace Creepy {
         m_entity = m_scene->CreateEntity();
 
         m_entity.AddComponent<SpriteComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
+
+        m_camera = m_scene->CreateEntity("Camera");
+        m_camera.AddComponent<CameraComponent>().FixedAspectRatio = true;
     }
 
     EditorLayer::~EditorLayer() noexcept {
@@ -34,7 +37,7 @@ namespace Creepy {
     void EditorLayer::OnUpdate(const TimeStep &timeStep) noexcept {
 
         if(m_viewPortFocused){
-            m_cameraController.OnUpdate(timeStep);
+            // m_cameraController.OnUpdate(timeStep);
         }
 
 
@@ -43,14 +46,14 @@ namespace Creepy {
         RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
         RenderCommand::Clear();
 
-        Renderer2D::BeginScene(m_cameraController.GetCamera());
+        // Renderer2D::BeginScene(m_cameraController.GetCamera());
 
         m_scene->OnUpdate(timeStep);
 
         // Renderer2D::DrawRotRect({10.0f, 4.0f, 0.0f}, {2.0f, 1.5f}, glm::radians(45.0f), {0.0f, 1.0f, 0.0f, 1.0f});
         // Renderer2D::DrawRect({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, m_texture);
 
-        Renderer2D::EndScene();
+        // Renderer2D::EndScene();
         
         m_frameBuffer->UnBind();
     }
@@ -120,6 +123,17 @@ namespace Creepy {
 
         auto& cl = m_entity.GetComponent<SpriteComponent>().Color;
         ImGui::ColorEdit4("Edit Color", glm::value_ptr(cl));
+
+        {
+            
+            auto& cam = m_camera.GetComponent<CameraComponent>().Camera;
+            float orSize = cam.GetOrthographicSize();
+
+            if(ImGui::DragFloat("Came View", &orSize)) {
+                cam.SetOrthographicSize(orSize);
+            }
+        }
+        
         ImGui::End();
 
 
@@ -140,7 +154,8 @@ namespace Creepy {
 
             m_frameBuffer->Resize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
 
-            m_cameraController.OnResize(m_viewPortSize.x, m_viewPortSize.y);
+            m_scene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
+            // m_cameraController.OnResize(m_viewPortSize.x, m_viewPortSize.y);
         }
         
 
@@ -157,7 +172,7 @@ namespace Creepy {
     void EditorLayer::OnEvent(Event &event) noexcept {
         if(m_viewPortFocused){
 
-            m_cameraController.OnEvent(event);
+            // m_cameraController.OnEvent(event);
 
         }
     }

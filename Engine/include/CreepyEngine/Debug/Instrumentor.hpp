@@ -6,6 +6,7 @@
 #include <fstream>
 #include <algorithm>
 #include <format>
+#include <filesystem>
 
 namespace Creepy
 {
@@ -24,8 +25,17 @@ namespace Creepy
     class Instrumentor
     {
         public:
-            void BeginSession(const std::string &name, const std::string &filePath = "result.json") noexcept
+            void BeginSession(const std::string &name, const std::string &fileName = "result.json") noexcept
             {
+                auto filePath = std::filesystem::current_path();
+                filePath.append(fileName);
+                
+                // Ensure file are exit
+                if(!std::filesystem::exists(filePath)){
+                    std::ofstream createFile{filePath};
+                    createFile.close();
+                }
+
                 m_fileStream.open(filePath, std::ios::in | std::ios::out);
 
                 WriteHeader();
