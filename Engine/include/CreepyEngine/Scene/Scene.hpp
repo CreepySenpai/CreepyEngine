@@ -24,6 +24,7 @@ namespace Creepy {
             uint32_t m_viewPortHeight{0};
 
             friend class Entity;
+            friend class SceneHierarchyPanel;
     };
     
     

@@ -7,10 +7,11 @@ set(CREEPYENGINE "D:/WorkSpace/GameEngineProjects/CreepyEngine_Cherno/Engine")
 project(CreepyEditor VERSION 0.1.0 LANGUAGES CXX)
 
 file(GLOB COREEDITOR ${CMAKE_SOURCE_DIR}/src/Editor/*.cpp)
+file(GLOB COREPANEL ${CMAKE_SOURCE_DIR}/src/Panel/*.cpp)
 
 add_executable(CreepyEditor src/CreepyEditor.cpp)
 
-target_sources(${PROJECT_NAME} PUBLIC ${COREEDITOR})
+target_sources(${PROJECT_NAME} PUBLIC ${COREEDITOR} ${COREPANEL})
 
 target_include_directories(${PROJECT_NAME} PUBLIC 
     ${CMAKE_SOURCE_DIR}/include

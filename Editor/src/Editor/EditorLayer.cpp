@@ -57,6 +57,8 @@ namespace Creepy {
 
         m_camera = m_scene->CreateEntity("Camera");
         m_camera.AddComponent<CameraComponent>().FixedAspectRatio = true;
+
+        m_hierarchyPanel.SetScene(m_scene);
     }
 
     EditorLayer::~EditorLayer() noexcept {
@@ -202,6 +204,7 @@ namespace Creepy {
         ImGui::End();
         ImGui::PopStyleVar();
 
+        m_hierarchyPanel.OnImGuiRender();
 
         ImGui::End();
     }

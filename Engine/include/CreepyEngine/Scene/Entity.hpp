@@ -11,9 +11,6 @@ namespace Creepy {
         public:
             Entity() noexcept;
 
-            // We only permit Scene create Entity
-            friend class Scene;
-
             template <typename T>
             constexpr std::remove_cvref_t<T>& AddComponent(auto&&... args) noexcept {
                 return m_scene->m_registry.emplace<std::remove_cvref_t<T>>(m_entityHandle, std::forward<decltype(args)>(args)...);
@@ -39,10 +36,21 @@ namespace Creepy {
                 m_scene->m_registry.remove<std::remove_cvref_t<T>>(m_entityHandle);
             }
 
+            constexpr operator uint32_t() const noexcept {
+                return static_cast<uint32_t>(m_entityHandle);
+            }
+
         private:
             Entity(entt::entity handle, Scene* scene) noexcept;
 
         private:
+
+            // We only permit Scene create Entity
+            friend class Scene;
+
+            // For create to view
+            friend class SceneHierarchyPanel;
+
             entt::entity m_entityHandle;
             Scene* m_scene;
     };

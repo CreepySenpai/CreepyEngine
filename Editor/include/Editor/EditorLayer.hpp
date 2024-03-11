@@ -1,6 +1,7 @@
 #pragma once
 
 #include <CreepyEngine.hpp>
+#include <Panel/SceneHierarchyPanel.hpp>
 
 namespace Creepy {
 
@@ -28,6 +29,7 @@ namespace Creepy {
             Ref<Scene> m_scene;
             Entity m_entity;
             Entity m_camera;
+            SceneHierarchyPanel m_hierarchyPanel;
             glm::vec2 m_viewPortSize;
             bool m_viewPortFocused;
             bool m_viewPortHovered;
