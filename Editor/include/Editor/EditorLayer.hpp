@@ -16,7 +16,7 @@ namespace Creepy {
 
             void OnDetach() noexcept override;
 
-            void OnUpdate(const TimeStep& timeStep) noexcept override;
+            void OnUpdate(TimeStep timeStep) noexcept override;
 
             void OnImGuiRender() noexcept override;
 

@@ -18,6 +18,43 @@ namespace Creepy {
 
         m_entity.AddComponent<SpriteComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
 
+        class Test : public ScriptableEntity{
+            protected:
+
+                void OnCreate() noexcept override {
+
+                }
+
+                void OnUpdate(TimeStep timeStep) noexcept override {
+                    auto& transform = GetComponent<TransformComponent>().Transform;
+
+                    if(Input::IsKeyPressed(KeyCode::KEY_LEFT)){
+                        transform[3][0] -= 2.0f * timeStep.GetSeconds();
+                    }
+
+                    if(Input::IsKeyPressed(KeyCode::KEY_RIGHT)){
+                        transform[3][0] += 2.0f * timeStep.GetSeconds();
+                    }
+
+                    if(Input::IsKeyPressed(KeyCode::KEY_UP)){
+                        transform[3][1] += 2.0f * timeStep.GetSeconds();
+                    }
+
+                    if(Input::IsKeyPressed(KeyCode::KEY_DOWN)){
+                        transform[3][1] -= 2.0f * timeStep.GetSeconds();
+                    }
+
+                    // APP_LOG_WARNING("Time By Script {}", timeStep.GetSeconds());
+
+                }
+
+                void OnDestroy() noexcept override {
+
+                }
+        };
+
+        m_entity.AddComponent<NativeScriptComponent>().Bind<Test>();
+
         m_camera = m_scene->CreateEntity("Camera");
         m_camera.AddComponent<CameraComponent>().FixedAspectRatio = true;
     }
@@ -34,7 +71,7 @@ namespace Creepy {
 
     }
 
-    void EditorLayer::OnUpdate(const TimeStep &timeStep) noexcept {
+    void EditorLayer::OnUpdate(TimeStep timeStep) noexcept {
 
         if(m_viewPortFocused){
             // m_cameraController.OnUpdate(timeStep);

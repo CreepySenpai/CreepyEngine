@@ -1,6 +1,7 @@
 #include <CreepyEngine/Scene/Scene.hpp>
 #include <CreepyEngine/Renderer/Renderer2D.hpp>
 #include <CreepyEngine/Scene/Entity.hpp>
+#include <CreepyEngine/Scene/Components.hpp>
 
 namespace Creepy {
 
@@ -22,6 +23,21 @@ namespace Creepy {
     }
 
     void Scene::OnUpdate(const TimeStep& timeStep) noexcept {
+
+        m_registry.view<NativeScriptComponent>().each([timeStep, this](auto entity, NativeScriptComponent& nativeComponent){
+            
+            // TODO: Move to scene play
+            if(!nativeComponent.Instance){
+                nativeComponent.Instance = nativeComponent.CreateScript();
+                nativeComponent.Instance->m_entity = {entity, this};
+                ENGINE_LOG_WARNING("Create Native Instance!");
+
+                nativeComponent.Instance->OnCreate();
+            }
+
+            nativeComponent.Instance->OnUpdate(timeStep);
+
+        });
 
         Camera* mainCamera{nullptr};
         glm::mat4* cameraTransform{nullptr};

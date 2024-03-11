@@ -2,7 +2,6 @@
 
 #include <CreepyEngine/Core/TimeStep.hpp>
 #include <entt/entt.hpp>
-#include "Components.hpp"
 
 namespace Creepy {
 

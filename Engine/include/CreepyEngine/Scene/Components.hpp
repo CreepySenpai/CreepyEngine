@@ -2,8 +2,11 @@
 
 #include <glm/glm.hpp>
 #include <string>
+#include <functional>
 
+#include <CreepyEngine/Core/TimeStep.hpp>
 #include "SceneCamera.hpp"
+#include "ScriptableEntity.hpp"
 
 namespace Creepy {
 
@@ -41,7 +44,32 @@ namespace Creepy {
         bool FixedAspectRatio{false};
 
         CameraComponent() noexcept = default;
+    };
 
+    // TODO: Change to new file
+    template <typename T>
+    concept IsScriptableEntity = std::derived_from<T, ScriptableEntity>;
+
+    struct NativeScriptComponent {
+        ScriptableEntity* Instance{nullptr};
+
+        std::function<ScriptableEntity*()> CreateScript;
+
+        std::function<void(NativeScriptComponent*)> DestroyScript;
+
+        template <IsScriptableEntity T>
+        void Bind() noexcept {
+
+            CreateScript = [](){
+                return static_cast<ScriptableEntity*>(new T);
+            };
+
+            DestroyScript = [](NativeScriptComponent* script){
+                delete script->Instance;
+                script->Instance = nullptr;
+            };
+
+        }
     };
 
 }

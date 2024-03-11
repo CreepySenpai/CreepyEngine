@@ -2,7 +2,6 @@
 
 
 #include "Scene.hpp"
-#include "Components.hpp"
 #include <entt/entt.hpp>
 
 namespace Creepy {
@@ -47,5 +46,6 @@ namespace Creepy {
             entt::entity m_entityHandle;
             Scene* m_scene;
     };
+
     
 }
