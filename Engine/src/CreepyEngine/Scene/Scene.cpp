@@ -40,7 +40,7 @@ namespace Creepy {
         });
 
         Camera* mainCamera{nullptr};
-        glm::mat4* cameraTransform{nullptr};
+        glm::mat4 cameraTransform;
 
         {
             auto cameraGroup = m_registry.view<TransformComponent, CameraComponent>();
@@ -50,7 +50,7 @@ namespace Creepy {
 
                 if(camera.IsPrimary){
                     mainCamera = &camera.Camera;
-                    cameraTransform = &transform.Transform;
+                    cameraTransform = transform.GetTransform();
                     break;
                 }
             }
@@ -58,7 +58,7 @@ namespace Creepy {
 
         if(mainCamera)
         {
-            Renderer2D::BeginScene(*mainCamera, *cameraTransform);
+            Renderer2D::BeginScene(*mainCamera, cameraTransform);
 
             auto group = m_registry.group<TransformComponent>(entt::get<SpriteComponent>);
 
@@ -66,7 +66,7 @@ namespace Creepy {
                 
                 auto&& [transform, sprite] = group.get<TransformComponent, SpriteComponent>(entity);
 
-                Renderer2D::DrawRect(transform.Transform, sprite.Color);
+                Renderer2D::DrawRect(transform.GetTransform(), sprite.Color);
             }
 
             Renderer2D::EndScene();

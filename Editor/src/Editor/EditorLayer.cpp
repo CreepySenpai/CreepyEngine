@@ -26,22 +26,22 @@ namespace Creepy {
                 }
 
                 void OnUpdate(TimeStep timeStep) noexcept override {
-                    auto& transform = GetComponent<TransformComponent>().Transform;
+                    auto& position = GetComponent<TransformComponent>().Position;
 
                     if(Input::IsKeyPressed(KeyCode::KEY_LEFT)){
-                        transform[3][0] -= 2.0f * timeStep.GetSeconds();
+                        position.x -= 2.0f * timeStep.GetSeconds();
                     }
 
                     if(Input::IsKeyPressed(KeyCode::KEY_RIGHT)){
-                        transform[3][0] += 2.0f * timeStep.GetSeconds();
+                        position.x += 2.0f * timeStep.GetSeconds();
                     }
 
                     if(Input::IsKeyPressed(KeyCode::KEY_UP)){
-                        transform[3][1] += 2.0f * timeStep.GetSeconds();
+                        position.y += 2.0f * timeStep.GetSeconds();
                     }
 
                     if(Input::IsKeyPressed(KeyCode::KEY_DOWN)){
-                        transform[3][1] -= 2.0f * timeStep.GetSeconds();
+                        position.y -= 2.0f * timeStep.GetSeconds();
                     }
 
                     // APP_LOG_WARNING("Time By Script {}", timeStep.GetSeconds());
@@ -155,25 +155,6 @@ namespace Creepy {
 
             ImGui::EndMenuBar();
         }
-
-        ImGui::Begin("Test");
-        
-        ImGui::InputText("Input Something", buffer, 256);
-
-        auto& cl = m_entity.GetComponent<SpriteComponent>().Color;
-        ImGui::ColorEdit4("Edit Color", glm::value_ptr(cl));
-
-        {
-            
-            auto& cam = m_camera.GetComponent<CameraComponent>().Camera;
-            float orSize = cam.GetOrthographicSize();
-
-            if(ImGui::DragFloat("Came View", &orSize)) {
-                cam.SetOrthographicSize(orSize);
-            }
-        }
-        
-        ImGui::End();
 
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
