@@ -8,14 +8,14 @@ namespace Creepy {
 
         public:
             constexpr Camera() noexcept = default;
-            constexpr Camera(const glm::mat4& projection) noexcept : m_projection{projection} {}
+            constexpr Camera(const glm::mat4& projection) noexcept : m_projectionMatrix{projection} {}
 
             constexpr inline const glm::mat4& GetProjection() const noexcept {
-                return m_projection;
+                return m_projectionMatrix;
             }
 
         protected:
-            glm::mat4 m_projection{0.0f};
+            glm::mat4 m_projectionMatrix{0.0f};
     };
 
 }

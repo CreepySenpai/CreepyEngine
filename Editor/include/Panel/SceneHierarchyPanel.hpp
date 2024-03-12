@@ -18,6 +18,7 @@ namespace Creepy {
 
             void drawEntityNode(Entity& entity) noexcept;
 
+            void drawEntityProperty(Entity& entity) noexcept;
         private:
             Ref<Scene> m_scene{nullptr};
             Entity m_selectedEntity;
