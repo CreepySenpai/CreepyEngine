@@ -142,6 +142,7 @@ namespace Creepy {
     }
 
     void Renderer2D::BeginScene(const OrthographicCamera &camera) noexcept {
+
         s_renderer2dStorage.shader->Bind();
 
         s_renderer2dStorage.shader->SetUniformMat4("u_viewProjectionMatrix", camera.GetViewProjectionMatrix());
@@ -172,6 +173,7 @@ namespace Creepy {
         RenderCommand::DrawIndex(s_renderer2dStorage.vertexArray, s_renderer2dStorage.RectIndexCount);
 
         ++s_renderer2dStorage.Stats.DrawCalls;
+        
     }
 
     void Renderer2D::flushAndReset() noexcept {

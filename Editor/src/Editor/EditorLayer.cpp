@@ -14,10 +14,6 @@ namespace Creepy {
 
         m_texture = Texture2D::Create("./assets/textures/SpecularMap.png");
 
-        m_entity = m_scene->CreateEntity();
-
-        m_entity.AddComponent<SpriteComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
-
         class Test : public ScriptableEntity{
             protected:
 
@@ -43,7 +39,7 @@ namespace Creepy {
                     if(Input::IsKeyPressed(KeyCode::KEY_DOWN)){
                         position.y -= 2.0f * timeStep.GetSeconds();
                     }
-
+                    
                     // APP_LOG_WARNING("Time By Script {}", timeStep.GetSeconds());
 
                 }
@@ -52,8 +48,6 @@ namespace Creepy {
 
                 }
         };
-
-        m_entity.AddComponent<NativeScriptComponent>().Bind<Test>();
 
         m_camera = m_scene->CreateEntity("Camera");
         m_camera.AddComponent<CameraComponent>().FixedAspectRatio = true;
@@ -75,6 +69,8 @@ namespace Creepy {
 
     void EditorLayer::OnUpdate(TimeStep timeStep) noexcept {
 
+        // if(FrameBufferSpecification spec = m_frameBuffer->Get)
+
         if(m_viewPortFocused){
             // m_cameraController.OnUpdate(timeStep);
         }
@@ -84,15 +80,8 @@ namespace Creepy {
 
         RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
         RenderCommand::Clear();
-
-        // Renderer2D::BeginScene(m_cameraController.GetCamera());
-
+        Renderer2D::ResetStatistics();
         m_scene->OnUpdate(timeStep);
-
-        // Renderer2D::DrawRotRect({10.0f, 4.0f, 0.0f}, {2.0f, 1.5f}, glm::radians(45.0f), {0.0f, 1.0f, 0.0f, 1.0f});
-        // Renderer2D::DrawRect({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, m_texture);
-
-        // Renderer2D::EndScene();
         
         m_frameBuffer->UnBind();
     }
@@ -175,7 +164,7 @@ namespace Creepy {
             m_frameBuffer->Resize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
 
             m_scene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
-            // m_cameraController.OnResize(m_viewPortSize.x, m_viewPortSize.y);
+
         }
         
 
@@ -186,6 +175,19 @@ namespace Creepy {
         ImGui::PopStyleVar();
 
         m_hierarchyPanel.OnImGuiRender();
+
+
+        ImGui::Begin("Statics");
+
+        auto stats = Creepy::Renderer2D::GetStatistics();
+
+        ImGui::Text("Render2D Stats");
+        ImGui::Text("Draw Calls: %d", stats.DrawCalls);
+        ImGui::Text("Rect Count: %d", stats.RectCount);
+        ImGui::Text("Total Vertex: %d", stats.GetTotalVertexCount());
+        ImGui::Text("Total Index: %d", stats.GetTotalIndexCount());
+
+        ImGui::End();
 
         ImGui::End();
     }

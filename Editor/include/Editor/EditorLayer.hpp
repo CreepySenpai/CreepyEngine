@@ -27,7 +27,6 @@ namespace Creepy {
             Ref<FrameBuffer> m_frameBuffer;
             Ref<Texture2D> m_texture;
             Ref<Scene> m_scene;
-            Entity m_entity;
             Entity m_camera;
             SceneHierarchyPanel m_hierarchyPanel;
             glm::vec2 m_viewPortSize;

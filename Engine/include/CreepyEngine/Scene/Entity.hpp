@@ -13,7 +13,9 @@ namespace Creepy {
 
             template <typename T>
             constexpr std::remove_cvref_t<T>& AddComponent(auto&&... args) noexcept {
-                return m_scene->m_registry.emplace<std::remove_cvref_t<T>>(m_entityHandle, std::forward<decltype(args)>(args)...);
+                auto& component = m_scene->m_registry.emplace<std::remove_cvref_t<T>>(m_entityHandle, std::forward<decltype(args)>(args)...);
+                m_scene->OnComponentAdded<std::remove_cvref_t<T>>(*this, component);
+                return component;
             }
 
             template <typename T>
@@ -39,7 +41,7 @@ namespace Creepy {
             constexpr operator uint32_t() const noexcept {
                 return static_cast<uint32_t>(m_entityHandle);
             }
-
+            
         private:
             Entity(entt::entity handle, Scene* scene) noexcept;
 

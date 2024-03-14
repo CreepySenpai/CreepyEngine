@@ -26,7 +26,7 @@ void Sandbox2D::OnDetach() noexcept
     
 }
 
-void Sandbox2D::OnUpdate(const Creepy::TimeStep &timeStep) noexcept
+void Sandbox2D::OnUpdate(Creepy::TimeStep timeStep) noexcept
 {
     m_cameraController.OnUpdate(timeStep);
 
@@ -36,10 +36,14 @@ void Sandbox2D::OnUpdate(const Creepy::TimeStep &timeStep) noexcept
     Creepy::Renderer2D::ResetStatistics();
     Creepy::Renderer2D::BeginScene(m_cameraController.GetCamera());
 
-    Creepy::Renderer2D::DrawRect({0.0f, 0.0f, 0.0f}, {5.f, 5.f}, m_playerColor);
+    // Creepy::Renderer2D::DrawRect({0.0f, 0.0f, 0.0f}, {5.f, 5.f}, m_playerColor);
 
-    Creepy::Renderer2D::DrawRect({6.0f, 7.0f, 1.0f}, {1.f, 1.f}, m_texture);
+    // Creepy::Renderer2D::DrawRect({6.0f, 7.0f, 1.0f}, {1.f, 1.f}, m_texture);
+    glm::mat4 nah = glm::translate(glm::mat4{1.0f}, glm::vec3{1.0f, 1.0f, 1.0f});
 
+    if(Creepy::Input::IsKeyPressed(Creepy::KeyCode::KEY_N)){
+        Creepy::Renderer2D::DrawRect(nah, glm::vec4{1.0f, 1.0f, 0.0f, 1.0f});
+    }
     // Creepy::Renderer2D::DrawRect({0.0f, 1.0f, 0.0f}, {1.0f, 2.0f}, m_subTexture);
     
     Creepy::Renderer2D::EndScene();

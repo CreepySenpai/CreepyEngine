@@ -6,7 +6,7 @@
 namespace Creepy {
 
     Scene::Scene() noexcept {
-
+        
     }
 
     Scene::~Scene() noexcept {
@@ -20,6 +20,19 @@ namespace Creepy {
         entity.AddComponent<TransformComponent>();
         entity.AddComponent<TagComponent>(tag);
         return entity;
+    }
+
+    void Scene::DestroyEntity(Entity& entity) noexcept {
+        
+        // Remove All Component From Entity
+        // for(auto [id, storage]: m_registry.storage()) {
+        //     storage.remove(entity.m_entityHandle);
+        // }
+
+        m_registry.destroy(entity.m_entityHandle);
+        // entity.m_scene = nullptr;
+        // m_registry.remove<TransformComponent>(entity.m_entityHandle);
+        // m_registry.remove<SpriteComponent>(entity.m_entityHandle);
     }
 
     void Scene::OnUpdate(const TimeStep& timeStep) noexcept {
@@ -58,18 +71,19 @@ namespace Creepy {
 
         if(mainCamera)
         {
+
+            // auto group = m_registry.group<TransformComponent>(entt::get<SpriteComponent>);
+            auto renderEntity = m_registry.view<TransformComponent, SpriteComponent>();
+
             Renderer2D::BeginScene(*mainCamera, cameraTransform);
 
-            auto group = m_registry.group<TransformComponent>(entt::get<SpriteComponent>);
-
-            for(auto entity : group){
-                
-                auto&& [transform, sprite] = group.get<TransformComponent, SpriteComponent>(entity);
-
-                Renderer2D::DrawRect(transform.GetTransform(), sprite.Color);
-            }
+                for(auto entity : renderEntity){
+                    auto&& [transform, sprite] = renderEntity.get<TransformComponent, SpriteComponent>(entity);
+                    Renderer2D::DrawRect(transform.GetTransform(), sprite.Color);
+                }
 
             Renderer2D::EndScene();
+            
         }
 
     }
@@ -92,5 +106,10 @@ namespace Creepy {
         }
     }
 
+    template <typename T>
+    void Scene::OnComponentAdded(Entity& entity, T& component){
+        
+    }
 
+    
 }

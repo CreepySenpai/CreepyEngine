@@ -15,7 +15,7 @@ class Sandbox2D : public Creepy::Layer
 
         void OnDetach() noexcept override;
 
-        void OnUpdate(const Creepy::TimeStep& timeStep) noexcept override;
+        void OnUpdate(Creepy::TimeStep timeStep) noexcept override;
 
         void OnImGuiRender() noexcept override;
 

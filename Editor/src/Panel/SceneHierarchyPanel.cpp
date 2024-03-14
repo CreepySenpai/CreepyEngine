@@ -27,6 +27,18 @@ namespace Creepy {
         if(ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()){
             m_selectedEntity = {};
         }
+        
+
+        // Active when click on blank space
+        if(ImGui::BeginPopupContextWindow(0, ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)){
+            
+            if(ImGui::MenuItem("Create Entity")){
+                m_scene->CreateEntity("Empty Entity");
+            }
+
+            ImGui::EndPopup();
+
+        }
 
         ImGui::End();
 
@@ -34,7 +46,28 @@ namespace Creepy {
 
         if(m_selectedEntity.m_entityHandle != entt::null && m_selectedEntity.m_scene != nullptr){
             drawEntityProperty(m_selectedEntity);
+
+            if(ImGui::Button("Add Component")){
+                ImGui::OpenPopup("AddComponets");   // open by id
+            }
+
+            if(ImGui::BeginPopup("AddComponets")){  // sign id
+
+                if(ImGui::MenuItem("Camera")){
+                    m_selectedEntity.AddComponent<CameraComponent>().IsPrimary = false;
+                    ImGui::CloseCurrentPopup();
+                }
+
+                if(ImGui::MenuItem("Sprite")){
+                    m_selectedEntity.AddComponent<SpriteComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::EndPopup();
+            }
         }
+
+        
 
         ImGui::End();
     }
@@ -57,6 +90,32 @@ namespace Creepy {
 
         if(ImGui::IsItemClicked()){
             m_selectedEntity = entity;
+        }
+
+
+        bool isDeletedEntity{false};
+        // Make Delay Effect When Delete Entity, End of Frame We Delete It
+        if(ImGui::BeginPopupContextItem()){
+            
+            if(ImGui::MenuItem("Delete Entity")){
+                isDeletedEntity = true;
+            }
+
+            ImGui::EndPopup();
+
+        }
+
+        // Some Code Use Entity In Future
+
+
+        // Real Delete
+        if(isDeletedEntity){
+            // Check if current select entity is delete we need to change it
+            if(m_selectedEntity == entity){
+                m_selectedEntity = {};
+            }
+
+            m_scene->DestroyEntity(entity);
         }
 
     }
@@ -155,14 +214,36 @@ namespace Creepy {
             std::ranges::fill(buffer, 0);
             std::ranges::copy(tag.Tag, buffer);
 
-            if(ImGui::InputText("Tag", buffer, std::size(buffer))){
+            ImGui::PushID(tag.Tag.c_str());
+
+            ImGui::Columns(2);
+
+            ImGui::SetColumnWidth(0, 100.0f);
+
+            ImGui::Text("Entity Tag");
+
+            ImGui::NextColumn();
+
+            float lineHeight = GImGui->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+
+            ImVec2 buttonSize{lineHeight + 3.0f, lineHeight};
+
+            if(ImGui::InputText("", buffer, std::size(buffer), ImGuiInputTextFlags_EnterReturnsTrue)){
                 tag.Tag.assign(buffer);
             }
+
+            // ImGui::SameLine();
+
+            ImGui::Columns(1);
+
+            ImGui::PopID();
         }
 
+        constexpr ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap;
+
         if(entity.HasComponent<TransformComponent>()) {
-            
-            if(ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(TransformComponent).hash_code()), ImGuiTreeNodeFlags_DefaultOpen, "Transform")){
+
+            if(ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(TransformComponent).hash_code()), treeNodeFlags, "Transform")){
 
                 drawVec3Control("Position", entity.GetComponent<TransformComponent>().Position);
                 drawVec3Control("Rotation", entity.GetComponent<TransformComponent>().Rotation);
@@ -171,12 +252,32 @@ namespace Creepy {
                 ImGui::TreePop();
             }
 
-            
         }
 
         if(entity.HasComponent<CameraComponent>()) {
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{4.0f, 4.0f});
+            
+            bool isOpened = ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(CameraComponent).hash_code()), treeNodeFlags, "Camera");
+            
+            ImGui::SameLine(ImGui::GetWindowWidth() - 25.0f);
 
-            if(ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(CameraComponent).hash_code()), ImGuiTreeNodeFlags_DefaultOpen, "Camera")){
+            if(ImGui::Button("+", ImVec2{20.0f, 20.0f})){
+                ImGui::OpenPopup("ComponentSettings");
+            }
+
+            ImGui::PopStyleVar();
+
+            bool isRemovedComponent{false};
+
+            if(ImGui::BeginPopup("ComponentSettings")){
+                if(ImGui::MenuItem("Remove Component")){
+                    isRemovedComponent = true;
+                }
+
+                ImGui::EndPopup();
+            }
+
+            if(isOpened){
 
                 auto& cameraComponent = entity.GetComponent<CameraComponent>();
                 auto& camera = cameraComponent.Camera;
@@ -253,17 +354,46 @@ namespace Creepy {
                 ImGui::TreePop();
             }
 
+            if(isRemovedComponent){
+                entity.RemoveComponent<CameraComponent>();
+            }
+
         }
 
 
         if(entity.HasComponent<SpriteComponent>()) {
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{4.0f, 4.0f});
+
+            bool isOpened = ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(SpriteComponent).hash_code()), treeNodeFlags, "Sprite Render");
             
-            if(ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(SpriteComponent).hash_code()), ImGuiTreeNodeFlags_DefaultOpen, "Sprite Render")) {
+            ImGui::SameLine(ImGui::GetWindowWidth() - 25.0f);
+
+            if(ImGui::Button("+", ImVec2{20.0f, 20.0f})){
+                ImGui::OpenPopup("ComponentSettings");
+            }
+
+            ImGui::PopStyleVar();
+
+            bool isRemovedComponent{false};
+
+            if(ImGui::BeginPopup("ComponentSettings")){
+                if(ImGui::MenuItem("Remove Component")){
+                    isRemovedComponent = true;
+                }
+
+                ImGui::EndPopup();
+            }
+            
+            if(isOpened) {
                 auto& color = entity.GetComponent<SpriteComponent>().Color;
 
                 ImGui::ColorEdit4("", glm::value_ptr(color));
 
                 ImGui::TreePop();
+            }
+
+            if(isRemovedComponent){
+                entity.RemoveComponent<SpriteComponent>();
             }
 
         }

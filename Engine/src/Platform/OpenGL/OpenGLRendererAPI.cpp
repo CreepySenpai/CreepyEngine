@@ -27,7 +27,7 @@ namespace Creepy {
 
         // For sure we render match vertex array
         vertexArray->Bind();
-
+        
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 
         // TODO: Maybe need to remove it
