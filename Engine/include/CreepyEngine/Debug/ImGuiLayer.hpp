@@ -28,6 +28,8 @@ namespace Creepy
                 m_blockEvents = block;
             }
 
+            void SetTheme() noexcept;
+
         private:
             float m_time{0.0f};
             bool m_blockEvents{true};

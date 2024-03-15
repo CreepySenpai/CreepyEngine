@@ -1,6 +1,5 @@
 #include <Editor/EditorLayer.hpp>
 
-
 namespace Creepy {
     static char buffer[256];
 
@@ -119,20 +118,43 @@ namespace Creepy {
 
         // Submit the DockSpace
         ImGuiIO& io = ImGui::GetIO();
+        
+        auto& style = ImGui::GetStyle();
+
+        // Apply to all property window
+        const float minWinsize = style.WindowMinSize.x;
+
+        // We limit window size
+        style.WindowMinSize.x = 400.0f;
+
         if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
         {
             ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
             ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
         }
+
+        style.WindowMinSize.x = minWinsize;
         
 
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("File"))
             {
-                // Disabling fullscreen would allow the window to be moved to the front of other windows,
-                // which we can't undo at the moment without finer window depth/z control.
                 ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen);
+                ImGui::Separator();
+
+                if(ImGui::MenuItem("Save Scene")){
+                    SceneSerializer serializer{m_scene};
+                    serializer.SerializeToYaml("./assets/scenes/test.onichan");
+                }
+
+                ImGui::Separator();
+
+                if(ImGui::MenuItem("Load Scene")){
+                    SceneSerializer serializer{m_scene};
+                    serializer.DeserializeFromYaml("./assets/scenes/test.onichan");
+                }
+
                 ImGui::Separator();
 
                 if (ImGui::MenuItem("Close", NULL, false)){

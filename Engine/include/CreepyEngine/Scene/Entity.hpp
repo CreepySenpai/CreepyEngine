@@ -53,6 +53,9 @@ namespace Creepy {
             // For create to view
             friend class SceneHierarchyPanel;
 
+            // For serializer data
+            friend class SceneSerializer;
+
             entt::entity m_entityHandle;
             Scene* m_scene;
     };

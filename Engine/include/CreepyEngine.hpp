@@ -43,3 +43,4 @@
 #include <CreepyEngine/Scene/Entity.hpp>
 #include <CreepyEngine/Scene/ScriptableEntity.hpp>
 #include <CreepyEngine/Scene/Components.hpp>
+#include <CreepyEngine/Scene/SceneSerializer.hpp>

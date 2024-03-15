@@ -23,16 +23,9 @@ namespace Creepy {
     }
 
     void Scene::DestroyEntity(Entity& entity) noexcept {
-        
-        // Remove All Component From Entity
-        // for(auto [id, storage]: m_registry.storage()) {
-        //     storage.remove(entity.m_entityHandle);
-        // }
-
         m_registry.destroy(entity.m_entityHandle);
-        // entity.m_scene = nullptr;
-        // m_registry.remove<TransformComponent>(entity.m_entityHandle);
-        // m_registry.remove<SpriteComponent>(entity.m_entityHandle);
+        entity.m_entityHandle = entt::null;
+        entity.m_scene = nullptr;
     }
 
     void Scene::OnUpdate(const TimeStep& timeStep) noexcept {

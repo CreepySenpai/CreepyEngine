@@ -1,0 +1,38 @@
+Scene: Untitled
+Entities:
+  - Entity: 12345
+    TagComponent:
+      Tag: Orc
+    TransformComponent:
+      Position: [-1, 2.29999995, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteComponent:
+      Color: [0.344712794, 0.899613917, 0.340394467, 1]
+  - Entity: 12345
+    TagComponent:
+      Tag: Player
+    TransformComponent:
+      Position: [1.60000002, 3.0999999, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteComponent:
+      Color: [0.833976805, 0.2060792, 0.2060792, 1]
+  - Entity: 12345
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+        PerspectiveFOV: 45
+        PerspectiveNear: 0.00100000005
+        PerspectiveFar: 1000
+      Primary: true
+      FixedAspectRatio: true

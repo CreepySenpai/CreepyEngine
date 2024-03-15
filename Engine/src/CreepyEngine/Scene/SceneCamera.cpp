@@ -29,7 +29,7 @@ namespace Creepy {
 
     void SceneCamera::SetViewPortSize(uint32_t width, uint32_t height) noexcept {
         m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
-
+        
         this->recalculateProjectionMatrix();
     }
 

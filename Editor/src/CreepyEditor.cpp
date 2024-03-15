@@ -7,7 +7,7 @@ namespace Creepy{
     class CreepyEditor : public Application
     {
         public:
-            CreepyEditor() noexcept : Application{"CreepyEditor", 700, 700} {
+            CreepyEditor() noexcept : Application{"CreepyEditor", 1600, 900} {
                 this->PushLayer(new EditorLayer());
             }
             
