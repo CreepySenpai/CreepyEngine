@@ -143,16 +143,34 @@ namespace Creepy {
                 ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen);
                 ImGui::Separator();
 
-                if(ImGui::MenuItem("Save Scene")){
-                    SceneSerializer serializer{m_scene};
-                    serializer.SerializeToYaml("./assets/scenes/test.onichan");
+                if(ImGui::MenuItem("New", "Ctrl+N")){
+                    this->NewScene();
                 }
 
                 ImGui::Separator();
 
-                if(ImGui::MenuItem("Load Scene")){
-                    SceneSerializer serializer{m_scene};
-                    serializer.DeserializeFromYaml("./assets/scenes/test.onichan");
+                if(ImGui::MenuItem("Open...", "Ctrl+O")){
+                    this->OpenScene();
+                }
+
+                ImGui::Separator();
+
+                if(ImGui::MenuItem("Save As...", "Ctrl+S")){
+                    this->SaveSceneAs();
+                }
+
+                ImGui::Separator();
+
+                if(ImGui::MenuItem("Save Theme")){
+                    Application::GetInstance().GetImGuiLayer().SaveThemeToYaml("./assets/scenes/test.thm");
+                }
+
+                ImGui::Separator();
+
+                if(ImGui::MenuItem("Load Theme")){
+                    if(Application::GetInstance().GetImGuiLayer().LoadThemeFromYaml("./assets/scenes/test.thm")){
+                        Application::GetInstance().GetImGuiLayer().SetTheme();
+                    }
                 }
 
                 ImGui::Separator();
@@ -211,14 +229,148 @@ namespace Creepy {
 
         ImGui::End();
 
+        {
+            ImGui::Begin("Theme Setting");
+            auto&& imguiInstance = Application::GetInstance().GetImGuiLayer();
+            auto&& editorConfig = imguiInstance.GetEditorConfig();
+
+            if(ImGui::ColorEdit4("Window Background", glm::value_ptr(editorConfig.WindowBg))){
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Header", glm::value_ptr(editorConfig.Header))){
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Header Hovered", glm::value_ptr(editorConfig.HeaderHovered))){
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Header Active", glm::value_ptr(editorConfig.HeaderActive))){
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Button", glm::value_ptr(editorConfig.Button))){
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Button Hovered", glm::value_ptr(editorConfig.ButtonHovered))){
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Button Active", glm::value_ptr(editorConfig.ButtonActive))){
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Frame Background", glm::value_ptr(editorConfig.FrameBg))){
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("FrameBg Hovered", glm::value_ptr(editorConfig.FrameBgHovered))){
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("FrameBg Active", glm::value_ptr(editorConfig.FrameBgActive))) {
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Tab", glm::value_ptr(editorConfig.Tab))) {
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Tab Hovered", glm::value_ptr(editorConfig.TabHovered))) {
+                imguiInstance.SetTheme();
+            }
+            
+            if(ImGui::ColorEdit4("Tab Active", glm::value_ptr(editorConfig.TabActive))) {
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Tab Unfocused", glm::value_ptr(editorConfig.TabUnfocused))) {
+                imguiInstance.SetTheme();
+            }
+
+            if(ImGui::ColorEdit4("Tab Unfocused Active", glm::value_ptr(editorConfig.TabUnfocusedActive))) {
+                imguiInstance.SetTheme();
+            }
+
+
+            ImGui::End();
+        }
+
         ImGui::End();
     }
 
     void EditorLayer::OnEvent(Event &event) noexcept {
-        if(m_viewPortFocused){
+        EventDispatcher dispatcher{event};
 
-            // m_cameraController.OnEvent(event);
+        dispatcher.Dispatch<KeyPressedEvent>(std::bind_front(OnKeyPressed, this));
+    }
 
+    bool EditorLayer::OnKeyPressed(KeyPressedEvent& event) noexcept {
+        if(event.GetRepeatCount() > 0){
+            return false;
+        }
+
+        bool ctrl = Input::IsKeyPressed(KeyCode::KEY_LEFT_CONTROL) || Input::IsKeyPressed(KeyCode::KEY_RIGHT_CONTROL);
+
+        switch (event.GetKeyCode())
+        {
+            case std::to_underlying(KeyCode::KEY_N) : {
+                if(ctrl){
+                    this->NewScene();
+                }
+                break;
+            }
+
+            case std::to_underlying(KeyCode::KEY_O) : {
+                if(ctrl){
+                    this->OpenScene();
+                }
+                break;
+            }
+
+            case std::to_underlying(KeyCode::KEY_S) : {
+                if(ctrl){
+                    this->SaveSceneAs();
+                }
+                break;
+            }
+        }
+
+        return false;
+    }
+
+
+    void EditorLayer::NewScene() noexcept {
+        m_scene = std::make_shared<Scene>();    // Create New Empty Scene
+        m_scene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+        m_hierarchyPanel.SetScene(m_scene);
+    }
+
+    void EditorLayer::OpenScene() noexcept
+    {
+        auto filePath = FileDialogs::OpenFile("Creepy Scene (*.creepy)\0*.creepy\0");
+
+        if (!filePath.empty())
+        {
+            m_scene = std::make_shared<Scene>(); // Create New Empty Scene
+            m_scene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+            m_hierarchyPanel.SetScene(m_scene);
+
+            SceneSerializer serializer{m_scene};
+            serializer.DeserializeFromYaml(filePath);
+        }
+    }
+
+    void EditorLayer::SaveSceneAs() noexcept
+    {
+        auto filePath = FileDialogs::SaveFile("Creepy Scene (*.creepy)\0*.creepy\0");
+
+        if (!filePath.empty())
+        {
+            SceneSerializer serializer{m_scene};
+            serializer.SerializeToYaml(filePath);
         }
     }
 }

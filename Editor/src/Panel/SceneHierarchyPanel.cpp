@@ -10,6 +10,9 @@ namespace Creepy {
 
     void SceneHierarchyPanel::SetScene(const Ref<Scene>& scene) noexcept {
         m_scene = scene;
+        
+        // TODO: If we have multi scene and we want keep it last selected entity we need to change it
+        m_selectedEntity = {};
     }
     
     void SceneHierarchyPanel::OnImGuiRender() noexcept {

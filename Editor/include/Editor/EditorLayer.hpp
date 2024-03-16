@@ -22,6 +22,13 @@ namespace Creepy {
             void OnImGuiRender() noexcept override;
 
             void OnEvent(Event &event) noexcept override;
+
+        private:
+            bool OnKeyPressed(KeyPressedEvent& event) noexcept;
+
+            void NewScene() noexcept;
+            void OpenScene() noexcept;
+            void SaveSceneAs() noexcept;
         private:
             OrthographicCameraController m_cameraController;
             Ref<FrameBuffer> m_frameBuffer;

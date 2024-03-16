@@ -48,34 +48,8 @@ namespace Creepy
         ImGui::DestroyContext();
     }
 
-    void ImGuiLayer::OnUpdate(TimeStep timeStep) noexcept {
-        this->SetTheme();
-    }
-
     void ImGuiLayer::OnImGuiRender() noexcept {   
-        ImGui::Begin("Theme Setting");
-
-            ImGui::ColorEdit4("Window Background", glm::value_ptr(m_editorConfig.WindowBg));
-            ImGui::ColorEdit4("Header", glm::value_ptr(m_editorConfig.Header));
-            ImGui::ColorEdit4("Header Hovered", glm::value_ptr(m_editorConfig.HeaderHovered));
-            ImGui::ColorEdit4("Header Active", glm::value_ptr(m_editorConfig.HeaderActive));
-
-            ImGui::ColorEdit4("Button", glm::value_ptr(m_editorConfig.Button));
-            ImGui::ColorEdit4("Button Hovered", glm::value_ptr(m_editorConfig.ButtonHovered));
-            ImGui::ColorEdit4("Button Active", glm::value_ptr(m_editorConfig.ButtonActive));
-
-            ImGui::ColorEdit4("Frame Background", glm::value_ptr(m_editorConfig.FrameBg));
-            ImGui::ColorEdit4("FrameBg Hovered", glm::value_ptr(m_editorConfig.FrameBgHovered));
-            ImGui::ColorEdit4("FrameBg Active", glm::value_ptr(m_editorConfig.FrameBgActive));
-
-            ImGui::ColorEdit4("Tab", glm::value_ptr(m_editorConfig.Tab));
-            ImGui::ColorEdit4("Tab Hovered", glm::value_ptr(m_editorConfig.TabHovered));
-            ImGui::ColorEdit4("Tab Active", glm::value_ptr(m_editorConfig.TabActive));
-            ImGui::ColorEdit4("Tab Unfocused", glm::value_ptr(m_editorConfig.TabUnfocused));
-            ImGui::ColorEdit4("Tab Unfocused Active", glm::value_ptr(m_editorConfig.TabUnfocusedActive));
-
-
-            ImGui::End();
+        
     }
 
     void ImGuiLayer::Begin() noexcept {
@@ -112,7 +86,6 @@ namespace Creepy
             event.Handled |= event.IsInCategory(EventCategory::KEYBOARD) & io.WantCaptureKeyboard;
         }
 
-
     }
 
     void ImGuiLayer::SetTheme() noexcept {
@@ -127,7 +100,6 @@ namespace Creepy
 		colors[ImGuiCol_HeaderHovered] = ImVec4{m_editorConfig.HeaderHovered.r, m_editorConfig.HeaderHovered.g, m_editorConfig.HeaderHovered.b, m_editorConfig.HeaderHovered.a};
 		colors[ImGuiCol_HeaderActive] = ImVec4{ m_editorConfig.HeaderActive.r, m_editorConfig.HeaderActive.g, m_editorConfig.HeaderActive.b, m_editorConfig.HeaderActive.a};
 		
-        ENGINE_LOG_WARNING("Call change button color: R:{}, G:{}, B:{}, A:{}", m_editorConfig.Button.r, m_editorConfig.Button.g, m_editorConfig.Button.b, m_editorConfig.Button.a);
 		// Buttons
 		colors[ImGuiCol_Button] = ImVec4{ m_editorConfig.Button.r, m_editorConfig.Button.g, m_editorConfig.Button.b, m_editorConfig.Button.a };
 		colors[ImGuiCol_ButtonHovered] = ImVec4{ m_editorConfig.ButtonHovered.r, m_editorConfig.ButtonHovered.g, m_editorConfig.ButtonHovered.b, m_editorConfig.ButtonHovered.a };
