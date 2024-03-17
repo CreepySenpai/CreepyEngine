@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Event.hpp"
+#include <CreepyEngine/Core/KeyCode.hpp>
 
 namespace Creepy {
     class KeyEvent : public Event 
@@ -10,20 +11,20 @@ namespace Creepy {
                 return std::to_underlying(EventCategory::KEYBOARD) | std::to_underlying(EventCategory::INPUT);
             }
             
-            constexpr inline int GetKeyCode() const noexcept {
+            constexpr inline KeyCode GetKeyCode() const noexcept {
                 return m_keyCode;
             }
         protected:
-            constexpr KeyEvent(int keyCode) noexcept : m_keyCode{keyCode} {
+            constexpr KeyEvent(KeyCode keyCode) noexcept : m_keyCode{keyCode} {
 
             }
 
-            int m_keyCode{0};
+            KeyCode m_keyCode;
     };
 
     class KeyPressedEvent : public KeyEvent {
         public:
-            constexpr KeyPressedEvent(int keyCode, int repeatCount) noexcept : KeyEvent(keyCode), m_repeatCount{repeatCount} {
+            constexpr KeyPressedEvent(KeyCode keyCode, int repeatCount) noexcept : KeyEvent(keyCode), m_repeatCount{repeatCount} {
 
             }
 
@@ -49,7 +50,7 @@ namespace Creepy {
 
     class KeyReleasedEvent : public KeyEvent {
         public:
-            constexpr KeyReleasedEvent(int keyCode) noexcept : KeyEvent(keyCode) {
+            constexpr KeyReleasedEvent(KeyCode keyCode) noexcept : KeyEvent(keyCode) {
 
             }
 
@@ -68,7 +69,7 @@ namespace Creepy {
 
     class KeyTypedEvent : public KeyEvent {
         public:
-            constexpr KeyTypedEvent(int keyCode) noexcept : KeyEvent(keyCode) {
+            constexpr KeyTypedEvent(KeyCode keyCode) noexcept : KeyEvent(keyCode) {
 
             }
 

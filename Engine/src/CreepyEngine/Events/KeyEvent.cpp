@@ -15,7 +15,7 @@ namespace Creepy
     }
 
     std::string KeyPressedEvent::ToString() const noexcept {
-        return std::format("Key Press: {}, Repeat: {}\n", m_keyCode, m_repeatCount);
+        return std::format("Key Press: {}, Repeat: {}\n", std::to_underlying(m_keyCode), m_repeatCount);
     }
 
     // KeyRelease
@@ -30,7 +30,7 @@ namespace Creepy
     }
 
     std::string KeyReleasedEvent::ToString() const noexcept {
-        return std::format("Key Release: {}\n", m_keyCode);
+        return std::format("Key Release: {}\n", std::to_underlying(m_keyCode));
     }
 
 
@@ -43,6 +43,6 @@ namespace Creepy
     }
 
     std::string KeyTypedEvent::ToString() const noexcept {
-        return std::format("Key Typed: {}\n", m_keyCode);
+        return std::format("Key Typed: {}\n", std::to_underlying(m_keyCode));
     }
 }

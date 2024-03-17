@@ -263,40 +263,40 @@ namespace Creepy {
 
         switch (event.GetKeyCode())
         {
-            case std::to_underlying(KeyCode::KEY_N) : {
+            case KeyCode::KEY_N: {
                 if(ctrl){
                     this->newScene();
                 }
                 break;
             }
 
-            case std::to_underlying(KeyCode::KEY_O) : {
+            case KeyCode::KEY_O: {
                 if(ctrl){
                     this->openScene();
                 }
                 break;
             }
 
-            case std::to_underlying(KeyCode::KEY_S) : {
+            case KeyCode::KEY_S: {
                 if(ctrl){
                     this->saveSceneAs();
                 }
                 break;
             }
 
-            case std::to_underlying(KeyCode::KEY_Q): {
+            case KeyCode::KEY_Q: {
                 m_gizmosType = -1;
                 break;
             }
-            case std::to_underlying(KeyCode::KEY_W): {
+            case KeyCode::KEY_W: {
                 m_gizmosType = ImGuizmo::OPERATION::TRANSLATE;
                 break;
             }
-            case std::to_underlying(KeyCode::KEY_E): {
+            case KeyCode::KEY_E: {
                 m_gizmosType = ImGuizmo::OPERATION::ROTATE;
                 break;
             }
-            case std::to_underlying(KeyCode::KEY_R): {
+            case KeyCode::KEY_R: {
                 m_gizmosType = ImGuizmo::OPERATION::SCALE;
                 break;
             }

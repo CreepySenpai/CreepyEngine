@@ -17,7 +17,7 @@ namespace Creepy {
 
     };
 
-    enum class MouseCode : uint32_t {
+    enum class MouseButtonStateCode : uint32_t {
 
         MOUSE_LAST      = 7,
         MOUSE_LEFT      = 0,

@@ -62,7 +62,7 @@ namespace Creepy {
 
     std::string MouseButtonPressedEvent::ToString() const noexcept
     {
-        return std::format("Button Press: {}", m_button);
+        return std::format("Button Press: {}", std::to_underlying(m_button));
     }
 
     // Mouse Released
@@ -79,6 +79,6 @@ namespace Creepy {
 
     std::string MouseButtonReleasedEvent::ToString() const noexcept
     {
-        return std::format("Button Release: {}", m_button);
+        return std::format("Button Release: {}", std::to_underlying(m_button));
     }
 }

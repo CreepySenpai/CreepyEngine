@@ -111,17 +111,17 @@ namespace Creepy {
             switch (action)
             {
                 case GLFW_PRESS: {
-                    KeyPressedEvent event{keyCode, 0};
+                    KeyPressedEvent event{static_cast<KeyCode>(keyCode), 0};
                     windowData.EventCallBack(event);
                     break;
                 }
                 case GLFW_RELEASE: {
-                    KeyReleasedEvent event{keyCode};
+                    KeyReleasedEvent event{static_cast<KeyCode>(keyCode)};
                     windowData.EventCallBack(event);
                     break;
                 }
                 case GLFW_REPEAT: {
-                    KeyPressedEvent event{keyCode, 1};
+                    KeyPressedEvent event{static_cast<KeyCode>(keyCode), 1};
                     windowData.EventCallBack(event);
                     break;
                 }
@@ -133,7 +133,7 @@ namespace Creepy {
         glfwSetCharCallback(m_window.get(), [](GLFWwindow* window, unsigned int keyCode){
             auto&& windowData = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-            KeyTypedEvent event{static_cast<int>(keyCode)};
+            KeyTypedEvent event{static_cast<KeyCode>(keyCode)};
             windowData.EventCallBack(event);
 
         });
@@ -145,14 +145,14 @@ namespace Creepy {
             {
                 case GLFW_PRESS:
                 {
-                    MouseButtonPressedEvent event{button};
+                    MouseButtonPressedEvent event{static_cast<MouseButtonCode>(button)};
                     windowData.EventCallBack(event);
                     break;
                 }
 
                 case GLFW_RELEASE:
                 {
-                    MouseButtonReleasedEvent event{button};
+                    MouseButtonReleasedEvent event{static_cast<MouseButtonCode>(button)};
                     windowData.EventCallBack(event);
                     break;
                 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Event.hpp"
+#include <CreepyEngine/Core/MouseButtonCode.hpp>
 
 namespace Creepy {
     class MouseMovedEvent : public Event {
@@ -71,9 +72,9 @@ namespace Creepy {
 
     class MouseButtonEvent : public Event {
         public:
-            constexpr MouseButtonEvent(int button) noexcept : m_button{button} {}
+            constexpr MouseButtonEvent(MouseButtonCode button) noexcept : m_button{button} {}
 
-            constexpr inline int GetButton() const noexcept {
+            constexpr inline MouseButtonCode GetButton() const noexcept {
                 return m_button;
             }
 
@@ -81,7 +82,7 @@ namespace Creepy {
                 return std::to_underlying(EventCategory::MOUSE_BUTTON) | std::to_underlying(EventCategory::INPUT);
             }
         protected:
-            int m_button;
+            MouseButtonCode m_button;
     };
 
     class MouseButtonPressedEvent : public MouseButtonEvent {
