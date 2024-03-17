@@ -3,9 +3,11 @@
 #include <glad/glad.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
+#include <yaml-cpp/yaml_ex.hpp>
 
 namespace Creepy
 {
+
     ImGuiLayer::ImGuiLayer() noexcept : Layer("ImGuiLayer") {
 
     }
@@ -122,6 +124,97 @@ namespace Creepy
 		colors[ImGuiCol_TitleBgActive] = ImVec4{  m_editorConfig.TitleBgActive.r, m_editorConfig.TitleBgActive.g, m_editorConfig.TitleBgActive.b, m_editorConfig.TitleBgActive.a };
 		colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ m_editorConfig.TitleBgCollapse.r, m_editorConfig.TitleBgCollapse.g, m_editorConfig.TitleBgCollapse.b, m_editorConfig.TitleBgCollapse.a };
 
+    }
+
+    void ImGuiLayer::SaveThemeToYaml(const std::string& filePath) noexcept {
+        YAML::Emitter writer;
+
+        writer << YAML::BeginMap;
+        writer << YAML::Key << "Theme" << YAML::Value << "Unnamed";
+
+        writer << YAML::Key << "Config" << YAML::BeginMap;
+
+        {
+            
+            writer << YAML::Key << "WindowBg" << YAML::Value << m_editorConfig.WindowBg;
+
+            writer << YAML::Key << "Header" << YAML::Value << m_editorConfig.Header;
+
+            writer << YAML::Key << "HeaderHovered" << YAML::Value << m_editorConfig.HeaderHovered;
+            writer << YAML::Key << "HeaderActive" << YAML::Value << m_editorConfig.HeaderActive;
+
+            writer << YAML::Key << "Button" << YAML::Value << m_editorConfig.Button;
+            writer << YAML::Key << "ButtonHovered" << YAML::Value << m_editorConfig.ButtonHovered;
+            writer << YAML::Key << "ButtonActive" << YAML::Value << m_editorConfig.ButtonActive;
+
+            writer << YAML::Key << "FrameBg" << YAML::Value << m_editorConfig.FrameBg;
+            writer << YAML::Key << "FrameBgHovered" << YAML::Value << m_editorConfig.FrameBgHovered;
+            writer << YAML::Key << "FrameBgActive" << YAML::Value << m_editorConfig.FrameBgActive;
+
+            writer << YAML::Key << "Tab" << YAML::Value << m_editorConfig.Tab;
+            writer << YAML::Key << "TabHovered" << YAML::Value << m_editorConfig.TabHovered;
+            writer << YAML::Key << "TabActive" << YAML::Value << m_editorConfig.TabActive;
+            writer << YAML::Key << "TabUnfocused" << YAML::Value << m_editorConfig.TabUnfocused;
+            writer << YAML::Key << "TabUnfocusedActive" << YAML::Value << m_editorConfig.TabUnfocusedActive;
+
+            writer << YAML::Key << "TitleBg" << YAML::Value << m_editorConfig.TitleBg;
+            writer << YAML::Key << "TitleBgActive" << YAML::Value << m_editorConfig.TitleBgActive;
+            writer << YAML::Key << "TitleBgCollapse" << YAML::Value << m_editorConfig.TitleBgCollapse;
+
+            writer << YAML::EndMap;
+        }
+
+        writer << YAML::EndMap;
+
+        std::ofstream outFile{filePath};
+        outFile << writer.c_str();
+        outFile.close();
+    }
+
+    bool ImGuiLayer::LoadThemeFromYaml(const std::string& filePath) noexcept {
+        std::ifstream stream{filePath};
+        std::stringstream strStream;
+        strStream << stream.rdbuf();
+
+        auto&& themeData = YAML::Load(strStream.str());
+
+        if(!themeData["Theme"]){
+            ENGINE_LOG_ERROR("Root Error");
+            return false;
+        }
+
+        auto&& config = themeData["Config"];
+
+        if(config){
+            m_editorConfig.WindowBg = config["WindowBg"].as<glm::vec4>();
+
+            m_editorConfig.Header = config["Header"].as<glm::vec4>();
+            m_editorConfig.HeaderHovered = config["HeaderHovered"].as<glm::vec4>();
+            m_editorConfig.HeaderActive = config["HeaderActive"].as<glm::vec4>();
+
+            m_editorConfig.Button = config["Button"].as<glm::vec4>();
+            m_editorConfig.ButtonHovered = config["ButtonHovered"].as<glm::vec4>();
+            m_editorConfig.ButtonActive = config["ButtonActive"].as<glm::vec4>();
+
+            m_editorConfig.FrameBg = config["FrameBg"].as<glm::vec4>();
+            m_editorConfig.FrameBgHovered = config["FrameBgHovered"].as<glm::vec4>();
+            m_editorConfig.FrameBgActive = config["FrameBgActive"].as<glm::vec4>();
+
+            m_editorConfig.Tab = config["Tab"].as<glm::vec4>();
+            m_editorConfig.TabHovered = config["TabHovered"].as<glm::vec4>();
+            m_editorConfig.TabActive = config["TabActive"].as<glm::vec4>();
+            m_editorConfig.TabUnfocused = config["TabUnfocused"].as<glm::vec4>();
+            m_editorConfig.TabUnfocusedActive = config["TabUnfocusedActive"].as<glm::vec4>();
+
+            m_editorConfig.TitleBg = config["TitleBg"].as<glm::vec4>();
+            m_editorConfig.TitleBgActive = config["TitleBgActive"].as<glm::vec4>();
+            m_editorConfig.TitleBgCollapse = config["TitleBgCollapse"].as<glm::vec4>();
+        }
+        else {
+            ENGINE_LOG_ERROR("Config Error");
+        }
+
+        return true;
     }
 }
 

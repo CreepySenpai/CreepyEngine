@@ -1,76 +1,10 @@
 #include <CreepyEngine/Scene/SceneSerializer.hpp>
 #include <CreepyEngine/Scene/Components.hpp>
 #include <CreepyEngine/Scene/Entity.hpp>
-#include <CreepyEngine/Debug/ImGuiLayer.hpp>
-#include <yaml-cpp/yaml.h>
-
-namespace YAML {
-    template <>
-    struct convert<glm::vec3>{
-        static Node encode(const glm::vec3& vec){
-            Node node;
-            node.push_back(vec.x);
-            node.push_back(vec.y);
-            node.push_back(vec.z);
-            return node;
-        }
-
-        static bool decode(const Node& node, glm::vec3& vec){
-            // Check Container Vector Data
-            if(!node.IsSequence() || node.size() != 3){
-                return false;
-            }
-
-            vec.x = node[0].as<float>();
-            vec.y = node[1].as<float>();
-            vec.z = node[2].as<float>();
-
-            return true;
-        }
-    };
-
-    template <>
-    struct convert<glm::vec4>{
-        static Node encode(const glm::vec4& vec){
-            Node node;
-            node.push_back(vec.r);
-            node.push_back(vec.g);
-            node.push_back(vec.b);
-            node.push_back(vec.a);
-            return node;
-        }
-
-        static bool decode(const Node& node, glm::vec4& vec){
-            // Check Container Vector Data
-            if(!node.IsSequence() || node.size() != 4){
-                return false;
-            }
-
-            vec.r = node[0].as<float>();
-            vec.g = node[1].as<float>();
-            vec.b = node[2].as<float>();
-            vec.a = node[3].as<float>();
-
-            return true;
-        }
-    };
-}
+#include <yaml-cpp/yaml_ex.hpp>
 
 namespace Creepy
 {
-
-    YAML::Emitter& operator<<(YAML::Emitter& writer, const glm::vec3& vec){
-        writer << YAML::Flow;
-        writer << YAML::BeginSeq << vec.x << vec.y << vec.z << YAML::EndSeq;
-        return writer;
-    }
-
-    YAML::Emitter& operator<<(YAML::Emitter& writer, const glm::vec4& vec){
-        writer << YAML::Flow;
-        writer << YAML::BeginSeq << vec.r << vec.g << vec.b << vec.a << YAML::EndSeq;
-        return writer;
-    }
-
     SceneSerializer::SceneSerializer(const Ref<Scene>& scene) noexcept : m_scene{scene} {
 
     }
@@ -251,99 +185,6 @@ namespace Creepy
     bool SceneSerializer::DeserializeFromBinary(const std::string &filePath) noexcept {
         ENGINE_LOG_ERROR("Binary Deserializer Not Impl!!!");
         return false;
-    }
-
-
-    // TODO: Remove to another file
-    void ImGuiLayer::SaveThemeToYaml(const std::string& filePath) noexcept {
-        YAML::Emitter writer;
-
-        writer << YAML::BeginMap;
-        writer << YAML::Key << "Theme" << YAML::Value << "Unnamed";
-
-        writer << YAML::Key << "Config" << YAML::BeginMap;
-
-        {
-            
-            writer << YAML::Key << "WindowBg" << YAML::Value << m_editorConfig.WindowBg;
-
-            writer << YAML::Key << "Header" << YAML::Value << m_editorConfig.Header;
-
-            writer << YAML::Key << "HeaderHovered" << YAML::Value << m_editorConfig.HeaderHovered;
-            writer << YAML::Key << "HeaderActive" << YAML::Value << m_editorConfig.HeaderActive;
-
-            writer << YAML::Key << "Button" << YAML::Value << m_editorConfig.Button;
-            writer << YAML::Key << "ButtonHovered" << YAML::Value << m_editorConfig.ButtonHovered;
-            writer << YAML::Key << "ButtonActive" << YAML::Value << m_editorConfig.ButtonActive;
-
-            writer << YAML::Key << "FrameBg" << YAML::Value << m_editorConfig.FrameBg;
-            writer << YAML::Key << "FrameBgHovered" << YAML::Value << m_editorConfig.FrameBgHovered;
-            writer << YAML::Key << "FrameBgActive" << YAML::Value << m_editorConfig.FrameBgActive;
-
-            writer << YAML::Key << "Tab" << YAML::Value << m_editorConfig.Tab;
-            writer << YAML::Key << "TabHovered" << YAML::Value << m_editorConfig.TabHovered;
-            writer << YAML::Key << "TabActive" << YAML::Value << m_editorConfig.TabActive;
-            writer << YAML::Key << "TabUnfocused" << YAML::Value << m_editorConfig.TabUnfocused;
-            writer << YAML::Key << "TabUnfocusedActive" << YAML::Value << m_editorConfig.TabUnfocusedActive;
-
-            writer << YAML::Key << "TitleBg" << YAML::Value << m_editorConfig.TitleBg;
-            writer << YAML::Key << "TitleBgActive" << YAML::Value << m_editorConfig.TitleBgActive;
-            writer << YAML::Key << "TitleBgCollapse" << YAML::Value << m_editorConfig.TitleBgCollapse;
-
-            writer << YAML::EndMap;
-        }
-
-        writer << YAML::EndMap;
-
-        std::ofstream outFile{filePath};
-        outFile << writer.c_str();
-        outFile.close();
-    }
-
-    bool ImGuiLayer::LoadThemeFromYaml(const std::string& filePath) noexcept {
-        std::ifstream stream{filePath};
-        std::stringstream strStream;
-        strStream << stream.rdbuf();
-
-        auto&& themeData = YAML::Load(strStream.str());
-
-        if(!themeData["Theme"]){
-            ENGINE_LOG_ERROR("Root Error");
-            return false;
-        }
-
-        auto&& config = themeData["Config"];
-
-        if(config){
-            m_editorConfig.WindowBg = config["WindowBg"].as<glm::vec4>();
-
-            m_editorConfig.Header = config["Header"].as<glm::vec4>();
-            m_editorConfig.HeaderHovered = config["HeaderHovered"].as<glm::vec4>();
-            m_editorConfig.HeaderActive = config["HeaderActive"].as<glm::vec4>();
-
-            m_editorConfig.Button = config["Button"].as<glm::vec4>();
-            m_editorConfig.ButtonHovered = config["ButtonHovered"].as<glm::vec4>();
-            m_editorConfig.ButtonActive = config["ButtonActive"].as<glm::vec4>();
-
-            m_editorConfig.FrameBg = config["FrameBg"].as<glm::vec4>();
-            m_editorConfig.FrameBgHovered = config["FrameBgHovered"].as<glm::vec4>();
-            m_editorConfig.FrameBgActive = config["FrameBgActive"].as<glm::vec4>();
-
-            m_editorConfig.Tab = config["Tab"].as<glm::vec4>();
-            m_editorConfig.TabHovered = config["TabHovered"].as<glm::vec4>();
-            m_editorConfig.TabActive = config["TabActive"].as<glm::vec4>();
-            m_editorConfig.TabUnfocused = config["TabUnfocused"].as<glm::vec4>();
-            m_editorConfig.TabUnfocusedActive = config["TabUnfocusedActive"].as<glm::vec4>();
-
-            m_editorConfig.TitleBg = config["TitleBg"].as<glm::vec4>();
-            m_editorConfig.TitleBgActive = config["TitleBgActive"].as<glm::vec4>();
-            m_editorConfig.TitleBgCollapse = config["TitleBgCollapse"].as<glm::vec4>();
-        }
-        else {
-            ENGINE_LOG_ERROR("Config Error");
-        }
-
-        return true;
     }
 
 }

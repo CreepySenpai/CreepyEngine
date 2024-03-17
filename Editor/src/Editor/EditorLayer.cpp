@@ -162,14 +162,21 @@ namespace Creepy {
                 ImGui::Separator();
 
                 if(ImGui::MenuItem("Save Theme")){
-                    Application::GetInstance().GetImGuiLayer().SaveThemeToYaml("./assets/scenes/test.thm");
+                    auto filePath = FileDialogs::OpenFile("Creepy Theme (*.mlemlem)\0*.mlemlem\0");
+                    if(!filePath.empty()){
+                        Application::GetInstance().GetImGuiLayer().SaveThemeToYaml(filePath);
+                    }
                 }
 
                 ImGui::Separator();
 
                 if(ImGui::MenuItem("Load Theme")){
-                    if(Application::GetInstance().GetImGuiLayer().LoadThemeFromYaml("./assets/scenes/test.thm")){
-                        Application::GetInstance().GetImGuiLayer().SetTheme();
+                    auto filePath = FileDialogs::SaveFile("Creepy Theme (*.mlemlem)\0*.mlemlem\0");
+                    if(!filePath.empty()){
+
+                        if(Application::GetInstance().GetImGuiLayer().LoadThemeFromYaml(filePath)){
+                            Application::GetInstance().GetImGuiLayer().SetTheme();
+                        }
                     }
                 }
 
