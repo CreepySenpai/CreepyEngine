@@ -6,12 +6,13 @@
 #include <CreepyEngine/Events/ApplicationEvent.hpp>
 #include <CreepyEngine/Events/KeyEvent.hpp>
 #include <GLFW/glfw3.h>
-#include <imgui/imgui.h>
 #include <glm/glm.hpp>
+
+#include <imgui/imgui.h>
 
 namespace Creepy
 {
-        struct ThemeConfig
+    struct ThemeConfig
     {
         glm::vec4 WindowBg{0.1f, 0.105f, 0.11f, 1.0f};
 

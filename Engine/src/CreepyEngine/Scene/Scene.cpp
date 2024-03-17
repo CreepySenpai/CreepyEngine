@@ -104,5 +104,17 @@ namespace Creepy {
         
     }
 
-    
+    Entity Scene::GetPrimaryCameraEntity() noexcept {
+       auto&& entitiesHasCamera = m_registry.view<CameraComponent>();
+
+       for(auto&& entity : entitiesHasCamera){
+            auto camera = entitiesHasCamera.get<CameraComponent>(entity);
+            
+            if(camera.IsPrimary){
+                return Entity{entity, this};
+            }
+       }
+
+       return {};
+    }
 }

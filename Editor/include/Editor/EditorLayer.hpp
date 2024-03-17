@@ -26,9 +26,12 @@ namespace Creepy {
         private:
             bool OnKeyPressed(KeyPressedEvent& event) noexcept;
 
-            void NewScene() noexcept;
-            void OpenScene() noexcept;
-            void SaveSceneAs() noexcept;
+            void newScene() noexcept;
+            void openScene() noexcept;
+            void saveSceneAs() noexcept;
+
+            void drawGizmos() noexcept;
+            void drawThemePanel() noexcept;
         private:
             OrthographicCameraController m_cameraController;
             Ref<FrameBuffer> m_frameBuffer;
@@ -37,6 +40,8 @@ namespace Creepy {
             Entity m_camera;
             SceneHierarchyPanel m_hierarchyPanel;
             glm::vec2 m_viewPortSize;
+
+            int m_gizmosType{-1};
             bool m_viewPortFocused;
             bool m_viewPortHovered;
 

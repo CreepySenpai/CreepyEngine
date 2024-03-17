@@ -1,4 +1,5 @@
 #include <Editor/EditorLayer.hpp>
+#include <imgui/ImGuizmo.h>
 
 namespace Creepy {
     static char buffer[256];
@@ -144,19 +145,19 @@ namespace Creepy {
                 ImGui::Separator();
 
                 if(ImGui::MenuItem("New", "Ctrl+N")){
-                    this->NewScene();
+                    this->newScene();
                 }
 
                 ImGui::Separator();
 
                 if(ImGui::MenuItem("Open...", "Ctrl+O")){
-                    this->OpenScene();
+                    this->openScene();
                 }
 
                 ImGui::Separator();
 
                 if(ImGui::MenuItem("Save As...", "Ctrl+S")){
-                    this->SaveSceneAs();
+                    this->saveSceneAs();
                 }
 
                 ImGui::Separator();
@@ -199,7 +200,7 @@ namespace Creepy {
         m_viewPortFocused = ImGui::IsWindowFocused();
         m_viewPortHovered = ImGui::IsWindowHovered();
 
-        Application::GetInstance().GetImGuiLayer().BlockEvents(!m_viewPortFocused || !m_viewPortHovered);
+        Application::GetInstance().GetImGuiLayer().BlockEvents(!m_viewPortFocused && !m_viewPortHovered);
 
         auto viewPortSize = ImGui::GetContentRegionAvail();
 
@@ -215,9 +216,13 @@ namespace Creepy {
         }
         
 
-        // auto id = m_texture->GetRendererID();
         auto id = m_frameBuffer->GetColorAttachmentID();
         ImGui::Image((void*)id, ImVec2{viewPortSize.x, viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
+
+        // Gizmos
+
+        this->drawGizmos();
+
         ImGui::End();
         ImGui::PopStyleVar();
 
@@ -237,7 +242,124 @@ namespace Creepy {
         ImGui::End();
 
         {
-            ImGui::Begin("Theme Setting");
+            this->drawThemePanel();
+        }
+
+        ImGui::End();
+    }
+
+    void EditorLayer::OnEvent(Event &event) noexcept {
+        EventDispatcher dispatcher{event};
+
+        dispatcher.Dispatch<KeyPressedEvent>(std::bind_front(OnKeyPressed, this));
+    }
+
+    bool EditorLayer::OnKeyPressed(KeyPressedEvent& event) noexcept {
+        if(event.GetRepeatCount() > 0){
+            return false;
+        }
+
+        bool ctrl = Input::IsKeyPressed(KeyCode::KEY_LEFT_CONTROL) || Input::IsKeyPressed(KeyCode::KEY_RIGHT_CONTROL);
+
+        switch (event.GetKeyCode())
+        {
+            case std::to_underlying(KeyCode::KEY_N) : {
+                if(ctrl){
+                    this->newScene();
+                }
+                break;
+            }
+
+            case std::to_underlying(KeyCode::KEY_O) : {
+                if(ctrl){
+                    this->openScene();
+                }
+                break;
+            }
+
+            case std::to_underlying(KeyCode::KEY_S) : {
+                if(ctrl){
+                    this->saveSceneAs();
+                }
+                break;
+            }
+
+            case std::to_underlying(KeyCode::KEY_Q): {
+                m_gizmosType = -1;
+                break;
+            }
+            case std::to_underlying(KeyCode::KEY_W): {
+                m_gizmosType = ImGuizmo::OPERATION::TRANSLATE;
+                break;
+            }
+            case std::to_underlying(KeyCode::KEY_E): {
+                m_gizmosType = ImGuizmo::OPERATION::ROTATE;
+                break;
+            }
+            case std::to_underlying(KeyCode::KEY_R): {
+                m_gizmosType = ImGuizmo::OPERATION::SCALE;
+                break;
+            }
+        }
+
+        return false;
+    }
+
+    void EditorLayer::drawGizmos() noexcept {
+        auto&& selectedEntity = m_hierarchyPanel.GetSelectedEntity();
+
+        if(selectedEntity.IsExits() && m_gizmosType != -1){
+            ImGuizmo::SetOrthographic(true);
+            ImGuizmo::SetDrawlist();
+            
+            float windowWidth = ImGui::GetWindowWidth();
+            float windowHeight = ImGui::GetWindowHeight();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+            auto cameraEntity = m_scene->GetPrimaryCameraEntity();
+
+            if(cameraEntity.IsExits()){
+                // Camera
+                auto&& cameraComp = cameraEntity.GetComponent<CameraComponent>();
+                auto&& cameraProjection = cameraComp.Camera.GetProjection();
+                glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+
+                // Current Entity
+                auto&& entityTransform = selectedEntity.GetComponent<TransformComponent>();
+                glm::mat4 transform = entityTransform.GetTransform();
+                
+                const bool isSnapping = Input::IsKeyPressed(KeyCode::KEY_LEFT_CONTROL);
+                const float snapValue = m_gizmosType == ImGuizmo::OPERATION::ROTATE ? 45.0f : 0.5f;
+                
+                const float snapValues[] {snapValue, snapValue, snapValue};
+
+
+                ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), 
+                    static_cast<ImGuizmo::OPERATION>(m_gizmosType), ImGuizmo::MODE::LOCAL, glm::value_ptr(transform),
+                    nullptr, isSnapping ? snapValues : nullptr);
+
+                
+                if(ImGuizmo::IsUsing()){
+                    glm::vec3 position, rotation, scale;
+
+                    Math::DecomposeTransform(transform, position, rotation, scale);
+                    
+                    entityTransform.Position = position;
+                    
+                    // To prevent gimbal lock
+                    auto deltaRotation = rotation - entityTransform.Rotation;
+                    entityTransform.Rotation += deltaRotation;
+
+                    entityTransform.Scale = scale;
+                }
+            }
+
+        }
+    }
+
+    void EditorLayer::drawThemePanel() noexcept {
+
+        ImGui::Begin("Theme Setting");
             auto&& imguiInstance = Application::GetInstance().GetImGuiLayer();
             auto&& editorConfig = imguiInstance.GetEditorConfig();
 
@@ -301,61 +423,16 @@ namespace Creepy {
                 imguiInstance.SetTheme();
             }
 
-
             ImGui::End();
-        }
-
-        ImGui::End();
     }
 
-    void EditorLayer::OnEvent(Event &event) noexcept {
-        EventDispatcher dispatcher{event};
-
-        dispatcher.Dispatch<KeyPressedEvent>(std::bind_front(OnKeyPressed, this));
-    }
-
-    bool EditorLayer::OnKeyPressed(KeyPressedEvent& event) noexcept {
-        if(event.GetRepeatCount() > 0){
-            return false;
-        }
-
-        bool ctrl = Input::IsKeyPressed(KeyCode::KEY_LEFT_CONTROL) || Input::IsKeyPressed(KeyCode::KEY_RIGHT_CONTROL);
-
-        switch (event.GetKeyCode())
-        {
-            case std::to_underlying(KeyCode::KEY_N) : {
-                if(ctrl){
-                    this->NewScene();
-                }
-                break;
-            }
-
-            case std::to_underlying(KeyCode::KEY_O) : {
-                if(ctrl){
-                    this->OpenScene();
-                }
-                break;
-            }
-
-            case std::to_underlying(KeyCode::KEY_S) : {
-                if(ctrl){
-                    this->SaveSceneAs();
-                }
-                break;
-            }
-        }
-
-        return false;
-    }
-
-
-    void EditorLayer::NewScene() noexcept {
+    void EditorLayer::newScene() noexcept {
         m_scene = std::make_shared<Scene>();    // Create New Empty Scene
         m_scene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
         m_hierarchyPanel.SetScene(m_scene);
     }
 
-    void EditorLayer::OpenScene() noexcept
+    void EditorLayer::openScene() noexcept
     {
         auto filePath = FileDialogs::OpenFile("Creepy Scene (*.creepy)\0*.creepy\0");
 
@@ -370,7 +447,7 @@ namespace Creepy {
         }
     }
 
-    void EditorLayer::SaveSceneAs() noexcept
+    void EditorLayer::saveSceneAs() noexcept
     {
         auto filePath = FileDialogs::SaveFile("Creepy Scene (*.creepy)\0*.creepy\0");
 

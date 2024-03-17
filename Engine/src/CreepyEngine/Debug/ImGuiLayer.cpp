@@ -1,9 +1,11 @@
 #include <CreepyEngine/Debug/ImGuiLayer.hpp>
 #include <CreepyEngine/Core/Application.hpp>
 #include <glad/glad.h>
+#include <yaml-cpp/yaml_ex.hpp>
+
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
-#include <yaml-cpp/yaml_ex.hpp>
+#include <imgui/ImGuizmo.h>
 
 namespace Creepy
 {
@@ -58,6 +60,7 @@ namespace Creepy
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        ImGuizmo::BeginFrame();
     }
 
     void ImGuiLayer::End() noexcept {

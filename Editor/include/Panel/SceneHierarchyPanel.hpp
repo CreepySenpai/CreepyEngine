@@ -12,6 +12,10 @@ namespace Creepy {
 
             void SetScene(const Ref<Scene>& scene) noexcept;
 
+            constexpr Entity& GetSelectedEntity() noexcept {
+                return m_selectedEntity;
+            }
+
             void OnImGuiRender() noexcept;
 
         private:

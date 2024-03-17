@@ -1,6 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 #include <string>
 #include <functional>
 
@@ -11,7 +13,7 @@
 namespace Creepy {
 
     struct TagComponent{
-        std::string Tag{""};
+        std::string Tag{};
 
         constexpr TagComponent() noexcept = default;
         
@@ -29,13 +31,12 @@ namespace Creepy {
         constexpr TransformComponent(const glm::vec3& position) noexcept : Position{position} {}
 
         glm::mat4 GetTransform() const noexcept {
-
-            glm::mat4 rotation = glm::rotate(glm::mat4{1.0f}, glm::radians(Rotation.x), glm::vec3{1.0f, 0.0f, 0.0f})
-                                * glm::rotate(glm::mat4{1.0f}, glm::radians(Rotation.y), glm::vec3{0.0f, 1.0f, 0.0f})
-                                * glm::rotate(glm::mat4{1.0f}, glm::radians(Rotation.z), glm::vec3{0.0f, 0.0f, 1.0f});
+            // Use quaternion rotation
+            glm::mat4 rotation = glm::toMat4(glm::quat{Rotation});
 
             return glm::translate(glm::mat4{1.0f}, Position) * rotation * glm::scale(glm::mat4{1.0f}, Scale);
         }
+
     };
 
     struct SpriteComponent {

@@ -41,6 +41,10 @@ namespace Creepy {
             constexpr operator uint32_t() const noexcept {
                 return static_cast<uint32_t>(m_entityHandle);
             }
+
+            [[nodiscard]] constexpr bool IsExits() const noexcept {
+                return (m_entityHandle != entt::null) && (m_scene != nullptr);
+            }
             
         private:
             Entity(entt::entity handle, Scene* scene) noexcept;

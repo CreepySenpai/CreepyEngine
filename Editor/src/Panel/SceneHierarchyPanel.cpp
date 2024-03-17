@@ -47,7 +47,7 @@ namespace Creepy {
 
         ImGui::Begin("Properties");
 
-        if(m_selectedEntity.m_entityHandle != entt::null && m_selectedEntity.m_scene != nullptr){
+        if(m_selectedEntity.IsExits()){
             drawEntityProperty(m_selectedEntity);
         }
 

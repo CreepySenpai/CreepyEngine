@@ -21,6 +21,9 @@ namespace Creepy {
 
             void OnViewPortResize(uint32_t width, uint32_t height) noexcept;
 
+            // TODO: Remove it
+            Entity GetPrimaryCameraEntity() noexcept;
+
         private:
             template <typename T>
             void OnComponentAdded(Entity& entity, T& component);
