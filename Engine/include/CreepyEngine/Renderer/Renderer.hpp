@@ -24,7 +24,7 @@ namespace Creepy
             
             static void BeginScene(const Camera& camera) noexcept;
 
-            static void BeginScene(const OrthographicCamera& camera) noexcept;
+            static void BeginScene(const OrthographicCamera& camera) noexcept;  // TODO: Remove
 
             static void EndScene() noexcept;
 

@@ -14,6 +14,8 @@ namespace Creepy {
 
         m_texture = Texture2D::Create("./assets/textures/SpecularMap.png");
 
+        m_editorCamera = EditorCamera{45.0f, 1.0f, 0.01f, 1000.0f};
+
         class Test : public ScriptableEntity{
             protected:
 
@@ -49,9 +51,6 @@ namespace Creepy {
                 }
         };
 
-        m_camera = m_scene->CreateEntity("Camera");
-        m_camera.AddComponent<CameraComponent>().FixedAspectRatio = true;
-
         m_hierarchyPanel.SetScene(m_scene);
     }
 
@@ -68,20 +67,33 @@ namespace Creepy {
     }
 
     void EditorLayer::OnUpdate(TimeStep timeStep) noexcept {
+        
+        // Resize
+        if(FrameBufferSpecification spec = m_frameBuffer->GetSpecification();
+            m_viewPortSize.x > 0.0f && m_viewPortSize.y > 0.0f && (spec.Width != static_cast<uint32_t>(m_viewPortSize.x) 
+            || spec.Height != static_cast<uint32_t>(m_viewPortSize.y))
+        ) {
 
-        // if(FrameBufferSpecification spec = m_frameBuffer->Get)
+            m_frameBuffer->Resize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+
+            m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+
+            m_scene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
+        }
 
         if(m_viewPortFocused){
             // m_cameraController.OnUpdate(timeStep);
+            m_editorCamera.OnUpdate(timeStep);
         }
-
+        
 
         m_frameBuffer->Bind();
 
         RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
         RenderCommand::Clear();
         Renderer2D::ResetStatistics();
-        m_scene->OnUpdate(timeStep);
+
+        m_scene->OnUpdateEditor(timeStep, m_editorCamera);
         
         m_frameBuffer->UnBind();
     }
@@ -204,20 +216,15 @@ namespace Creepy {
 
         auto viewPortSize = ImGui::GetContentRegionAvail();
 
-        // Check if view port change we resize it
+        // // Check if view port change we resize it
         if((m_viewPortSize.x != viewPortSize.x) || (m_viewPortSize.y != viewPortSize.y)) {
             m_viewPortSize.x = viewPortSize.x;
             m_viewPortSize.y = viewPortSize.y;
-
-            m_frameBuffer->Resize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
-
-            m_scene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
-
         }
         
 
         auto id = m_frameBuffer->GetColorAttachmentID();
-        ImGui::Image((void*)id, ImVec2{viewPortSize.x, viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
+        ImGui::Image((void*)id, ImVec2{m_viewPortSize.x, m_viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
 
         // Gizmos
 
@@ -249,6 +256,8 @@ namespace Creepy {
     }
 
     void EditorLayer::OnEvent(Event &event) noexcept {
+        m_editorCamera.OnEvent(event);
+
         EventDispatcher dispatcher{event};
 
         dispatcher.Dispatch<KeyPressedEvent>(std::bind_front(OnKeyPressed, this));
@@ -316,14 +325,15 @@ namespace Creepy {
             float windowHeight = ImGui::GetWindowHeight();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-            auto cameraEntity = m_scene->GetPrimaryCameraEntity();
-
-            if(cameraEntity.IsExits()){
+                // auto cameraEntity = m_scene->GetPrimaryCameraEntity();
                 // Camera
-                auto&& cameraComp = cameraEntity.GetComponent<CameraComponent>();
-                auto&& cameraProjection = cameraComp.Camera.GetProjection();
-                glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+                // auto&& cameraComp = cameraEntity.GetComponent<CameraComponent>();
+                // auto&& cameraProjection = cameraComp.Camera.GetProjection();
+                // glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
 
+                //Editor Camera
+                const auto& cameraProjectionMatrix = m_editorCamera.GetProjection();
+                const auto& cameraViewMatrix = m_editorCamera.GetViewMatrix();
                 // Current Entity
                 auto&& entityTransform = selectedEntity.GetComponent<TransformComponent>();
                 glm::mat4 transform = entityTransform.GetTransform();
@@ -334,7 +344,7 @@ namespace Creepy {
                 const float snapValues[] {snapValue, snapValue, snapValue};
 
 
-                ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), 
+                ImGuizmo::Manipulate(glm::value_ptr(cameraViewMatrix), glm::value_ptr(cameraProjectionMatrix), 
                     static_cast<ImGuizmo::OPERATION>(m_gizmosType), ImGuizmo::MODE::LOCAL, glm::value_ptr(transform),
                     nullptr, isSnapping ? snapValues : nullptr);
 
@@ -352,8 +362,6 @@ namespace Creepy {
 
                     entityTransform.Scale = scale;
                 }
-            }
-
         }
     }
 

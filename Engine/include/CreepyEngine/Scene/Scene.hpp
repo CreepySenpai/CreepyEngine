@@ -1,6 +1,7 @@
 #pragma once
 
 #include <CreepyEngine/Core/TimeStep.hpp>
+#include <CreepyEngine/Renderer/EditorCamera.hpp>
 #include <entt/entt.hpp>
 
 namespace Creepy {
@@ -17,7 +18,8 @@ namespace Creepy {
 
             void DestroyEntity(Entity& entity) noexcept;
 
-            void OnUpdate(const TimeStep& timeStep) noexcept;
+            void OnUpdateEditor(TimeStep timeStep, EditorCamera& camera) noexcept;
+            void OnUpdateRunTime(TimeStep timeStep) noexcept;
 
             void OnViewPortResize(uint32_t width, uint32_t height) noexcept;
 

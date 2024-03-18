@@ -28,7 +28,21 @@ namespace Creepy {
         entity.m_scene = nullptr;
     }
 
-    void Scene::OnUpdate(const TimeStep& timeStep) noexcept {
+    void Scene::OnUpdateEditor(TimeStep timeStep, EditorCamera& camera) noexcept {
+        auto renderEntity = m_registry.view<TransformComponent, SpriteComponent>();
+
+        Renderer2D::BeginScene(camera);
+
+        for (auto entity : renderEntity)
+        {
+            auto &&[transform, sprite] = renderEntity.get<TransformComponent, SpriteComponent>(entity);
+            Renderer2D::DrawRect(transform.GetTransform(), sprite.Color);
+        }
+
+        Renderer2D::EndScene();
+    }
+
+    void Scene::OnUpdateRunTime(TimeStep timeStep) noexcept {
 
         m_registry.view<NativeScriptComponent>().each([timeStep, this](auto entity, NativeScriptComponent& nativeComponent){
             
@@ -44,41 +58,7 @@ namespace Creepy {
             nativeComponent.Instance->OnUpdate(timeStep);
 
         });
-
-        Camera* mainCamera{nullptr};
-        glm::mat4 cameraTransform;
-
-        {
-            auto cameraGroup = m_registry.view<TransformComponent, CameraComponent>();
-
-            for(auto& entity : cameraGroup){
-                auto&& [transform, camera] = cameraGroup.get<TransformComponent, CameraComponent>(entity);
-
-                if(camera.IsPrimary){
-                    mainCamera = &camera.Camera;
-                    cameraTransform = transform.GetTransform();
-                    break;
-                }
-            }
-        }
-
-        if(mainCamera)
-        {
-
-            // auto group = m_registry.group<TransformComponent>(entt::get<SpriteComponent>);
-            auto renderEntity = m_registry.view<TransformComponent, SpriteComponent>();
-
-            Renderer2D::BeginScene(*mainCamera, cameraTransform);
-
-                for(auto entity : renderEntity){
-                    auto&& [transform, sprite] = renderEntity.get<TransformComponent, SpriteComponent>(entity);
-                    Renderer2D::DrawRect(transform.GetTransform(), sprite.Color);
-                }
-
-            Renderer2D::EndScene();
-            
-        }
-
+        
     }
 
 

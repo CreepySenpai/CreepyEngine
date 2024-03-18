@@ -4,6 +4,7 @@
 #include "OrthographicCamera.hpp"
 #include "Texture.hpp"
 #include "SubTexture2D.hpp"
+#include "EditorCamera.hpp"
 
 namespace Creepy {
 
@@ -15,9 +16,11 @@ namespace Creepy {
 
             // TODO: Replace view matrix
             static void BeginScene(const Camera& camera, const glm::mat4& transform) noexcept;
+            static void BeginScene(const EditorCamera& camera) noexcept;
 
             // TODO: Remove
-            static void BeginScene(const OrthographicCamera& camera) noexcept;
+            [[deprecate("No longer support")]]static void BeginScene(const OrthographicCamera& camera) noexcept;
+            
             static void EndScene() noexcept;
             static void Flush() noexcept;
 
