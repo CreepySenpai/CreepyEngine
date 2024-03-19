@@ -107,13 +107,13 @@ namespace Creepy {
         mY = viewPortSize.y - mY;
         int mouseXInViewPort = static_cast<int>(mX);
         int mouseYInViewPort = static_cast<int>(mY);
-
+        
         if(mouseXInViewPort > 0 && mouseYInViewPort > 0 && mouseXInViewPort < viewPortSize.x && mouseYInViewPort < viewPortSize.y){
             int entityID = m_frameBuffer->ReadPixel(1, mouseXInViewPort, mouseYInViewPort);
             if(entityID == -1){
-                m_hoveredEntity = {};
+                m_selectedEntity = {};
             } else {
-                m_hoveredEntity = {static_cast<entt::entity>(entityID), m_scene.get()};
+                m_selectedEntity = {static_cast<entt::entity>(entityID), m_scene.get()};
             }
         }
         
@@ -231,8 +231,13 @@ namespace Creepy {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
 
         ImGui::Begin("ViewPort");
-        
-        auto viewPortOffset = ImGui::GetCursorPos();
+
+        auto&& viewPortMinRegion = ImGui::GetWindowContentRegionMin();
+        auto&& viewPortMaxRegion = ImGui::GetWindowContentRegionMax();
+        auto&& viewPortOffset = ImGui::GetWindowPos();
+
+        m_viewPortBounds[0] = {viewPortMinRegion.x + viewPortOffset.x, viewPortMinRegion.y + viewPortOffset.y};
+        m_viewPortBounds[1] = {viewPortMaxRegion.x + viewPortOffset.x, viewPortMaxRegion.y + viewPortOffset.y};
 
         m_viewPortFocused = ImGui::IsWindowFocused();
         m_viewPortHovered = ImGui::IsWindowHovered();
@@ -251,16 +256,6 @@ namespace Creepy {
         auto id = m_frameBuffer->GetColorAttachmentID();
         ImGui::Image((void*)id, ImVec2{m_viewPortSize.x, m_viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
 
-        auto&& windowSize = ImGui::GetWindowSize();
-        auto&& minBound = ImGui::GetWindowPos();
-
-        minBound.x += viewPortOffset.x;
-        minBound.y += viewPortOffset.y;
-
-        ImVec2 maxBound{minBound.x + windowSize.x, minBound.y + windowSize.y};
-        m_viewPortBounds[0] = {minBound.x, minBound.y};     // Pos from top left view port over window
-        m_viewPortBounds[1] = {maxBound.x, maxBound.y};     // Pos from bottom right view port over window
-
         // Gizmos
 
         this->drawGizmos();
@@ -276,8 +271,8 @@ namespace Creepy {
         auto stats = Creepy::Renderer2D::GetStatistics();
 
         std::string hoveredName ="None";
-        if(m_hoveredEntity.IsExits()){
-            hoveredName.assign(m_hoveredEntity.GetComponent<TagComponent>().Tag);
+        if(m_selectedEntity.IsExits()){
+            hoveredName.assign(m_selectedEntity.GetComponent<TagComponent>().Tag);
         }
         ImGui::Text("Hover Entity %s", hoveredName.c_str());
         ImGui::Text("Render2D Stats");
@@ -301,6 +296,7 @@ namespace Creepy {
         EventDispatcher dispatcher{event};
 
         dispatcher.Dispatch<KeyPressedEvent>(std::bind_front(OnKeyPressed, this));
+        dispatcher.Dispatch<MouseButtonPressedEvent>(std::bind_front(OnMouseButtonPressed, this));
     }
 
     bool EditorLayer::OnKeyPressed(KeyPressedEvent& event) noexcept {
@@ -349,6 +345,14 @@ namespace Creepy {
                 m_gizmosType = ImGuizmo::OPERATION::SCALE;
                 break;
             }
+        }
+
+        return false;
+    }
+
+    bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event) noexcept {
+        if(event.GetButton() == MouseButtonCode::MOUSE_LEFT && this->canMousePicking()){
+            m_hierarchyPanel.SetSelectedEntity(m_selectedEntity);
         }
 
         return false;
@@ -505,5 +509,9 @@ namespace Creepy {
             SceneSerializer serializer{m_scene};
             serializer.SerializeToYaml(filePath);
         }
+    }
+
+    bool EditorLayer::canMousePicking() noexcept {
+        return m_viewPortHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(KeyCode::KEY_LEFT_ALT);
     }
 }

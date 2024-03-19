@@ -14,7 +14,7 @@ namespace Creepy {
             Scene() noexcept;
             ~Scene() noexcept;
 
-            [[nodiscard]] Entity CreateEntity(const std::string& tag = std::string{"Entity"}) noexcept;
+            Entity CreateEntity(const std::string& tag = std::string{"Entity"}) noexcept;
 
             void DestroyEntity(Entity& entity) noexcept;
 

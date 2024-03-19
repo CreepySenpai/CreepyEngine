@@ -25,6 +25,7 @@ namespace Creepy {
 
         private:
             bool OnKeyPressed(KeyPressedEvent& event) noexcept;
+            bool OnMouseButtonPressed(MouseButtonPressedEvent& event) noexcept;
 
             void newScene() noexcept;
             void openScene() noexcept;
@@ -32,13 +33,15 @@ namespace Creepy {
 
             void drawGizmos() noexcept;
             void drawThemePanel() noexcept;
+
+            bool canMousePicking() noexcept;
         private:
             Ref<FrameBuffer> m_frameBuffer;
             Ref<Texture2D> m_texture;
             Ref<Scene> m_scene;
             EditorCamera m_editorCamera;
             SceneHierarchyPanel m_hierarchyPanel;
-            Entity m_hoveredEntity;
+            Entity m_selectedEntity;
             glm::vec2 m_viewPortSize;
             glm::vec2 m_viewPortBounds[2];
 

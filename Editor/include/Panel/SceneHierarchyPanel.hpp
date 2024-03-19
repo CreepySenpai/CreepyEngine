@@ -16,6 +16,8 @@ namespace Creepy {
                 return m_selectedEntity;
             }
 
+            void SetSelectedEntity(Entity& entity) noexcept;
+
             void OnImGuiRender() noexcept;
 
         private:

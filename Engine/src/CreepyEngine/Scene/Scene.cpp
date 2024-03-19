@@ -15,7 +15,7 @@ namespace Creepy {
         ENGINE_LOG_WARNING("A scene was destroy!!!");
     }
 
-    [[nodiscard]] Entity Scene::CreateEntity(const std::string& tag) noexcept {
+    Entity Scene::CreateEntity(const std::string& tag) noexcept {
         Entity entity{m_registry.create(), this};
 
         // By default all entity will have transform, tag component

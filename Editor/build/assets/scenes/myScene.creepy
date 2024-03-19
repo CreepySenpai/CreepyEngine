@@ -2,22 +2,38 @@ Scene: Untitled
 Entities:
   - Entity: 12345
     TagComponent:
-      Tag: DuyMe
+      Tag: Sus
     TransformComponent:
-      Position: [-1.89999998, 2.20000005, 0]
-      Rotation: [0.500000179, 0, 0]
-      Scale: [4.06731892, 4.36448574, 1]
+      Position: [2.74474311, 1.88628924, 0]
+      Rotation: [0, 0, 0]
+      Scale: [3.42231274, 1.96769428, 1]
     SpriteComponent:
-      Color: [0.795366824, 0.528197289, 0.528197289, 1]
+      Color: [0.714285731, 0.132377282, 0.132377282, 1]
   - Entity: 12345
     TagComponent:
-      Tag: Entity2
+      Tag: A2
+    TransformComponent:
+      Position: [3.25918484, 4.2558465, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1.60099995, 1, 1]
+    SpriteComponent:
+      Color: [0.724144936, 0.543820143, 0.926640928, 1]
+  - Entity: 12345
+    TagComponent:
+      Tag: A1
     TransformComponent:
       Position: [0, 0, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
+  - Entity: 12345
+    TagComponent:
+      Tag: Among Us
+    TransformComponent:
+      Position: [-0.2139135, -1.24027812, 0]
+      Rotation: [-2.66663003, -0.376744002, 0.136624545]
+      Scale: [1.00000346, 0.999998868, 1.00000238]
     SpriteComponent:
-      Color: [1, 1, 1, 1]
+      Color: [0.66795367, 0, 0, 1]
   - Entity: 12345
     TagComponent:
       Tag: Camera
@@ -38,33 +54,19 @@ Entities:
       FixedAspectRatio: true
   - Entity: 12345
     TagComponent:
-      Tag: Among Us
+      Tag: Entity2
     TransformComponent:
-      Position: [0, -2.5999999, 0]
+      Position: [1.41008043, 3.64741948e-09, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     SpriteComponent:
-      Color: [0.66795367, 0, 0, 1]
+      Color: [1, 1, 1, 1]
   - Entity: 12345
     TagComponent:
-      Tag: A1
+      Tag: DuyMe
     TransformComponent:
-      Position: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-  - Entity: 12345
-    TagComponent:
-      Tag: A2
-    TransformComponent:
-      Position: [1.89999998, 2.29999995, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
+      Position: [-1.89999998, 2.20000005, 0]
+      Rotation: [-2.30671883, 0, 0]
+      Scale: [4.80378675, 6.03270435, 1.00000143]
     SpriteComponent:
-      Color: [0.724144936, 0.543820143, 0.926640928, 1]
-  - Entity: 12345
-    TagComponent:
-      Tag: Sus
-    TransformComponent:
-      Position: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
+      Color: [0.795366824, 0.528197289, 0.528197289, 1]

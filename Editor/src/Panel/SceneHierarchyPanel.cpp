@@ -392,4 +392,8 @@ namespace Creepy {
         });
 
     }
+
+    void SceneHierarchyPanel::SetSelectedEntity(Entity& entity) noexcept {
+        m_selectedEntity = entity;
+    }
 }
