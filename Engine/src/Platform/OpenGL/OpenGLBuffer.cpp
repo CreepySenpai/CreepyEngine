@@ -9,6 +9,8 @@ namespace Creepy
         glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
 
         glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+
+        ENGINE_LOG_WARNING("Create A VertexBuffer: {}", m_rendererID);
     }
 
     OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertex, uint32_t size) noexcept {
@@ -17,9 +19,13 @@ namespace Creepy
         glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
 
         glBufferData(GL_ARRAY_BUFFER, size, vertex, GL_STATIC_DRAW);
+
+        ENGINE_LOG_WARNING("Create A VertexBuffer: {}", m_rendererID);
     }
 
     OpenGLVertexBuffer::~OpenGLVertexBuffer() noexcept{
+        ENGINE_LOG_WARNING("Delete A VertexBuffer: {}", m_rendererID);
+
         glDeleteBuffers(1, &m_rendererID);
     }
 
@@ -43,9 +49,12 @@ namespace Creepy
         glCreateBuffers(1, &m_rendererID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_rendererID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), index, GL_STATIC_DRAW);
+
+        ENGINE_LOG_WARNING("Create A IndexBuffer: {}", m_rendererID);
     }
 
     OpenGLIndexBuffer::~OpenGLIndexBuffer() noexcept {
+        ENGINE_LOG_WARNING("Delete A IndexBuffer: {}", m_rendererID);
         glDeleteBuffers(1, &m_rendererID);
     }
 

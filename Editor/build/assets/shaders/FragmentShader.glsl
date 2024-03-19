@@ -2,12 +2,13 @@
 
 // uniform sampler2D u_texture;
 // uniform float u_tilingFactor;
-
-out vec4 color;
+layout(location = 0) out vec4 color;
+layout(location = 1) out int entityID;
 
 in vec4 v_color;
 in vec2 v_textureCoord;
 in float v_textureIndex;
+in flat int v_entityID;
 
 uniform sampler2D u_textures[32];
 
@@ -115,4 +116,6 @@ void main(){
 
     // color = v_color * texture(u_textures[int(v_textureIndex)], v_textureCoord);
     color = texColor;
+
+    entityID = v_entityID;
 }

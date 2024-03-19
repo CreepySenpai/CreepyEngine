@@ -27,16 +27,16 @@ namespace Creepy {
         glBindTexture(TextureTarget(isMultiSamples), textureID);
     }
 
-    static void AttachColorTexture(uint32_t textureID, int samples, GLenum format, uint32_t width, uint32_t height, size_t index) noexcept {
+    static void AttachColorTexture(uint32_t textureID, int samples, GLenum internalFormat, GLenum dataFormat, uint32_t width, uint32_t height, size_t index) noexcept {
         bool isMultiSamples = samples > 1;
 
         if(isMultiSamples) {
-            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, GL_FALSE);
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_FALSE);
 
             // Multi Sample Texture Dont Need Set Filter
         }
         else {
-            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, nullptr);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -69,6 +69,39 @@ namespace Creepy {
         glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, TextureTarget(isMultiSamples), textureID, 0);
     }
 
+    static GLenum ConvertTextureFormatToOpenGLFormat(FrameBufferTextureFormat format) noexcept {
+        switch(format) {
+            case FrameBufferTextureFormat::RGBA8:
+                return GL_RGBA8;
+            case FrameBufferTextureFormat::RED_INT:
+                return GL_RED_INTEGER;
+            case FrameBufferTextureFormat::GREEN_INT:
+                return GL_GREEN_INTEGER;
+            case FrameBufferTextureFormat::BLUE_INT:
+                return GL_BLUE_INTEGER;
+            
+        }
+
+        std::unreachable();
+        return 0;
+    }
+
+    static GLenum ConvertTextureFormatToOpenGLDataType(FrameBufferTextureFormat format) noexcept {
+        switch(format) {
+            case FrameBufferTextureFormat::RGBA8:
+                return GL_UNSIGNED_BYTE;
+            case FrameBufferTextureFormat::RED_INT:
+                [[fallthrough]];
+            case FrameBufferTextureFormat::GREEN_INT:
+                [[fallthrough]];
+            case FrameBufferTextureFormat::BLUE_INT:
+                return GL_INT;
+        }
+
+        std::unreachable();
+        return 0;
+    }
+
     OpenGLFrameBuffer::OpenGLFrameBuffer(const FrameBufferSpecification& data) noexcept : m_data{data} {
 
         for(auto format : m_data.Attachments.AttachmentList){
@@ -90,6 +123,7 @@ namespace Creepy {
         glDeleteTextures(m_colorBufferAttachments.size(), m_colorBufferAttachments.data());
         glDeleteTextures(1, &m_depthBufferAttachment);
         
+        ENGINE_LOG_WARNING("Delete A FrameBuffer: {}", m_rendererID);
     }
 
     void OpenGLFrameBuffer::Bind() noexcept {
@@ -130,6 +164,8 @@ namespace Creepy {
 
         glCreateFramebuffers(1, &m_rendererID);
 
+        ENGINE_LOG_WARNING("Create A FrameBuffer: {}", m_rendererID);
+
         glBindFramebuffer(GL_FRAMEBUFFER, m_rendererID);
 
         bool isMultiSamples = m_data.Samples > 1;
@@ -146,7 +182,17 @@ namespace Creepy {
 
                 switch(m_colorBufferAttachmentsSpec[i].TextureFormat){
                     case FrameBufferTextureFormat::RGBA8:
-                        AttachColorTexture(m_colorBufferAttachments[i], m_data.Samples, GL_RGBA8, m_data.Width, m_data.Height, i);
+                        AttachColorTexture(m_colorBufferAttachments[i], m_data.Samples, GL_RGBA8, GL_RGBA, m_data.Width, m_data.Height, i);
+                        break;
+
+                    case FrameBufferTextureFormat::RED_INT:
+                        AttachColorTexture(m_colorBufferAttachments[i], m_data.Samples, GL_R32I, GL_RED_INTEGER, m_data.Width, m_data.Height, i);
+                        break;
+                    case FrameBufferTextureFormat::GREEN_INT:
+                        AttachColorTexture(m_colorBufferAttachments[i], m_data.Samples, GL_R32I, GL_GREEN_INTEGER, m_data.Width, m_data.Height, i);
+                        break;
+                    case FrameBufferTextureFormat::BLUE_INT:
+                        AttachColorTexture(m_colorBufferAttachments[i], m_data.Samples, GL_R32I, GL_BLUE_INTEGER, m_data.Width, m_data.Height, i);
                         break;
                 }
 
@@ -194,6 +240,31 @@ namespace Creepy {
 
         // Unbind
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    int OpenGLFrameBuffer::ReadPixel(uint32_t attachmentIndex, int x, int y) noexcept {
+        if(attachmentIndex > m_colorBufferAttachments.size()){
+            ENGINE_LOG_ERROR("Attachment index > 32");
+        }
+
+        glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
+        int pixelData{};
+        glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
+
+        return pixelData;
+    }
+
+    void OpenGLFrameBuffer::ClearColorBufferAttachment(uint32_t attachmentIndex, int value) noexcept {
+
+        if(attachmentIndex > m_colorBufferAttachments.size()){
+            ENGINE_LOG_ERROR("Attachment index > 32");
+        }
+
+        auto& spec = m_colorBufferAttachmentsSpec[attachmentIndex];
+
+        glClearTexImage(m_colorBufferAttachments[attachmentIndex], 0, 
+            ConvertTextureFormatToOpenGLFormat(spec.TextureFormat), GL_INT, &value);
+
     }
 
 }

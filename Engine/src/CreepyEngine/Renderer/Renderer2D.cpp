@@ -16,7 +16,9 @@ namespace Creepy {
         glm::vec4 Color;
         glm::vec2 TextureCoord;
         float TextureIndex;
-        // TODO: Add texture...
+
+        // Only For Editor
+        int EntityID{-1};
     };
 
     struct Renderer2DStorage {
@@ -44,13 +46,11 @@ namespace Creepy {
 
     static Renderer2DStorage s_renderer2dStorage;
 
-    
-
-
     void Renderer2D::Init() noexcept {
-
+        ENGINE_LOG_WARNING("Gona Create Vertex Arrray");
         s_renderer2dStorage.vertexArray = Creepy::VertexArray::Create();
 
+        ENGINE_LOG_WARNING("Gona Create Vertex Buffer");
         s_renderer2dStorage.vertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxVertex * sizeof(RectVertex));
 
         Creepy::BufferLayout vertexBufferLayout{
@@ -58,6 +58,7 @@ namespace Creepy {
             {Creepy::ShaderDataType::Float4, "a_color"},
             {Creepy::ShaderDataType::Float2, "a_textureCoord"},
             {Creepy::ShaderDataType::Float, "a_textureIndex"},
+            {Creepy::ShaderDataType::Int, "a_entityID"},
         };
 
         s_renderer2dStorage.vertexBuffer->SetLayout(vertexBufferLayout);
@@ -86,6 +87,7 @@ namespace Creepy {
             offset += 4;
         }
 
+        ENGINE_LOG_WARNING("Gona Create Index");
         auto indexBuffer = Creepy::IndexBuffer::Create(rectIndex, s_renderer2dStorage.MaxIndex);
 
         s_renderer2dStorage.vertexArray->SetIndexBuffer(indexBuffer);
@@ -94,13 +96,14 @@ namespace Creepy {
         delete[] rectIndex;
         rectIndex = nullptr;
 
-
+        ENGINE_LOG_WARNING("Gona Create White Texture");
         s_renderer2dStorage.whiteTexture = Texture2D::Create(1, 1);
 
         uint32_t whiteTextureData = 0xffffffff;
 
         s_renderer2dStorage.whiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
-
+        
+        ENGINE_LOG_WARNING("Gona Create Shader");
         s_renderer2dStorage.shader = Shader::Create("./assets/shaders/VertexShader.glsl", "./assets/shaders/FragmentShader.glsl");
 
         s_renderer2dStorage.shader->Bind();
@@ -124,6 +127,10 @@ namespace Creepy {
     void Renderer2D::ShutDown() noexcept {
         
         delete[] s_renderer2dStorage.RectVertexBufferBase;
+        s_renderer2dStorage.vertexArray.reset();
+        s_renderer2dStorage.vertexBuffer.reset();
+        s_renderer2dStorage.shader.reset();
+        s_renderer2dStorage.whiteTexture.reset();
     }
 
     void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform) noexcept {
@@ -200,12 +207,13 @@ namespace Creepy {
         s_renderer2dStorage.TextureSlotIndex = 1;
     }
 
-    void Renderer2D::setRectProperty(const glm::mat4& transform, const glm::vec4& color, const std::array<glm::vec2, 4>& textureCoords, float textureIndex) noexcept {
+    void Renderer2D::setRectProperty(const glm::mat4& transform, const glm::vec4& color, const std::array<glm::vec2, 4>& textureCoords, float textureIndex, int entityID) noexcept {
 
         s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[0];
         s_renderer2dStorage.RectVertexBufferPointer->Color = color;
         s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(0);
         s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+        s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
 
         s_renderer2dStorage.RectVertexBufferPointer++;
 
@@ -213,6 +221,7 @@ namespace Creepy {
         s_renderer2dStorage.RectVertexBufferPointer->Color = color;
         s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(1);
         s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+        s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
 
         s_renderer2dStorage.RectVertexBufferPointer++;
 
@@ -220,6 +229,7 @@ namespace Creepy {
         s_renderer2dStorage.RectVertexBufferPointer->Color = color;
         s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(2);
         s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+        s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
 
         s_renderer2dStorage.RectVertexBufferPointer++;
 
@@ -227,6 +237,7 @@ namespace Creepy {
         s_renderer2dStorage.RectVertexBufferPointer->Color = color;
         s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(3);
         s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+        s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
 
         s_renderer2dStorage.RectVertexBufferPointer++;
 
@@ -247,8 +258,7 @@ namespace Creepy {
             flushAndReset();
         }
 
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
-        transform = glm::scale(transform, {size.x, size.y, 1.0f});
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4{1.0f}, {size.x, size.y, 1.0f});
 
         const std::array textureCoords {
             glm::vec2{0.0f, 0.0f},
@@ -297,8 +307,7 @@ namespace Creepy {
             ++s_renderer2dStorage.TextureSlotIndex;
         }
 
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
-        transform = glm::scale(transform, {size.x, size.y, 1.0f});
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4{1.0f}, {size.x, size.y, 1.0f});
 
         const std::array textureCoords {
             glm::vec2{0.0f, 0.0f},
@@ -352,13 +361,12 @@ namespace Creepy {
 
         }
 
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
-        transform = glm::scale(transform, {size.x, size.y, 1.0f});
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4{1.0f}, {size.x, size.y, 1.0f});
 
         setRectProperty(transform, tilingColor, textureCoords, textureIndex);
     }
 
-    void Renderer2D::DrawRect(const glm::mat4& transform, const glm::vec4& color) noexcept {
+    void Renderer2D::DrawRect(const glm::mat4& transform, const glm::vec4& color, int entityID) noexcept {
 
         if(s_renderer2dStorage.RectIndexCount >= s_renderer2dStorage.MaxIndex){
             flushAndReset();
@@ -373,10 +381,10 @@ namespace Creepy {
 
         constexpr float textureIndex{0.0f};
 
-        setRectProperty(transform, color, textureCoords, textureIndex);
+        setRectProperty(transform, color, textureCoords, textureIndex, entityID);
     }
 
-    void Renderer2D::DrawRect(const glm::mat4& transform, const Ref<Texture2D>& texture, const glm::vec4& tilingColor) noexcept {
+    void Renderer2D::DrawRect(const glm::mat4& transform, const Ref<Texture2D>& texture, const glm::vec4& tilingColor, int entityID) noexcept {
         if(s_renderer2dStorage.RectIndexCount >= s_renderer2dStorage.MaxIndex){
             flushAndReset();
         }
@@ -412,7 +420,7 @@ namespace Creepy {
             glm::vec2{0.0f, 1.0f}
         };
 
-        setRectProperty(transform, tilingColor, textureCoords, textureIndex);
+        setRectProperty(transform, tilingColor, textureCoords, textureIndex, entityID);
     }
 
     void Renderer2D::DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) noexcept {
@@ -479,7 +487,7 @@ namespace Creepy {
             ++s_renderer2dStorage.TextureSlotIndex;
         }
 
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
+        glm::mat4 transform = glm::translate(glm::mat4{1.0f}, position);
         transform = glm::rotate(transform, rotation, {0.0f, 0.0f, 1.0f});
         transform = glm::scale(transform, {size.x, size.y, 1.0f});
 
@@ -539,6 +547,10 @@ namespace Creepy {
         transform = glm::scale(transform, {size.x, size.y, 1.0f});
 
         setRectProperty(transform, tilingColor, textureCoords, textureIndex);
+    }
+
+    void Renderer2D::DrawSprite(TransformComponent& transform, SpriteComponent& sprite, uint32_t entityID) noexcept {
+        DrawRect(transform.GetTransform(), sprite.Color, entityID);
     }
 
 

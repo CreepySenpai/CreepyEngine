@@ -41,6 +41,8 @@ namespace Creepy {
 
         stbi_image_free(imgData);
 
+        ENGINE_LOG_WARNING("Create A Texture: {}", m_rendererID);
+
     }
 
     OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height) noexcept : 
@@ -56,9 +58,12 @@ namespace Creepy {
         glTextureParameteri(m_rendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTextureParameteri(m_rendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+        ENGINE_LOG_WARNING("Create A Texture: {}", m_rendererID);
+
     }
 
     OpenGLTexture2D::~OpenGLTexture2D() noexcept {
+        ENGINE_LOG_WARNING("Delete A Texture: {}", m_rendererID);
         glDeleteTextures(1, &m_rendererID);
     }
 

@@ -28,6 +28,11 @@ namespace Creepy {
         Renderer::Init();
     }
 
+    Application::~Application() noexcept {
+        Renderer::ShutDown();
+        ENGINE_LOG_WARNING("Call Shut Down Eng");
+    }
+
     void Application::Run() noexcept {
 
         while(m_isRunning){

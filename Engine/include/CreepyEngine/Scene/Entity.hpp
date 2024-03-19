@@ -43,7 +43,7 @@ namespace Creepy {
             }
 
             [[nodiscard]] constexpr bool IsExits() const noexcept {
-                return (m_entityHandle != entt::null) && (m_scene != nullptr);
+                return m_scene != nullptr;
             }
             
         private:
@@ -59,6 +59,10 @@ namespace Creepy {
 
             // For serializer data
             friend class SceneSerializer;
+
+            // For hovered Entity
+            // TODO: Remove
+            friend class EditorLayer;
 
             entt::entity m_entityHandle;
             Scene* m_scene;

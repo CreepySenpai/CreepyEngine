@@ -22,13 +22,9 @@ namespace Creepy {
     }
 
     void OpenGLRendererAPI::DrawIndex(const Ref<VertexArray>& vertexArray, uint32_t indexCount) noexcept {
-
-        uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
-
         // For sure we render match vertex array
         vertexArray->Bind();
-        
-        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
 
         // TODO: Maybe need to remove it
         // glBindTexture(GL_TEXTURE_2D, 0);

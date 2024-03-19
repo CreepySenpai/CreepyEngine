@@ -4,10 +4,9 @@
 namespace Creepy {
     static char buffer[256];
 
-    EditorLayer::EditorLayer() noexcept : Layer{"LevelEditor"}, m_cameraController{1.0f} {
-        Renderer::Init();
+    EditorLayer::EditorLayer() noexcept : Layer{"LevelEditor"}{
 
-        FrameBufferSpecification spec{.Width = 700, .Height = 700, .Attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::DEPTH}};
+        FrameBufferSpecification spec{.Width = 700, .Height = 700, .Attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::GREEN_INT, FrameBufferTextureFormat::DEPTH}};
         m_frameBuffer = FrameBuffer::Create(spec);
 
         m_scene = std::make_shared<Scene>();
@@ -55,7 +54,7 @@ namespace Creepy {
     }
 
     EditorLayer::~EditorLayer() noexcept {
-        Renderer::ShutDown();
+        APP_LOG_WARNING("Call Shut Down App");
     }
 
     void EditorLayer::OnAttach() noexcept {
@@ -92,8 +91,31 @@ namespace Creepy {
         RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
         RenderCommand::Clear();
         Renderer2D::ResetStatistics();
+        
+        // Clear Color Attachment
+        m_frameBuffer->ClearColorBufferAttachment(1, -1);
 
         m_scene->OnUpdateEditor(timeStep, m_editorCamera);
+
+        auto [mX, mY] = ImGui::GetMousePos();
+
+        mX -= m_viewPortBounds[0].x;
+        mY -= m_viewPortBounds[0].y;
+        glm::vec2 viewPortSize{m_viewPortBounds[1] - m_viewPortBounds[0]};
+
+        // Flip Coord From Top Left -> Bottom Left To Match Texture Coord
+        mY = viewPortSize.y - mY;
+        int mouseXInViewPort = static_cast<int>(mX);
+        int mouseYInViewPort = static_cast<int>(mY);
+
+        if(mouseXInViewPort > 0 && mouseYInViewPort > 0 && mouseXInViewPort < viewPortSize.x && mouseYInViewPort < viewPortSize.y){
+            int entityID = m_frameBuffer->ReadPixel(1, mouseXInViewPort, mouseYInViewPort);
+            if(entityID == -1){
+                m_hoveredEntity = {};
+            } else {
+                m_hoveredEntity = {static_cast<entt::entity>(entityID), m_scene.get()};
+            }
+        }
         
         m_frameBuffer->UnBind();
     }
@@ -207,14 +229,17 @@ namespace Creepy {
 
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
+
         ImGui::Begin("ViewPort");
+        
+        auto viewPortOffset = ImGui::GetCursorPos();
 
         m_viewPortFocused = ImGui::IsWindowFocused();
         m_viewPortHovered = ImGui::IsWindowHovered();
 
         Application::GetInstance().GetImGuiLayer().BlockEvents(!m_viewPortFocused && !m_viewPortHovered);
 
-        auto viewPortSize = ImGui::GetContentRegionAvail();
+        auto&& viewPortSize = ImGui::GetContentRegionAvail();
 
         // // Check if view port change we resize it
         if((m_viewPortSize.x != viewPortSize.x) || (m_viewPortSize.y != viewPortSize.y)) {
@@ -225,6 +250,16 @@ namespace Creepy {
 
         auto id = m_frameBuffer->GetColorAttachmentID();
         ImGui::Image((void*)id, ImVec2{m_viewPortSize.x, m_viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
+
+        auto&& windowSize = ImGui::GetWindowSize();
+        auto&& minBound = ImGui::GetWindowPos();
+
+        minBound.x += viewPortOffset.x;
+        minBound.y += viewPortOffset.y;
+
+        ImVec2 maxBound{minBound.x + windowSize.x, minBound.y + windowSize.y};
+        m_viewPortBounds[0] = {minBound.x, minBound.y};     // Pos from top left view port over window
+        m_viewPortBounds[1] = {maxBound.x, maxBound.y};     // Pos from bottom right view port over window
 
         // Gizmos
 
@@ -240,6 +275,11 @@ namespace Creepy {
 
         auto stats = Creepy::Renderer2D::GetStatistics();
 
+        std::string hoveredName ="None";
+        if(m_hoveredEntity.IsExits()){
+            hoveredName.assign(m_hoveredEntity.GetComponent<TagComponent>().Tag);
+        }
+        ImGui::Text("Hover Entity %s", hoveredName.c_str());
         ImGui::Text("Render2D Stats");
         ImGui::Text("Draw Calls: %d", stats.DrawCalls);
         ImGui::Text("Rect Count: %d", stats.RectCount);
@@ -446,6 +486,7 @@ namespace Creepy {
 
         if (!filePath.empty())
         {
+            m_scene.reset();
             m_scene = std::make_shared<Scene>(); // Create New Empty Scene
             m_scene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
             m_hierarchyPanel.SetScene(m_scene);

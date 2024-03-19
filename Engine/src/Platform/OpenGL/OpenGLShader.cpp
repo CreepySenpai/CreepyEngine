@@ -27,6 +27,7 @@ namespace Creepy {
         shaderMap[GL_FRAGMENT_SHADER] = fragmentSource;
 
         Compile(shaderMap);
+        ENGINE_LOG_WARNING("Create A Shader: {}", m_rendererID);
     }
 
     OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept : m_name{name} {
@@ -35,9 +36,11 @@ namespace Creepy {
         shaderSources[GL_FRAGMENT_SHADER] = fragmentShaderSources;
 
         Compile(shaderSources);
+        ENGINE_LOG_WARNING("Create A Shader: {}", m_rendererID);
     }
 
     OpenGLShader::~OpenGLShader() noexcept {
+        ENGINE_LOG_WARNING("Delete A Shader: {}", m_rendererID);
         glDeleteProgram(m_rendererID);
     }
 

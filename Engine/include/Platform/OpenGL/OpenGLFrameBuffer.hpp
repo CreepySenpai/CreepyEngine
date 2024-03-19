@@ -27,6 +27,10 @@ namespace Creepy
                 return m_colorBufferAttachments[index];
             }
 
+            int ReadPixel(uint32_t attachmentIndex, int x, int y) noexcept override;
+
+            void ClearColorBufferAttachment(uint32_t attachmentIndex, int value) noexcept override;
+
             inline FrameBufferSpecification& GetSpecification() noexcept override {
                 return m_data;
             }

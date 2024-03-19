@@ -10,7 +10,9 @@ namespace Creepy {
     }
 
     Scene::~Scene() noexcept {
-         
+        // Remove All Exit Entity
+        m_registry.clear();
+        ENGINE_LOG_WARNING("A scene was destroy!!!");
     }
 
     [[nodiscard]] Entity Scene::CreateEntity(const std::string& tag) noexcept {
@@ -23,8 +25,8 @@ namespace Creepy {
     }
 
     void Scene::DestroyEntity(Entity& entity) noexcept {
+        APP_LOG_WARNING("Destroy ID: {}", static_cast<uint32_t>(entity));
         m_registry.destroy(entity.m_entityHandle);
-        entity.m_entityHandle = entt::null;
         entity.m_scene = nullptr;
     }
 
@@ -36,7 +38,7 @@ namespace Creepy {
         for (auto entity : renderEntity)
         {
             auto &&[transform, sprite] = renderEntity.get<TransformComponent, SpriteComponent>(entity);
-            Renderer2D::DrawRect(transform.GetTransform(), sprite.Color);
+            Renderer2D::DrawSprite(transform, sprite, static_cast<int>(entity));
         }
 
         Renderer2D::EndScene();

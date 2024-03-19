@@ -8,7 +8,7 @@ namespace Creepy {
         NONE    = 0,
 
         // Color
-        RGBA8,
+        RGBA8, RED_INT, GREEN_INT, BLUE_INT,
 
         // Depth, Stencil
         DEPTH24STENCIL8,
@@ -62,6 +62,10 @@ namespace Creepy {
             virtual uint32_t GetFrameBufferID() const noexcept = 0;
 
             virtual uint32_t GetColorAttachmentID(uint32_t index = 0) const noexcept = 0;
+
+            virtual int ReadPixel(uint32_t attachmentIndex, int x, int y) noexcept = 0;
+
+            virtual void ClearColorBufferAttachment(uint32_t attachmentIndex, int value) noexcept = 0;
 
             virtual FrameBufferSpecification& GetSpecification() noexcept = 0;
 

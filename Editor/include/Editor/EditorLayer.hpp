@@ -33,13 +33,14 @@ namespace Creepy {
             void drawGizmos() noexcept;
             void drawThemePanel() noexcept;
         private:
-            OrthographicCameraController m_cameraController;
             Ref<FrameBuffer> m_frameBuffer;
             Ref<Texture2D> m_texture;
             Ref<Scene> m_scene;
             EditorCamera m_editorCamera;
             SceneHierarchyPanel m_hierarchyPanel;
+            Entity m_hoveredEntity;
             glm::vec2 m_viewPortSize;
+            glm::vec2 m_viewPortBounds[2];
 
             int m_gizmosType{-1};
             bool m_viewPortFocused;

@@ -28,7 +28,8 @@ namespace Creepy
             }
 
         private:
-            uint32_t m_renderID;
+            uint32_t m_rendererID;
+            uint32_t m_vertexBufferIndex{0};
             std::vector<Ref<VertexBuffer>> m_vertexBuffers;
             Ref<IndexBuffer> m_indexBuffer;
     };

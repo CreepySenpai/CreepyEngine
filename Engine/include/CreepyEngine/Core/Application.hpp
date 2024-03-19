@@ -17,7 +17,7 @@ namespace Creepy
     {
         public:
             Application(const std::string& title = "App", uint32_t w = 600, uint32_t h = 600) noexcept;
-            virtual ~Application() = default;
+            virtual ~Application() noexcept;
 
             void Run() noexcept;
 
