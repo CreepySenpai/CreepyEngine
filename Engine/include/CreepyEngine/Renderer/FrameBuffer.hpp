@@ -4,10 +4,47 @@
 
 namespace Creepy {
 
+    enum class FrameBufferTextureFormat : uint32_t{
+        NONE    = 0,
+
+        // Color
+        RGBA8,
+
+        // Depth, Stencil
+        DEPTH24STENCIL8,
+
+        DEPTH = DEPTH24STENCIL8,
+    };
+
+    struct FrameBufferTextureSpecification{
+        FrameBufferTextureFormat TextureFormat {FrameBufferTextureFormat::NONE};
+
+        constexpr FrameBufferTextureSpecification() noexcept = default;
+        
+        constexpr FrameBufferTextureSpecification(FrameBufferTextureFormat format) noexcept : TextureFormat{format}{
+
+        }
+
+    };
+
+    struct FrameBufferAttachmentSpecification{
+        std::vector<FrameBufferTextureSpecification> AttachmentList;
+
+        constexpr FrameBufferAttachmentSpecification() noexcept = default;
+
+        constexpr FrameBufferAttachmentSpecification(std::initializer_list<FrameBufferTextureSpecification> attachMents) noexcept 
+            : AttachmentList{attachMents} {
+
+        }
+
+
+    };
+
     struct FrameBufferSpecification{
         uint32_t Width;
         uint32_t Height;
         uint32_t Samples{1};
+        FrameBufferAttachmentSpecification Attachments;
         bool SwapChainTarget{false};
     };
 
@@ -24,7 +61,7 @@ namespace Creepy {
 
             virtual uint32_t GetFrameBufferID() const noexcept = 0;
 
-            virtual uint32_t GetColorAttachmentID() const noexcept = 0;
+            virtual uint32_t GetColorAttachmentID(uint32_t index = 0) const noexcept = 0;
 
             virtual FrameBufferSpecification& GetSpecification() noexcept = 0;
 

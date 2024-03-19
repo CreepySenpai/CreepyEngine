@@ -23,8 +23,8 @@ namespace Creepy
                 return m_rendererID;
             }
 
-            inline uint32_t GetColorAttachmentID() const noexcept override {
-                return m_colorBuffer;
+            inline uint32_t GetColorAttachmentID(uint32_t index = 0) const noexcept override {
+                return m_colorBufferAttachments[index];
             }
 
             inline FrameBufferSpecification& GetSpecification() noexcept override {
@@ -36,9 +36,11 @@ namespace Creepy
             }
         private:
             uint32_t m_rendererID{};
-            uint32_t m_colorBuffer{};
-            uint32_t m_depthBuffer{};
             FrameBufferSpecification m_data;
+            std::vector<FrameBufferTextureSpecification> m_colorBufferAttachmentsSpec;
+            FrameBufferTextureSpecification m_deptBufferAttachmentSpec;
+            std::vector<uint32_t> m_colorBufferAttachments;
+            uint32_t m_depthBufferAttachment{0};
     };
     
 }

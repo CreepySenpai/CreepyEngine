@@ -7,7 +7,7 @@ namespace Creepy {
     EditorLayer::EditorLayer() noexcept : Layer{"LevelEditor"}, m_cameraController{1.0f} {
         Renderer::Init();
 
-        FrameBufferSpecification spec{.Width = 700, .Height = 700};
+        FrameBufferSpecification spec{.Width = 700, .Height = 700, .Attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::DEPTH}};
         m_frameBuffer = FrameBuffer::Create(spec);
 
         m_scene = std::make_shared<Scene>();

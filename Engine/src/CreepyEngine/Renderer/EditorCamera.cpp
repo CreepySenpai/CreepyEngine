@@ -7,7 +7,7 @@ namespace Creepy {
 
     EditorCamera::EditorCamera(float fov, float aspectRatio, float nearClip, float farClip) noexcept
     : m_fov{fov}, m_aspectRatio{aspectRatio}, m_nearClip{nearClip}, m_farClip{farClip}, 
-    Camera{glm::perspective(fov, aspectRatio, nearClip, farClip)} {
+    Camera{glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip)} {
         this->updateViewMatrix();
     }
 
@@ -15,19 +15,16 @@ namespace Creepy {
         if(Input::IsKeyPressed(KeyCode::KEY_LEFT_ALT)){
             const glm::vec2& currentMousePos{Input::GetMouseX(), Input::GetMouseY()};
 
-            glm::vec2 delta = (currentMousePos - m_previousMousePosition) * 0.001f;
+            glm::vec2 delta = (currentMousePos - m_previousMousePosition) * 0.003f;
             m_previousMousePosition = currentMousePos;
 
-            if(Input::IsMouseButtonPressed(MouseButtonCode::MOUSE_MIDDLE)){
-                ENGINE_LOG_WARNING("Call Pan: {}:{}", delta.x, delta.y);
+            if(Input::IsMouseButtonPressed(MouseButtonCode::MOUSE_LEFT)){
                 this->mousePan(delta);
             }
-            else if(Input::IsMouseButtonPressed(MouseButtonCode::MOUSE_LEFT)){
-                ENGINE_LOG_WARNING("Call Rotate: {}:{}", delta.x, delta.y);
+            else if(Input::IsMouseButtonPressed(MouseButtonCode::MOUSE_RIGHT)){
                 this->mouseRotate(delta);
             }
-            else if(Input::IsMouseButtonPressed(MouseButtonCode::MOUSE_RIGHT)) {
-                ENGINE_LOG_WARNING("Call Zoom: {}", delta.y);
+            else if(Input::IsMouseButtonPressed(MouseButtonCode::MOUSE_MIDDLE)) {
                 this->mouseZoom(delta.y);
             }
         }
@@ -58,7 +55,7 @@ namespace Creepy {
 
     void EditorCamera::updateProjectionMatrix() noexcept {
         m_aspectRatio = static_cast<float>(m_viewPortWidth) / static_cast<float>(m_viewPortHeight);
-        m_projectionMatrix = glm::perspective(m_fov, m_aspectRatio, m_nearClip, m_farClip);
+        m_projectionMatrix = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearClip, m_farClip);
     }
     void EditorCamera::updateViewMatrix() noexcept {
         m_position = this->calculatePosition();

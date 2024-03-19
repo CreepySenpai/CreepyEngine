@@ -5,8 +5,81 @@
 
 namespace Creepy {
 
+    static bool IsDepthFormat(FrameBufferTextureFormat format) noexcept {
+
+        switch(format){
+            case FrameBufferTextureFormat::DEPTH24STENCIL8:
+                return true;
+        }
+
+        return false;
+    }
+
+    static GLenum TextureTarget(bool isMultiSamples) noexcept {
+        return isMultiSamples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+    }
+
+    static void CreateTextures(bool isMultiSamples, uint32_t* renderIDs, size_t count) noexcept{
+        glCreateTextures(TextureTarget(isMultiSamples), count, renderIDs);
+    }
+
+    static void BindTexture(bool isMultiSamples, uint32_t textureID) noexcept {
+        glBindTexture(TextureTarget(isMultiSamples), textureID);
+    }
+
+    static void AttachColorTexture(uint32_t textureID, int samples, GLenum format, uint32_t width, uint32_t height, size_t index) noexcept {
+        bool isMultiSamples = samples > 1;
+
+        if(isMultiSamples) {
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, GL_FALSE);
+
+            // Multi Sample Texture Dont Need Set Filter
+        }
+        else {
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, TextureTarget(isMultiSamples), textureID, 0);
+    }
+
+    static void AttachDepthTexture(uint32_t textureID, int samples, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height) noexcept {
+        bool isMultiSamples = samples > 1;
+
+        if(isMultiSamples) {
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, GL_FALSE);
+
+            // Multi Sample Texture Dont Need Set Filter
+        }
+        else {
+            glTexStorage2D(GL_TEXTURE_2D, 1, format, width, height);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, TextureTarget(isMultiSamples), textureID, 0);
+    }
+
     OpenGLFrameBuffer::OpenGLFrameBuffer(const FrameBufferSpecification& data) noexcept : m_data{data} {
 
+        for(auto format : m_data.Attachments.AttachmentList){
+            if(!IsDepthFormat(format.TextureFormat)) {
+                m_colorBufferAttachmentsSpec.emplace_back(format);
+            }
+            else {
+                m_deptBufferAttachmentSpec = format;
+            }
+        }
+        
         this->Invalidate();
 
     }
@@ -14,8 +87,8 @@ namespace Creepy {
     OpenGLFrameBuffer::~OpenGLFrameBuffer() noexcept {
 
         glDeleteFramebuffers(1, &m_rendererID);
-        glDeleteTextures(1, &m_colorBuffer);
-        glDeleteTextures(1, &m_depthBuffer);
+        glDeleteTextures(m_colorBufferAttachments.size(), m_colorBufferAttachments.data());
+        glDeleteTextures(1, &m_depthBufferAttachment);
         
     }
 
@@ -48,45 +121,72 @@ namespace Creepy {
         // Check If Frame Buffer Already Create
         if(m_rendererID){
             glDeleteFramebuffers(1, &m_rendererID);
-            glDeleteTextures(1, &m_colorBuffer);
-            glDeleteTextures(1, &m_depthBuffer);
+            glDeleteTextures(m_colorBufferAttachments.size(), m_colorBufferAttachments.data());
+            glDeleteTextures(1, &m_depthBufferAttachment);
+
+            m_colorBufferAttachments.clear();
+            m_depthBufferAttachment = 0;
         }
 
         glCreateFramebuffers(1, &m_rendererID);
 
         glBindFramebuffer(GL_FRAMEBUFFER, m_rendererID);
 
-
-        // Create Color Buffer
-        glCreateTextures(GL_TEXTURE_2D, 1, &m_colorBuffer);
-        glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_data.Width, m_data.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer, 0);
-
-
-        // We should prefer texture buffer then render buffer
-        // Create Depth, Stencil Buffer
-        glCreateTextures(GL_TEXTURE_2D, 1, &m_depthBuffer);
-        glBindTexture(GL_TEXTURE_2D, m_depthBuffer);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        // First 24 bit for depth buffer, 8 bit remain for stencil buffer, level must > 0
-        glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, m_data.Width, m_data.Height);
+        bool isMultiSamples = m_data.Samples > 1;
         
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_depthBuffer, 0);
+        if(!m_colorBufferAttachmentsSpec.empty()){
+
+            m_colorBufferAttachments.resize(m_colorBufferAttachmentsSpec.size());
+
+            CreateTextures(isMultiSamples, m_colorBufferAttachments.data(), m_colorBufferAttachments.size());
+
+            // AttachMents
+            for(size_t i{}; i < m_colorBufferAttachments.size(); i++){
+                BindTexture(isMultiSamples, m_colorBufferAttachments[i]);
+
+                switch(m_colorBufferAttachmentsSpec[i].TextureFormat){
+                    case FrameBufferTextureFormat::RGBA8:
+                        AttachColorTexture(m_colorBufferAttachments[i], m_data.Samples, GL_RGBA8, m_data.Width, m_data.Height, i);
+                        break;
+                }
+
+            }
+
+        }
+
+        if(m_deptBufferAttachmentSpec.TextureFormat != FrameBufferTextureFormat::NONE){
+            CreateTextures(isMultiSamples, &m_depthBufferAttachment, 1);
+            BindTexture(isMultiSamples, m_depthBufferAttachment);
+            
+            switch(m_deptBufferAttachmentSpec.TextureFormat){
+                case FrameBufferTextureFormat::DEPTH24STENCIL8:
+                    AttachDepthTexture(m_depthBufferAttachment, m_data.Samples, GL_DEPTH24_STENCIL8, GL_DEPTH_ATTACHMENT, m_data.Width, m_data.Height);
+                    break;
+            }
+        }
+
+        if(m_colorBufferAttachments.size() > 1){
+            if(m_colorBufferAttachments.size() > 32){
+                ENGINE_LOG_ERROR("Limit Color Buffer Is 32!!!");
+            }
+
+            GLenum buffer[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
+                               GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7,
+                               GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT11,
+                               GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT14,GL_COLOR_ATTACHMENT15, 
+                               GL_COLOR_ATTACHMENT16, GL_COLOR_ATTACHMENT17, GL_COLOR_ATTACHMENT18, GL_COLOR_ATTACHMENT19, 
+                               GL_COLOR_ATTACHMENT20, GL_COLOR_ATTACHMENT21, GL_COLOR_ATTACHMENT22, GL_COLOR_ATTACHMENT23, 
+                               GL_COLOR_ATTACHMENT24, GL_COLOR_ATTACHMENT25, GL_COLOR_ATTACHMENT26, GL_COLOR_ATTACHMENT27, 
+                               GL_COLOR_ATTACHMENT28, GL_COLOR_ATTACHMENT29, GL_COLOR_ATTACHMENT30, GL_COLOR_ATTACHMENT31
+                            };
+            
+            glDrawBuffers(m_colorBufferAttachments.size(), buffer);
+
+        }
+        else if(m_colorBufferAttachments.empty()){
+            // Only Depth Pass
+            glDrawBuffer(GL_NONE);
+        }
         
         if(glCheckNamedFramebufferStatus(m_rendererID ,GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE){
             ENGINE_LOG_ERROR("Create Frame Buffer!!!");

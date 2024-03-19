@@ -74,7 +74,7 @@ namespace Creepy {
             std::pair<float, float> panSpeed() const noexcept;
             
             constexpr float rotateSpeed() const noexcept {
-                return 0.8f;
+                return 0.1f;
             }
             float zoomSpeed() const noexcept;
 
