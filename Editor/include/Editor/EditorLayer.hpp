@@ -2,6 +2,7 @@
 
 #include <CreepyEngine.hpp>
 #include <Panel/SceneHierarchyPanel.hpp>
+#include <Panel/ContentBrowserPanel.hpp>
 
 namespace Creepy {
 
@@ -41,6 +42,8 @@ namespace Creepy {
             Ref<Scene> m_scene;
             EditorCamera m_editorCamera;
             SceneHierarchyPanel m_hierarchyPanel;
+            ContentBrowserPanel m_contentBrowserPanel;
+
             Entity m_selectedEntity;
             glm::vec2 m_viewPortSize;
             glm::vec2 m_viewPortBounds[2];

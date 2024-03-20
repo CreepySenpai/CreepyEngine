@@ -254,7 +254,7 @@ namespace Creepy {
         
 
         auto id = m_frameBuffer->GetColorAttachmentID();
-        ImGui::Image((void*)id, ImVec2{m_viewPortSize.x, m_viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
+        ImGui::Image(reinterpret_cast<ImTextureID>(id), ImVec2{m_viewPortSize.x, m_viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
 
         // Gizmos
 
@@ -265,6 +265,7 @@ namespace Creepy {
 
         m_hierarchyPanel.OnImGuiRender();
 
+        m_contentBrowserPanel.OnImGuiRender();
 
         ImGui::Begin("Statics");
 

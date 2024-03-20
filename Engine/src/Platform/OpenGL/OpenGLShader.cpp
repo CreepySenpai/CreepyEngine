@@ -340,15 +340,11 @@ namespace Creepy {
     }
 
     void OpenGLShader::compileShaderToVulkan(const std::unordered_map<GLenum, std::string>& shaderSources) noexcept {
-        GLuint program = glCreateProgram();
+
         shaderc::Compiler compiler;
 		shaderc::CompileOptions options;
 		options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
-		const bool optimize = true;
-
-        if(optimize){
-            options.SetOptimizationLevel(shaderc_optimization_level_performance);
-        }
+		options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
 		m_vulkanSPIRV.clear();
 
@@ -414,11 +410,7 @@ namespace Creepy {
         shaderc::Compiler compiler;
         shaderc::CompileOptions options;
         options.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
-
-        const bool optimize = true;
-		if (optimize) {
-            options.SetOptimizationLevel(shaderc_optimization_level_performance);
-        }
+        options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
         std::filesystem::path cacheDirectory{GetCacheDirectory()};
 
