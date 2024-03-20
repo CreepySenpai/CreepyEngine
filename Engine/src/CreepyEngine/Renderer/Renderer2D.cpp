@@ -5,6 +5,7 @@
 #include <CreepyEngine/Renderer/VertexArray.hpp>
 #include <CreepyEngine/Renderer/Shader.hpp>
 #include <CreepyEngine/Renderer/RenderCommand.hpp>
+#include <CreepyEngine/Renderer/UniformBuffer.hpp>
 
 #include <Platform/OpenGL/OpenGLShader.hpp>
 #include <glm/glm.hpp>
@@ -42,6 +43,13 @@ namespace Creepy {
         glm::vec4 RectVertexPosition[4];
 
         Renderer2D::Statistics Stats;
+
+        struct CameraData{
+            glm::mat4 ViewProjection;
+        };
+
+        CameraData CameraBuffer;
+        Ref<UniformBuffer> uniformBuffer;
     };
 
     static Renderer2DStorage s_renderer2dStorage;
@@ -108,12 +116,12 @@ namespace Creepy {
 
         s_renderer2dStorage.shader->Bind();
         
-        std::array<int, s_renderer2dStorage.MaxTextureSlots> samplers;
+        // std::array<int, s_renderer2dStorage.MaxTextureSlots> samplers;
 
-        std::ranges::iota(samplers, 0);
+        // std::ranges::iota(samplers, 0);
 
         // We need to init default texture unit
-        s_renderer2dStorage.shader->SetUniformIntArray("u_textures", samplers);
+        // s_renderer2dStorage.shader->SetUniformIntArray("u_textures", samplers);
 
         // Set default slot 0 for white texture
         s_renderer2dStorage.TextureSlots[0] = s_renderer2dStorage.whiteTexture;
@@ -122,6 +130,8 @@ namespace Creepy {
         s_renderer2dStorage.RectVertexPosition[1] = { 0.5, -0.5, 0.0f, 1.0f};
         s_renderer2dStorage.RectVertexPosition[2] = { 0.5,  0.5, 0.0f, 1.0f};
         s_renderer2dStorage.RectVertexPosition[3] = {-0.5,  0.5, 0.0f, 1.0f};
+
+        s_renderer2dStorage.uniformBuffer = UniformBuffer::Create(sizeof(Renderer2DStorage::CameraData), 0);
     }
 
     void Renderer2D::ShutDown() noexcept {
@@ -139,7 +149,10 @@ namespace Creepy {
         
         s_renderer2dStorage.shader->Bind();
 
-        s_renderer2dStorage.shader->SetUniformMat4("u_viewProjectionMatrix", viewProjection);
+        // s_renderer2dStorage.shader->SetUniformMat4("u_Camera.ViewProjectionMatrix", viewProjection);
+
+        s_renderer2dStorage.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
+        s_renderer2dStorage.uniformBuffer->SetData(&s_renderer2dStorage.CameraBuffer, sizeof(s_renderer2dStorage.CameraBuffer));
 
         // Reset
         s_renderer2dStorage.RectIndexCount = 0;
@@ -153,7 +166,12 @@ namespace Creepy {
         
         s_renderer2dStorage.shader->Bind();
 
-        s_renderer2dStorage.shader->SetUniformMat4("u_viewProjectionMatrix", viewProjection);
+        // s_renderer2dStorage.shader->SetUniformMat4("u_Camera.ViewProjectionMatrix", viewProjection);
+
+        // s_renderer2dStorage.shader->SetUniformMat4("u_viewProjectionMatrix", viewProjection);
+
+        s_renderer2dStorage.CameraBuffer.ViewProjection = viewProjection;
+        s_renderer2dStorage.uniformBuffer->SetData(&s_renderer2dStorage.CameraBuffer, sizeof(s_renderer2dStorage.CameraBuffer));
 
         // Reset
         s_renderer2dStorage.RectIndexCount = 0;

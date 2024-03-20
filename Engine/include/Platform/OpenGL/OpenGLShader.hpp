@@ -2,6 +2,7 @@
 
 #include <CreepyEngine/Renderer/Shader.hpp>
 #include <unordered_map>
+#include <filesystem>
 
 namespace Creepy {
 
@@ -35,15 +36,28 @@ namespace Creepy {
         private:
             unsigned int m_rendererID;
             std::string m_name;
+            std::filesystem::path m_vertexFilePath;
+            std::filesystem::path m_fragmentFilePath;
 
             using GLenum = unsigned int;
             using GLint = int;
+
+            std::unordered_map<GLenum, std::vector<uint32_t>> m_vulkanSPIRV;
+            std::unordered_map<GLenum, std::vector<uint32_t>> m_openGLSPIRV;
+
+            std::unordered_map<GLenum, std::string> m_openGLSourceCode;
 
             std::unordered_map<std::string, GLint> m_locationCache;
             
 
             std::string ReadFile(const std::string& filePath) noexcept;
+            void createProgram() noexcept;
+
             void Compile(const std::unordered_map<GLenum, std::string>& shaderSources) noexcept;
+
+            void compileShaderToVulkan(const std::unordered_map<GLenum, std::string>& shaderSources) noexcept;
+
+            void compileShaderToOpenGL() noexcept;
     };
 
 }

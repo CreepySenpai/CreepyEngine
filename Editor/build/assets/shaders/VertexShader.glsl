@@ -6,17 +6,24 @@ layout(location = 2) in vec2 a_textureCoord;
 layout(location = 3) in float a_textureIndex;
 layout(location = 4) in int a_entityID;
 
-uniform mat4 u_viewProjectionMatrix;
+layout(std140, binding = 0) uniform Camera {
+    mat4 ViewProjectionMatrix;
+} u_Camera;
 
-out vec4 v_color;
-out vec2 v_textureCoord;
-out float v_textureIndex;
-out flat int v_entityID;
+struct VertexOutput{
+    vec4 Color;
+    vec2 TextureCoord;
+    float TextureIndex;
+};
+
+layout(location = 0) out VertexOutput v_vertexOutput;
+layout(location = 3) out flat int v_entityID;
 
 void main(){
-    v_color = a_color;
-    v_textureCoord = a_textureCoord;
-    v_textureIndex = a_textureIndex;
+    v_vertexOutput.Color = a_color;
+    v_vertexOutput.TextureCoord = a_textureCoord;
+    v_vertexOutput.TextureIndex = a_textureIndex;
     v_entityID = a_entityID;
-    gl_Position = u_viewProjectionMatrix * vec4(a_position, 1.0);
+
+    gl_Position = u_Camera.ViewProjectionMatrix * vec4(a_position, 1.0);
 }
