@@ -568,6 +568,9 @@ namespace Creepy {
     }
 
     void Renderer2D::DrawSprite(TransformComponent& transform, SpriteComponent& sprite, uint32_t entityID) noexcept {
+        if(sprite.Texture){
+            DrawRect(transform.GetTransform(), sprite.Texture, sprite.Color, entityID);
+        }
         DrawRect(transform.GetTransform(), sprite.Color, entityID);
     }
 

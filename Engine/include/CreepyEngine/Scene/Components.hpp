@@ -7,6 +7,8 @@
 #include <functional>
 
 #include <CreepyEngine/Core/TimeStep.hpp>
+#include <CreepyEngine/Core/Core.hpp>
+#include <CreepyEngine/Renderer/Texture.hpp>
 #include "SceneCamera.hpp"
 #include "ScriptableEntity.hpp"
 
@@ -42,6 +44,8 @@ namespace Creepy {
     struct SpriteComponent {
 
         glm::vec4 Color{1.0f, 1.0f, 1.0f, 1.0f};
+        Ref<Texture2D> Texture;
+        float TilingFactor{1.0f};
 
         constexpr SpriteComponent() noexcept = default;
 

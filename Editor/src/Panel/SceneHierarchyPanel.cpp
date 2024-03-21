@@ -4,6 +4,8 @@
 
 namespace Creepy {
 
+    extern const std::filesystem::path AssetDirectory;
+
     SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& scene) noexcept : m_scene{scene} {
 
     }
@@ -389,6 +391,32 @@ namespace Creepy {
 
         DrawComponent<SpriteComponent>("Sprite Render", entity, [](SpriteComponent& spriteComponent){
             ImGui::ColorEdit4("", glm::value_ptr(spriteComponent.Color));
+
+            ImGui::Button("Texture", {100.0f, 0.0f});
+            
+            if(ImGui::BeginDragDropTarget()){
+            
+                // Payload maybe null
+                if(auto payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
+                    
+                    auto path = reinterpret_cast<const char*>(payload->Data);
+
+                    std::filesystem::path texturePath{AssetDirectory / path};
+
+                    if(std::filesystem::exists(texturePath) && texturePath.extension().string() == ".png"){
+                        
+                        spriteComponent.Texture = Texture2D::Create(texturePath.string());
+
+                    }
+                    
+
+                }
+
+                ImGui::EndDragDropTarget();
+            }
+
+            ImGui::DragFloat("Tiling Factor", &spriteComponent.TilingFactor, 0.1f, 0.0f, 10.0f);
+
         });
 
     }
