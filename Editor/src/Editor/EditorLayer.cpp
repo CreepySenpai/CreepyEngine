@@ -2,6 +2,9 @@
 #include <imgui/ImGuizmo.h>
 
 namespace Creepy {
+
+    extern const std::filesystem::path AssetDirectory;
+
     static char buffer[256];
 
     EditorLayer::EditorLayer() noexcept : Layer{"LevelEditor"}{
@@ -255,7 +258,18 @@ namespace Creepy {
 
         auto id = m_frameBuffer->GetColorAttachmentID();
         ImGui::Image(reinterpret_cast<ImTextureID>(id), ImVec2{m_viewPortSize.x, m_viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
+        
+        if(ImGui::BeginDragDropTarget()){
+            
+            // Payload maybe null
+            if(auto payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
+                auto path = reinterpret_cast<const char*>(payload->Data);
 
+                this->openScene(AssetDirectory / path);
+            }
+
+            ImGui::EndDragDropTarget();
+        }
         // Gizmos
 
         this->drawGizmos();
@@ -491,14 +505,22 @@ namespace Creepy {
 
         if (!filePath.empty())
         {
+            this->openScene(filePath);
+        }
+    }
+
+    void EditorLayer::openScene(const std::filesystem::path& filePath) noexcept {
+
+        if(std::filesystem::exists(filePath) && filePath.extension().string() == ".creepy"){
             m_scene.reset();
             m_scene = std::make_shared<Scene>(); // Create New Empty Scene
             m_scene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
             m_hierarchyPanel.SetScene(m_scene);
 
             SceneSerializer serializer{m_scene};
-            serializer.DeserializeFromYaml(filePath);
+            serializer.DeserializeFromYaml(filePath.string());
         }
+        
     }
 
     void EditorLayer::saveSceneAs() noexcept

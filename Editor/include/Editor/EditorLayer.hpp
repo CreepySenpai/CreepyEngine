@@ -30,6 +30,7 @@ namespace Creepy {
 
             void newScene() noexcept;
             void openScene() noexcept;
+            void openScene(const std::filesystem::path& filePath) noexcept;
             void saveSceneAs() noexcept;
 
             void drawGizmos() noexcept;
