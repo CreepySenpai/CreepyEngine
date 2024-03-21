@@ -13,16 +13,17 @@ layout(std140, binding = 0) uniform Camera {
 struct VertexOutput{
     vec4 Color;
     vec2 TextureCoord;
-    float TextureIndex;
+    
 };
 
 layout(location = 0) out VertexOutput v_vertexOutput;
+layout(location = 2) out flat float v_textureIndex;
 layout(location = 3) out flat int v_entityID;
 
 void main(){
     v_vertexOutput.Color = a_color;
     v_vertexOutput.TextureCoord = a_textureCoord;
-    v_vertexOutput.TextureIndex = a_textureIndex;
+    v_textureIndex = a_textureIndex;
     v_entityID = a_entityID;
 
     gl_Position = u_Camera.ViewProjectionMatrix * vec4(a_position, 1.0);

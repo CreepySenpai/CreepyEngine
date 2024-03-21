@@ -14,7 +14,9 @@ namespace Creepy {
 
         m_scene = std::make_shared<Scene>();
 
-        m_texture = Texture2D::Create("./assets/textures/SpecularMap.png");
+        m_playIcon = Texture2D::Create("./assets/icons/play_icon.png");
+
+        m_stopIcon = Texture2D::Create("./assets/icons/stop_icon.png");
 
         m_editorCamera = EditorCamera{45.0f, 1.0f, 0.01f, 1000.0f};
 
@@ -98,7 +100,15 @@ namespace Creepy {
         // Clear Color Attachment
         m_frameBuffer->ClearColorBufferAttachment(1, -1);
 
-        m_scene->OnUpdateEditor(timeStep, m_editorCamera);
+        switch (m_sceneState)
+        {
+            case SceneState::EDIT:
+                m_scene->OnUpdateEditor(timeStep, m_editorCamera);
+                break;
+            case SceneState::PLAY:
+                m_scene->OnUpdateRunTime(timeStep);
+                break;
+        }
 
         auto [mX, mY] = ImGui::GetMousePos();
 
@@ -302,6 +312,10 @@ namespace Creepy {
             this->drawThemePanel();
         }
 
+        {
+             this->uiDrawToolBar();
+        }
+
         ImGui::End();
     }
 
@@ -310,11 +324,11 @@ namespace Creepy {
 
         EventDispatcher dispatcher{event};
 
-        dispatcher.Dispatch<KeyPressedEvent>(std::bind_front(OnKeyPressed, this));
-        dispatcher.Dispatch<MouseButtonPressedEvent>(std::bind_front(OnMouseButtonPressed, this));
+        dispatcher.Dispatch<KeyPressedEvent>(std::bind_front(onKeyPressed, this));
+        dispatcher.Dispatch<MouseButtonPressedEvent>(std::bind_front(onMouseButtonPressed, this));
     }
 
-    bool EditorLayer::OnKeyPressed(KeyPressedEvent& event) noexcept {
+    bool EditorLayer::onKeyPressed(KeyPressedEvent& event) noexcept {
         if(event.GetRepeatCount() > 0){
             return false;
         }
@@ -365,12 +379,54 @@ namespace Creepy {
         return false;
     }
 
-    bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event) noexcept {
+    bool EditorLayer::onMouseButtonPressed(MouseButtonPressedEvent& event) noexcept {
         if(event.GetButton() == MouseButtonCode::MOUSE_LEFT && this->canMousePicking()){
             m_hierarchyPanel.SetSelectedEntity(m_selectedEntity);
         }
 
         return false;
+    }
+
+    void EditorLayer::onScenePlay() noexcept {
+        m_sceneState = SceneState::PLAY;
+    }
+
+    void EditorLayer::onSceneStop() noexcept {
+        m_sceneState = SceneState::EDIT;
+    }
+
+    void EditorLayer::uiDrawToolBar() noexcept {
+        
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 2.0f});
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, {0.0f, 0.0f});
+        ImGui::PushStyleColor(ImGuiCol_Button, {0.0f, 0.0f, 0.0f, 0.0f});
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {0.3f, 0.305f, 0.31f, 1.0f});
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, {0.15f, 0.12f, 0.16f, 1.f});
+
+        ImGui::Begin("##toolBar", nullptr, 
+            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+        auto iconID =  reinterpret_cast<ImTextureID>(m_sceneState == SceneState::EDIT ? m_playIcon->GetRendererID() : m_stopIcon->GetRendererID());
+
+        const float iconSize{ImGui::GetWindowHeight() - 2.0f};  // Padding
+
+        // Center Icon
+        ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x * 0.5f) - (iconSize * 0.5f));
+
+        if(ImGui::ImageButton(iconID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0)){
+
+            if(m_sceneState == SceneState::EDIT){
+                this->onScenePlay();
+            } else if(m_sceneState == SceneState::PLAY){
+                this->onSceneStop();
+            }
+        
+        }
+
+        ImGui::PopStyleVar(2);
+        ImGui::PopStyleColor(3);
+
+        ImGui::End();
     }
 
     void EditorLayer::drawGizmos() noexcept {

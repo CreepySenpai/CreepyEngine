@@ -8,10 +8,10 @@ layout(location = 1) out int entityID;
 struct VertexOutput{
     vec4 Color;
     vec2 TextureCoord;
-    float TextureIndex;
 };
 
 layout(location = 0) in VertexOutput v_vertexInput;
+layout(location = 2) in flat float v_textureIndex;
 layout(location = 3) in flat int v_entityID;
 
 layout(binding = 0) uniform sampler2D u_textures[32];
@@ -19,7 +19,7 @@ layout(binding = 0) uniform sampler2D u_textures[32];
 void main(){
     vec4 texColor = v_vertexInput.Color;
     
-    switch(int(v_vertexInput.TextureIndex)){
+    switch(int(v_textureIndex)){
         case 0:
             texColor *= texture(u_textures[0], v_vertexInput.TextureCoord);
             break;

@@ -6,7 +6,9 @@
 
 namespace Creepy {
 
-
+    enum class SceneState : uint8_t {
+        EDIT = 0, PLAY, STOP
+    };
     class EditorLayer : public Layer
     {
         public:
@@ -23,10 +25,11 @@ namespace Creepy {
             void OnImGuiRender() noexcept override;
 
             void OnEvent(Event &event) noexcept override;
-
         private:
-            bool OnKeyPressed(KeyPressedEvent& event) noexcept;
-            bool OnMouseButtonPressed(MouseButtonPressedEvent& event) noexcept;
+            bool onKeyPressed(KeyPressedEvent& event) noexcept;
+            bool onMouseButtonPressed(MouseButtonPressedEvent& event) noexcept;
+            void onScenePlay() noexcept;
+            void onSceneStop() noexcept;
 
             void newScene() noexcept;
             void openScene() noexcept;
@@ -36,10 +39,14 @@ namespace Creepy {
             void drawGizmos() noexcept;
             void drawThemePanel() noexcept;
 
+            // UI Stuff
+            void uiDrawToolBar() noexcept;
+
             bool canMousePicking() noexcept;
         private:
             Ref<FrameBuffer> m_frameBuffer;
-            Ref<Texture2D> m_texture;
+            Ref<Texture2D> m_playIcon;
+            Ref<Texture2D> m_stopIcon;
             Ref<Scene> m_scene;
             EditorCamera m_editorCamera;
             SceneHierarchyPanel m_hierarchyPanel;
@@ -52,6 +59,8 @@ namespace Creepy {
             int m_gizmosType{-1};
             bool m_viewPortFocused;
             bool m_viewPortHovered;
+
+            SceneState m_sceneState{SceneState::EDIT};
 
     };
     

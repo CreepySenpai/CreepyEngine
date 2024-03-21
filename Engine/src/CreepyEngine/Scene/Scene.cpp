@@ -35,11 +35,11 @@ namespace Creepy {
 
         Renderer2D::BeginScene(camera);
 
-        for (auto entity : renderEntity)
-        {
-            auto &&[transform, sprite] = renderEntity.get<TransformComponent, SpriteComponent>(entity);
-            Renderer2D::DrawSprite(transform, sprite, static_cast<int>(entity));
-        }
+        m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
+
+            Renderer2D::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
+        
+        });
 
         Renderer2D::EndScene();
     }
@@ -47,7 +47,6 @@ namespace Creepy {
     void Scene::OnUpdateRunTime(TimeStep timeStep) noexcept {
 
         m_registry.view<NativeScriptComponent>().each([timeStep, this](auto entity, NativeScriptComponent& nativeComponent){
-            
             // TODO: Move to scene play
             if(!nativeComponent.Instance){
                 nativeComponent.Instance = nativeComponent.CreateScript();
@@ -60,7 +59,33 @@ namespace Creepy {
             nativeComponent.Instance->OnUpdate(timeStep);
 
         });
+
+        Camera* mainCamera{nullptr};
+        glm::mat4 transformMatrix;
+
+        m_registry.view<TransformComponent,CameraComponent>().each([&mainCamera, &transformMatrix](auto entityID, TransformComponent& transformComponent ,CameraComponent& cameraComponent){
+
+            if(cameraComponent.IsPrimary){
+                transformMatrix = transformComponent.GetTransform();
+                mainCamera = &cameraComponent.Camera;
+            }
+
+        });
         
+
+        if(mainCamera){
+
+            Renderer2D::BeginScene(*mainCamera, transformMatrix);
+
+            m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
+
+                Renderer2D::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
+
+            });
+
+            Renderer2D::EndScene();
+        }
+
     }
 
 
