@@ -83,7 +83,7 @@ namespace Creepy {
         }
     }
 
-    OpenGLShader::OpenGLShader(const std::string& vertexPath, const std::string& fragmentPath) noexcept : m_name{"Default"}, m_vertexFilePath{vertexPath}, m_fragmentFilePath{fragmentPath} {
+    OpenGLShader::OpenGLShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept : m_name{"Default"}, m_vertexFilePath{vertexPath}, m_fragmentFilePath{fragmentPath} {
 
         CreateCacheDirectoryIfNeed();
 
@@ -258,11 +258,11 @@ namespace Creepy {
 
     }
 
-    std::string OpenGLShader::ReadFile(const std::string& filePath) noexcept {
+    std::string OpenGLShader::ReadFile(const std::filesystem::path& filePath) noexcept {
         std::fstream file{filePath, std::ios::in | std::ios::binary};
 
         if(!file.is_open()){
-            ENGINE_LOG_ERROR("Cannot open file {}!", filePath);
+            ENGINE_LOG_ERROR("Cannot open file {}!", filePath.string());
         }
         
         std::stringstream stream;

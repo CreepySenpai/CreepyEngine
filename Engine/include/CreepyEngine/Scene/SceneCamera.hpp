@@ -22,7 +22,7 @@ namespace Creepy {
 
             void SetViewPortSize(uint32_t width, uint32_t height) noexcept;
 
-            constexpr inline ProjectionType GetProjectionType() const noexcept {
+            [[nodiscard]] constexpr inline ProjectionType GetProjectionType() const noexcept {
                 return m_projectionType;
             }
 
@@ -31,7 +31,7 @@ namespace Creepy {
                 this->recalculateProjectionMatrix();
             }
 
-            constexpr inline float GetOrthographicSize() const noexcept {
+            [[nodiscard]] constexpr inline float GetOrthographicSize() const noexcept {
                 return m_orthographicSize;
             }
 
@@ -44,7 +44,7 @@ namespace Creepy {
                 return m_orthographicNear;
             }
 
-            constexpr inline float GetOrthographicFarClip() const noexcept {
+            [[nodiscard]] constexpr inline float GetOrthographicFarClip() const noexcept {
                 return m_orthographicFar;
             }
 
@@ -60,7 +60,7 @@ namespace Creepy {
 
             /*=============================================================*/
 
-            constexpr inline float GetPerspectiveVerticalFOV() const noexcept {
+            [[nodiscard]] constexpr inline float GetPerspectiveVerticalFOV() const noexcept {
                 return glm::degrees(m_perspectiveFOV);
             }
 
@@ -73,7 +73,7 @@ namespace Creepy {
                 return m_perspectiveNear;
             }
 
-            constexpr inline float GetPerspectiveFarClip() const noexcept {
+            [[nodiscard]] constexpr inline float GetPerspectiveFarClip() const noexcept {
                 return m_perspectiveFar;
             }
 

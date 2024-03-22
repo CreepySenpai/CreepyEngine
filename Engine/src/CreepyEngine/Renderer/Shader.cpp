@@ -34,7 +34,11 @@ namespace Creepy {
         return nullptr;
     }
     
-    Ref<Shader> Shader::Create(const std::string& vertexPath, const std::string& fragmentPath) noexcept {
+    Ref<Shader> Shader::Create(const std::filesystem::path& vertexPath, const std::filesystem::path&  fragmentPath) noexcept {
+        if(!std::filesystem::exists(vertexPath) || !std::filesystem::exists(fragmentPath)){
+            ENGINE_LOG_ERROR("Error Shader Path {}, {}", vertexPath.string(), fragmentPath.string());
+            return nullptr;
+        }
         switch (Renderer::GetRenderAPI())
         {
             case RendererAPI::API::NONE:
@@ -82,13 +86,13 @@ namespace Creepy {
         m_shaders[name] = shader;
     }
 
-    Ref<Shader> ShaderLibrary::Load(const std::string& vertexPath, const std::string& fragmentPath) noexcept {
+    Ref<Shader> ShaderLibrary::Load(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept {
         auto shader = Shader::Create(vertexPath, fragmentPath);
         Add(shader);
         return shader;
     }
 
-    Ref<Shader> ShaderLibrary::Load(const std::string &name, const std::string& vertexPath, const std::string& fragmentPath) noexcept {
+    Ref<Shader> ShaderLibrary::Load(const std::string &name, const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept {
         auto shader = Shader::Create(vertexPath, fragmentPath);
         shader->SetName(name);
         Add(name, shader);

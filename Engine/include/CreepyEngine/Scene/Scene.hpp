@@ -40,7 +40,7 @@ namespace Creepy {
             uint32_t m_viewPortWidth{0};
             uint32_t m_viewPortHeight{0};
 
-            b2World* m_physicWorld;
+            Scope<b2World> m_physicWorld;
 
             friend class Entity;
             friend class SceneHierarchyPanel;

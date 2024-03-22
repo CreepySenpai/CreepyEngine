@@ -29,13 +29,13 @@ namespace Creepy
     }
 
     void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform) noexcept {
-        shader->Bind();
+        // shader->Bind();
 
-        shader->SetUniformMat4("u_viewProjectionMatrix", m_sceneData->ViewProjectionMatrix);
+        // shader->SetUniformMat4("u_viewProjectionMatrix", m_sceneData->ViewProjectionMatrix);
         // Transform per obj
-        shader->SetUniformMat4("u_transformMatrix", transform);
-        vertexArray->Bind();
-        RenderCommand::DrawIndex(vertexArray);
+        // shader->SetUniformMat4("u_transformMatrix", transform);
+        // vertexArray->Bind();
+        // RenderCommand::DrawIndex(vertexArray);
     }
 
     void Renderer::WindowResize(uint32_t width, uint32_t height) noexcept {

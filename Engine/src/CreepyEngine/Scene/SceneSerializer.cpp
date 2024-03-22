@@ -119,7 +119,7 @@ namespace Creepy
         writer << YAML::EndMap;
     }
 
-    void SceneSerializer::SerializeToYaml(const std::string& filePath) noexcept {
+    void SceneSerializer::SerializeToYaml(const std::filesystem::path& filePath) noexcept {
         YAML::Emitter writer;
 
         writer << YAML::BeginMap;
@@ -144,11 +144,11 @@ namespace Creepy
         fileOut << writer.c_str();
         fileOut.close();
     }
-    void SceneSerializer::SerializeToBinary(const std::string &filePath) noexcept {
+    void SceneSerializer::SerializeToBinary(const std::filesystem::path& filePath) noexcept {
         ENGINE_LOG_ERROR("Binary Serializer Not Impl!!!");
     }
 
-    bool SceneSerializer::DeserializeFromYaml(const std::string &filePath) noexcept {
+    bool SceneSerializer::DeserializeFromYaml(const std::filesystem::path& filePath) noexcept {
         std::ifstream stream{filePath};
         std::stringstream strStream;
         strStream << stream.rdbuf();
@@ -196,7 +196,7 @@ namespace Creepy
                     if(spriteNode["Texture"]){
                         spriteComponent.Texture = Texture2D::Create(spriteNode["Texture"].as<std::string>());
                     }
-                    
+
                 }
 
                 auto&& cameraNode = entity["CameraComponent"];
@@ -245,7 +245,7 @@ namespace Creepy
         return true;
     }
 
-    bool SceneSerializer::DeserializeFromBinary(const std::string &filePath) noexcept {
+    bool SceneSerializer::DeserializeFromBinary(const std::filesystem::path& filePath) noexcept {
         ENGINE_LOG_ERROR("Binary Deserializer Not Impl!!!");
         return false;
     }

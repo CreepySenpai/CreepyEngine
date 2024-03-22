@@ -9,7 +9,7 @@ namespace Creepy {
     class OpenGLShader : public Shader
     {
         public:
-            OpenGLShader(const std::string& vertexPath, const std::string& fragmentPath) noexcept;
+            OpenGLShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept;
             OpenGLShader(const std::string& name, const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept;
             ~OpenGLShader() noexcept;
             void Bind() const noexcept override;
@@ -50,7 +50,7 @@ namespace Creepy {
             std::unordered_map<std::string, GLint> m_locationCache;
             
 
-            std::string ReadFile(const std::string& filePath) noexcept;
+            std::string ReadFile(const std::filesystem::path& filePath) noexcept;
             void createProgram() noexcept;
 
             void Compile(const std::unordered_map<GLenum, std::string>& shaderSources) noexcept;

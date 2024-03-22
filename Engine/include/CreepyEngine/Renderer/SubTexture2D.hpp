@@ -20,7 +20,7 @@ namespace Creepy
                 return m_textureCoords;
             }
 
-            static Ref<SubTexture2D> CreateFromCoords(const Ref<Texture2D>& texture, const glm::vec2& index, const glm::vec2& cellSize, const glm::vec2& spriteSize = glm::vec2(1.0f, 1.0f)) noexcept;
+            [[nodiscard]] static Ref<SubTexture2D> CreateFromCoords(const Ref<Texture2D>& texture, const glm::vec2& index, const glm::vec2& cellSize, const glm::vec2& spriteSize = glm::vec2(1.0f, 1.0f)) noexcept;
             
         private:
             Ref<Texture2D> m_texture;

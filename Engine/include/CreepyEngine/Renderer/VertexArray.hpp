@@ -23,6 +23,6 @@ namespace Creepy
 
             virtual const Ref<IndexBuffer>& GetIndexBuffer() const noexcept = 0;
 
-            static Ref<VertexArray> Create() noexcept;
+            [[nodiscard]] static Ref<VertexArray> Create() noexcept;
     };
 }

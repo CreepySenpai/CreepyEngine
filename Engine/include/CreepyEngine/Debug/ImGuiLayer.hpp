@@ -1,5 +1,7 @@
 #pragma once
 
+#include <filesystem>
+
 #include <CreepyEngine/Core/Layer.hpp>
 #include <CreepyEngine/Core/KeyCode.hpp>
 #include <CreepyEngine/Events/MouseEvent.hpp>
@@ -60,8 +62,8 @@ namespace Creepy
             void SetTheme() noexcept;
 
             // Define in Scene Serializer
-            void SaveThemeToYaml(const std::string& filePath) noexcept;
-            bool LoadThemeFromYaml(const std::string& filePath) noexcept;
+            void SaveThemeToYaml(const std::filesystem::path& filePath) noexcept;
+            bool LoadThemeFromYaml(const std::filesystem::path& filePath) noexcept;
 
             inline ThemeConfig& GetEditorConfig() noexcept {
                 return m_editorConfig;

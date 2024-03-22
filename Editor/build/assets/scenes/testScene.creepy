@@ -2,44 +2,22 @@ Scene: Untitled
 Entities:
   - Entity: 12345
     TagComponent:
-      Tag: BBBB
+      Tag: Cam
     TransformComponent:
-      Position: [0, 0, 0]
+      Position: [0, 0, 7.4000001]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
-    SpriteComponent:
-      Color: [1, 1, 1, 1]
-      Texture: ./assets\textures\SpecularMap1.png
-    RigidBody2DComponent:
-      BodyType: 1
-      FixedRotation: false
-    BoxCollider2DComponent:
-      Offset: [0, 0]
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 1
-      Restitution: 0
-      RestitutionThreshold: 0.5
-  - Entity: 12345
-    TagComponent:
-      Tag: BBB
-    TransformComponent:
-      Position: [2.20000005, -1.70000005, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    SpriteComponent:
-      Color: [1, 1, 1, 1]
-      Texture: ./assets\textures\RPGpack.png
-    RigidBody2DComponent:
-      BodyType: 2
-      FixedRotation: false
-    BoxCollider2DComponent:
-      Offset: [0, 0]
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 1
-      Restitution: 0
-      RestitutionThreshold: 0.5
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+        PerspectiveFOV: 45
+        PerspectiveNear: 0.00100000005
+        PerspectiveFar: 1000
+      Primary: true
+      FixedAspectRatio: false
   - Entity: 12345
     TagComponent:
       Tag: AAA
@@ -61,19 +39,41 @@ Entities:
       RestitutionThreshold: 0.5
   - Entity: 12345
     TagComponent:
-      Tag: Cam
+      Tag: BBB
     TransformComponent:
-      Position: [0, 0, 7.4000001]
+      Position: [2.20000005, -1.70000005, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
-    CameraComponent:
-      Camera:
-        ProjectionType: 1
-        OrthographicSize: 10
-        OrthographicNear: -1
-        OrthographicFar: 1
-        PerspectiveFOV: 45
-        PerspectiveNear: 0.00100000005
-        PerspectiveFar: 1000
-      Primary: true
-      FixedAspectRatio: false
+    SpriteComponent:
+      Color: [1, 1, 1, 1]
+      Texture: ./assets\textures\RPGpack.png
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 12345
+    TagComponent:
+      Tag: BBBB
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteComponent:
+      Color: [1, 1, 1, 1]
+      Texture: ./assets\textures\SpecularMap1.png
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5

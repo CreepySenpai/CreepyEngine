@@ -178,7 +178,7 @@ namespace Creepy {
     }
 
     void Scene::OnRuntimePlay() noexcept {
-        m_physicWorld = new b2World(b2Vec2(0.0f, -9.8f));
+        m_physicWorld = std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, -9.8f)));
 
         // Can not use lambda because can not capture std::unique_ptr
         auto&& rigidView  = m_registry.view<RigidBody2DComponent>();
@@ -223,7 +223,6 @@ namespace Creepy {
     }
 
     void Scene::OnRuntimeStop() noexcept {
-        // m_physicWorld->Destroy
         auto&& entityDestroy = m_registry.view<RigidBody2DComponent>();
 
         for(auto&& entityID : entityDestroy){
@@ -231,7 +230,6 @@ namespace Creepy {
             m_physicWorld->DestroyBody(reinterpret_cast<b2Body*>(entity.GetComponent<RigidBody2DComponent>().RuntimeBody));
         }
 
-        delete m_physicWorld;
-        m_physicWorld = nullptr;
+        m_physicWorld.reset();
     }
 }

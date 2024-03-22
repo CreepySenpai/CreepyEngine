@@ -18,9 +18,6 @@ namespace Creepy {
             // TODO: Replace view matrix
             static void BeginScene(const Camera& camera, const glm::mat4& transform) noexcept;
             static void BeginScene(const EditorCamera& camera) noexcept;
-
-            // TODO: Remove
-            [[deprecate("No longer support")]]static void BeginScene(const OrthographicCamera& camera) noexcept;
             
             static void EndScene() noexcept;
             static void Flush() noexcept;
@@ -34,17 +31,8 @@ namespace Creepy {
             static void DrawRect(const glm::vec2& position, const glm::vec2& size, const Ref<SubTexture2D>& subTexture, const glm::vec4& tilingColor = glm::vec4(1.0f)) noexcept;
             static void DrawRect(const glm::vec3& position, const glm::vec2& size, const Ref<SubTexture2D>& subTexture, const glm::vec4& tilingColor = glm::vec4(1.0f)) noexcept;
 
-            static void DrawRect(const glm::mat4& transform, const glm::vec4& color, int entityID = -1) noexcept;
-            static void DrawRect(const glm::mat4& transform, const Ref<Texture2D>& texture, const glm::vec4& tilingColor = glm::vec4(1.0f), int entityID = -1) noexcept;
-
-            static void DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) noexcept;
-            static void DrawRotRect(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color) noexcept;
- 
-            static void DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, const glm::vec4& tilingColor = glm::vec4(1.0f)) noexcept;
-            static void DrawRotRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, const glm::vec4& tilingColor = glm::vec4(1.0f)) noexcept;
-
-            static void DrawRotRect(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<SubTexture2D>& subTexture, const glm::vec4& tilingColor = glm::vec4(1.0f)) noexcept;
-            static void DrawRotRect(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<SubTexture2D>& subTexture, const glm::vec4& tilingColor = glm::vec4(1.0f)) noexcept;
+            static void DrawRect(const glm::mat4& transform, const glm::vec4& color, float tilingFactor = 1.0f, int entityID = -1) noexcept;
+            static void DrawRect(const glm::mat4& transform, const Ref<Texture2D>& texture, const glm::vec4& tilingColor = glm::vec4(1.0f), float tilingFactor = 1.0f, int entityID = -1) noexcept;
 
             static void DrawSprite(TransformComponent& transform, SpriteComponent& sprite, uint32_t entityID) noexcept;
 
@@ -65,7 +53,7 @@ namespace Creepy {
             static Statistics GetStatistics() noexcept;
 
         private:
-            static void setRectProperty(const glm::mat4& transform, const glm::vec4& color, const std::array<glm::vec2, 4>& textureCoords, float textureIndex, int entityID = -1) noexcept;
+            static void setRectProperty(const glm::mat4& transform, const glm::vec4& color, const std::array<glm::vec2, 4>& textureCoords, float textureIndex, float tilingFactor = 1.0f, int entityID = -1) noexcept;
             static void flushAndReset() noexcept;
     };
     

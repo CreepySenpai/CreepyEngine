@@ -129,7 +129,7 @@ namespace Creepy
 
     }
 
-    void ImGuiLayer::SaveThemeToYaml(const std::string& filePath) noexcept {
+    void ImGuiLayer::SaveThemeToYaml(const std::filesystem::path& filePath) noexcept {
         YAML::Emitter writer;
 
         writer << YAML::BeginMap;
@@ -174,7 +174,7 @@ namespace Creepy
         outFile.close();
     }
 
-    bool ImGuiLayer::LoadThemeFromYaml(const std::string& filePath) noexcept {
+    bool ImGuiLayer::LoadThemeFromYaml(const std::filesystem::path& filePath) noexcept {
         std::ifstream stream{filePath};
         std::stringstream strStream;
         strStream << stream.rdbuf();

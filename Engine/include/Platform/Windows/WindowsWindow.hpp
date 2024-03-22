@@ -16,10 +16,11 @@ namespace Creepy {
 
             constexpr virtual void OnUpdate() noexcept override;
 
-            constexpr virtual uint32_t GetWindowWidth() const noexcept override {
+            [[nodiscard]] constexpr virtual uint32_t GetWindowWidth() const noexcept override {
                 return m_windowData.Width;
             }
-            constexpr virtual uint32_t GetWindowHeight() const noexcept override {
+
+            [[nodiscard]] constexpr virtual uint32_t GetWindowHeight() const noexcept override {
                 return m_windowData.Height;
             }
 
@@ -27,7 +28,7 @@ namespace Creepy {
             constexpr virtual void SetVSync(bool setting) noexcept override;
             constexpr virtual bool IsVSyncEnable() const noexcept override;
 
-            constexpr inline virtual void* GetNativeWindow() const noexcept override {
+            [[nodiscard]] constexpr inline virtual void* GetNativeWindow() const noexcept override {
                 return reinterpret_cast<void*>(m_window.get());
             }
 

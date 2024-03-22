@@ -1,9 +1,11 @@
 #pragma once
 
 #include <string>
+#include <span>
+#include <filesystem>
+
 #include <CreepyEngine/Core/Core.hpp>
 #include <glm/glm.hpp>
-#include <span>
 
 namespace Creepy
 {
@@ -27,9 +29,9 @@ namespace Creepy
             virtual void SetUniformMat3(const std::string& name, const glm::mat3& matrix) noexcept = 0;
             virtual void SetUniformMat4(const std::string& name, const glm::mat4& matrix) noexcept = 0;
 
-            static Ref<Shader> Create(const std::string& name, const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept;
+            [[nodiscard]] static Ref<Shader> Create(const std::string& name, const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept;
 
-            static Ref<Shader> Create(const std::string& vertexPath, const std::string& fragmentPath) noexcept;
+            [[nodiscard]] static Ref<Shader> Create(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept;
     }; 
 
     class ShaderLibrary {
@@ -37,10 +39,10 @@ namespace Creepy
             void Add(Ref<Shader>& shader) noexcept;
             void Add(const std::string& name, Ref<Shader>& shader) noexcept;
 
-            Ref<Shader> Load(const std::string& vertexPath, const std::string& fragmentPath) noexcept;
-            Ref<Shader> Load(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath) noexcept;
+            [[nodiscard]] Ref<Shader> Load(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept;
+            [[nodiscard]] Ref<Shader> Load(const std::string& name, const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept;
 
-            Ref<Shader> Get(const std::string& name) const noexcept;
+            [[nodiscard]] Ref<Shader> Get(const std::string& name) const noexcept;
 
         private:
             std::unordered_map<std::string, Ref<Shader>> m_shaders;
