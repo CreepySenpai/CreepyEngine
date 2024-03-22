@@ -17,6 +17,7 @@ namespace Creepy {
         glm::vec4 Color;
         glm::vec2 TextureCoord;
         float TextureIndex;
+        float TilingFactor{1.0f};
 
         // Only For Editor
         int EntityID{-1};
@@ -66,6 +67,7 @@ namespace Creepy {
             {Creepy::ShaderDataType::Float4, "a_color"},
             {Creepy::ShaderDataType::Float2, "a_textureCoord"},
             {Creepy::ShaderDataType::Float, "a_textureIndex"},
+            {Creepy::ShaderDataType::Float, "a_tilingFactor"},
             {Creepy::ShaderDataType::Int, "a_entityID"},
         };
 
@@ -182,15 +184,15 @@ namespace Creepy {
 
     void Renderer2D::BeginScene(const OrthographicCamera &camera) noexcept {
 
-        s_renderer2dStorage.shader->Bind();
+        // s_renderer2dStorage.shader->Bind();
 
-        s_renderer2dStorage.shader->SetUniformMat4("u_viewProjectionMatrix", camera.GetViewProjectionMatrix());
+        // s_renderer2dStorage.shader->SetUniformMat4("u_viewProjectionMatrix", camera.GetViewProjectionMatrix());
 
-        // Reset
-        s_renderer2dStorage.RectIndexCount = 0;
-        s_renderer2dStorage.RectVertexBufferPointer = s_renderer2dStorage.RectVertexBufferBase;
+        // // Reset
+        // s_renderer2dStorage.RectIndexCount = 0;
+        // s_renderer2dStorage.RectVertexBufferPointer = s_renderer2dStorage.RectVertexBufferBase;
 
-        s_renderer2dStorage.TextureSlotIndex = 1;
+        // s_renderer2dStorage.TextureSlotIndex = 1;
     }
 
     void Renderer2D::EndScene() noexcept {
@@ -227,37 +229,53 @@ namespace Creepy {
 
     void Renderer2D::setRectProperty(const glm::mat4& transform, const glm::vec4& color, const std::array<glm::vec2, 4>& textureCoords, float textureIndex, int entityID) noexcept {
 
-        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[0];
-        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
-        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(0);
-        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
-        s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
+        // s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[0];
+        // s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        // s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(0);
+        // s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+        // s_renderer2dStorage.RectVertexBufferPointer->TilingFactor = 1.0f;
+        // s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
 
-        s_renderer2dStorage.RectVertexBufferPointer++;
+        // s_renderer2dStorage.RectVertexBufferPointer++;
 
-        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[1];
-        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
-        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(1);
-        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
-        s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
+        // s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[1];
+        // s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        // s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(1);
+        // s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+        // s_renderer2dStorage.RectVertexBufferPointer->TilingFactor = 1.0f;
+        // s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
 
-        s_renderer2dStorage.RectVertexBufferPointer++;
+        // s_renderer2dStorage.RectVertexBufferPointer++;
 
-        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[2];
-        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
-        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(2);
-        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
-        s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
+        // s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[2];
+        // s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        // s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(2);
+        // s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+        // s_renderer2dStorage.RectVertexBufferPointer->TilingFactor = 1.0f;
+        // s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
 
-        s_renderer2dStorage.RectVertexBufferPointer++;
+        // s_renderer2dStorage.RectVertexBufferPointer++;
 
-        s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[3];
-        s_renderer2dStorage.RectVertexBufferPointer->Color = color;
-        s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(3);
-        s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
-        s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
+        // s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[3];
+        // s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+        // s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(3);
+        // s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+        // s_renderer2dStorage.RectVertexBufferPointer->TilingFactor = 1.0f;
+        // s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
 
-        s_renderer2dStorage.RectVertexBufferPointer++;
+        // s_renderer2dStorage.RectVertexBufferPointer++;
+
+        for(size_t i{0}; i < 4; i++){
+            
+            s_renderer2dStorage.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[i];
+            s_renderer2dStorage.RectVertexBufferPointer->Color = color;
+            s_renderer2dStorage.RectVertexBufferPointer->TextureCoord = textureCoords.at(i);
+            s_renderer2dStorage.RectVertexBufferPointer->TextureIndex = textureIndex;
+            s_renderer2dStorage.RectVertexBufferPointer->TilingFactor = 1.0f;
+            s_renderer2dStorage.RectVertexBufferPointer->EntityID = entityID;
+
+            s_renderer2dStorage.RectVertexBufferPointer++;
+        }
 
         s_renderer2dStorage.RectIndexCount += 6;
 

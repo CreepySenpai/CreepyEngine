@@ -25,4 +25,14 @@ namespace Creepy {
         ENGINE_LOG_WARNING("Add NativeScript To Entity: {}", static_cast<uint32_t>(entity));
     }
 
+    template<> 
+    void Scene::OnComponentAdded<RigidBody2DComponent>(Entity& entity, RigidBody2DComponent& component) {
+        
+    }
+
+    template<> 
+    void Scene::OnComponentAdded<BoxCollider2DComponent>(Entity& entity, BoxCollider2DComponent& component) {
+
+    }
+
 }

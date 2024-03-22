@@ -7,7 +7,7 @@ namespace Creepy {
     class OpenGLTexture2D : public Texture2D
     {
         public:
-            OpenGLTexture2D(const std::string& filePath) noexcept;
+            OpenGLTexture2D(const std::filesystem::path& filePath) noexcept;
 
             OpenGLTexture2D(uint32_t width, uint32_t height) noexcept;
 
@@ -23,6 +23,10 @@ namespace Creepy {
 
             constexpr inline uint32_t GetRendererID() const noexcept override {
                 return m_rendererID;
+            }
+
+            const std::filesystem::path& GetTexturePath() const noexcept override {
+                return m_filePath;
             }
 
             void Bind(uint32_t slot = 0) const noexcept override;
@@ -41,6 +45,6 @@ namespace Creepy {
             uint32_t m_height;
             uint32_t m_rendererID;
             GLenum m_internalFormat, m_dataFormat;
-            std::string m_path;
+            std::filesystem::path m_filePath;
     };
 }

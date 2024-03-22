@@ -19,6 +19,7 @@ namespace Creepy {
         m_stopIcon = Texture2D::Create("./assets/icons/stop_icon.png");
 
         m_editorCamera = EditorCamera{45.0f, 1.0f, 0.01f, 1000.0f};
+        // m_editorCamera.SetViewPortSize(Application::GetInstanc);
 
         class Test : public ScriptableEntity{
             protected:
@@ -305,7 +306,7 @@ namespace Creepy {
         ImGui::Text("Rect Count: %d", stats.RectCount);
         ImGui::Text("Total Vertex: %d", stats.GetTotalVertexCount());
         ImGui::Text("Total Index: %d", stats.GetTotalIndexCount());
-
+        ImGui::Text("Camera Position: %f , %f , %f", m_editorCamera.GetPosition().x, m_editorCamera.GetPosition().y, m_editorCamera.GetPosition().z);
         ImGui::End();
 
         {
@@ -320,7 +321,9 @@ namespace Creepy {
     }
 
     void EditorLayer::OnEvent(Event &event) noexcept {
-        m_editorCamera.OnEvent(event);
+        if(m_viewPortFocused){
+            m_editorCamera.OnEvent(event);   
+        }
 
         EventDispatcher dispatcher{event};
 
@@ -389,10 +392,12 @@ namespace Creepy {
 
     void EditorLayer::onScenePlay() noexcept {
         m_sceneState = SceneState::PLAY;
+        m_scene->OnRuntimePlay();
     }
 
     void EditorLayer::onSceneStop() noexcept {
         m_sceneState = SceneState::EDIT;
+        m_scene->OnRuntimeStop();
     }
 
     void EditorLayer::uiDrawToolBar() noexcept {
@@ -552,6 +557,7 @@ namespace Creepy {
     void EditorLayer::newScene() noexcept {
         m_scene = std::make_shared<Scene>();    // Create New Empty Scene
         m_scene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+        m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
         m_hierarchyPanel.SetScene(m_scene);
     }
 
@@ -571,6 +577,8 @@ namespace Creepy {
             m_scene.reset();
             m_scene = std::make_shared<Scene>(); // Create New Empty Scene
             m_scene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+            m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+            
             m_hierarchyPanel.SetScene(m_scene);
 
             SceneSerializer serializer{m_scene};

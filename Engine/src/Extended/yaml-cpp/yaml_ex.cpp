@@ -3,6 +3,25 @@
 namespace YAML
 {
 
+    Node convert<glm::vec2>::encode(const glm::vec2& vec) {
+        Node node;
+        node.push_back(vec.x);
+        node.push_back(vec.y);
+        return node;
+    }
+    bool convert<glm::vec2>::decode(const Node& node, glm::vec2& vec) {
+        // Check Container Vector Data
+        if (!node.IsSequence() || node.size() != 2)
+        {
+            return false;
+        }
+
+        vec.x = node[0].as<float>();
+        vec.y = node[1].as<float>();
+
+        return true;
+    }
+
     Node convert<glm::vec3>::encode(const glm::vec3& vec)
     {
         Node node;
@@ -51,6 +70,12 @@ namespace YAML
         vec.a = node[3].as<float>();
 
         return true;
+    }
+
+    Emitter& operator<<(YAML::Emitter& writer, const glm::vec2& vec){
+        writer << YAML::Flow;
+        writer << YAML::BeginSeq << vec.x << vec.y << YAML::EndSeq;
+        return writer;
     }
 
     Emitter &operator<<(YAML::Emitter& writer, const glm::vec3& vec)

@@ -41,8 +41,13 @@ namespace Creepy
         if(entity.HasComponent<SpriteComponent>()){
             writer << YAML::Key << "SpriteComponent";
             writer << YAML::BeginMap;
-
-            writer << YAML::Key << "Color" << YAML::Value << entity.GetComponent<SpriteComponent>().Color;
+            
+            auto& spriteComponent = entity.GetComponent<SpriteComponent>();
+            writer << YAML::Key << "Color" << YAML::Value << spriteComponent.Color;
+            
+            if(spriteComponent.Texture){
+                writer << YAML::Key << "Texture" << YAML::Value << spriteComponent.Texture->GetTexturePath().string();
+            }
 
             writer << YAML::EndMap;
         }
@@ -78,6 +83,39 @@ namespace Creepy
             writer << YAML::EndMap;
         }
 
+        if(entity.HasComponent<RigidBody2DComponent>()){
+            writer << YAML::Key << "RigidBody2DComponent";
+
+            auto& rigid2D = entity.GetComponent<RigidBody2DComponent>();
+
+            {
+                writer << YAML::BeginMap;
+                writer << YAML::Key << "BodyType" << YAML::Value << std::to_underlying(rigid2D.Type);
+                writer << YAML::Key << "FixedRotation" << YAML::Value << rigid2D.FixedRotation;
+                writer << YAML::EndMap;
+            }
+
+        }
+
+        if(entity.HasComponent<BoxCollider2DComponent>()){
+            writer << YAML::Key << "BoxCollider2DComponent";
+
+            auto& bxCollider2D = entity.GetComponent<BoxCollider2DComponent>();
+
+            {
+                writer << YAML::BeginMap;
+
+                writer << YAML::Key << "Offset" << YAML::Value << bxCollider2D.Offset;
+                writer << YAML::Key << "Size" << YAML::Value << bxCollider2D.Size;
+                writer << YAML::Key << "Density" << YAML::Value << bxCollider2D.Density;
+                writer << YAML::Key << "Friction" << YAML::Value << bxCollider2D.Friction;
+                writer << YAML::Key << "Restitution" << YAML::Value << bxCollider2D.Restitution;
+                writer << YAML::Key << "RestitutionThreshold" << YAML::Value << bxCollider2D.RestitutionThreshold;
+                
+                writer << YAML::EndMap;
+            }
+        }
+
         writer << YAML::EndMap;
     }
 
@@ -92,7 +130,7 @@ namespace Creepy
         m_scene->m_registry.view<entt::entity>().each([&scene = m_scene, &writer = writer](auto entityID){
             Entity entity{entityID, scene.get()};
 
-            if(entity.m_entityHandle == entt::null || entity.m_scene == nullptr){
+            if(!entity.IsExits()){
                 return;
             }
 
@@ -134,33 +172,39 @@ namespace Creepy
                 uint64_t entityID = entity["Entity"].as<uint64_t>();    // 
                 std::string entityName;
 
-                auto&& tagComponent = entity["TagComponent"];
-                if(tagComponent){
-                    entityName = tagComponent["Tag"].as<std::string>();
+                auto&& tagNode = entity["TagComponent"];
+                if(tagNode){
+                    entityName = tagNode["Tag"].as<std::string>();
                 }
 
                 Entity deserializeEntity = m_scene->CreateEntity(entityName);
 
-                auto&& transformComponent = entity["TransformComponent"];
-                if(transformComponent){
+                auto&& transformNode = entity["TransformComponent"];
+                if(transformNode){
                     auto& transform = deserializeEntity.GetComponent<TransformComponent>();
-                    transform.Position = transformComponent["Position"].as<glm::vec3>();
-                    transform.Rotation = transformComponent["Rotation"].as<glm::vec3>();
-                    transform.Scale = transformComponent["Scale"].as<glm::vec3>();
+                    transform.Position = transformNode["Position"].as<glm::vec3>();
+                    transform.Rotation = transformNode["Rotation"].as<glm::vec3>();
+                    transform.Scale = transformNode["Scale"].as<glm::vec3>();
                 }
 
-                auto&& spriteComponent = entity["SpriteComponent"];
-                if(spriteComponent){
-                    auto& color = deserializeEntity.AddComponent<SpriteComponent>().Color;
-                    color = spriteComponent["Color"].as<glm::vec4>();
+                auto&& spriteNode = entity["SpriteComponent"];
+                if(spriteNode){
+
+                    auto& spriteComponent = deserializeEntity.AddComponent<SpriteComponent>();
+                    spriteComponent.Color = spriteNode["Color"].as<glm::vec4>();
+
+                    if(spriteNode["Texture"]){
+                        spriteComponent.Texture = Texture2D::Create(spriteNode["Texture"].as<std::string>());
+                    }
+                    
                 }
 
-                auto&& cameraComponent = entity["CameraComponent"];
-                if(cameraComponent){
+                auto&& cameraNode = entity["CameraComponent"];
+                if(cameraNode){
                     auto& sceneCamera = deserializeEntity.AddComponent<CameraComponent>();
                     auto& camera = sceneCamera.Camera;
                     
-                    auto&& cameraProperties = cameraComponent["Camera"];
+                    auto&& cameraProperties = cameraNode["Camera"];
                     
                     camera.SetProjectionType(static_cast<SceneCamera::ProjectionType>(cameraProperties["ProjectionType"].as<uint32_t>()));
 
@@ -172,9 +216,28 @@ namespace Creepy
                     camera.SetPerspectiveNearClip(cameraProperties["PerspectiveNear"].as<float>());
                     camera.SetPerspectiveFarClip(cameraProperties["PerspectiveFar"].as<float>());
                     
-                    sceneCamera.IsPrimary = cameraComponent["Primary"].as<bool>();
-                    sceneCamera.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
+                    sceneCamera.IsPrimary = cameraNode["Primary"].as<bool>();
+                    sceneCamera.FixedAspectRatio = cameraNode["FixedAspectRatio"].as<bool>();
                 }
+
+                auto&& rigidBody2DNode = entity["RigidBody2DComponent"];
+                if(rigidBody2DNode){
+                    auto& rigidBody2D = deserializeEntity.AddComponent<RigidBody2DComponent>();
+                    rigidBody2D.Type = static_cast<RigidBody2DComponent::BodyType>(rigidBody2DNode["BodyType"].as<uint32_t>());
+                    rigidBody2D.FixedRotation = rigidBody2DNode["FixedRotation"].as<bool>();
+                }
+
+                auto&& boxCollider2DNode = entity["BoxCollider2DComponent"];
+                if(boxCollider2DNode){
+                    auto& boxCollider2D = deserializeEntity.AddComponent<BoxCollider2DComponent>();
+                    boxCollider2D.Offset = boxCollider2DNode["Offset"].as<glm::vec2>();
+                    boxCollider2D.Size = boxCollider2DNode["Size"].as<glm::vec2>();
+                    boxCollider2D.Density = boxCollider2DNode["Density"].as<float>();
+                    boxCollider2D.Friction = boxCollider2DNode["Friction"].as<float>();
+                    boxCollider2D.Restitution = boxCollider2DNode["Restitution"].as<float>();
+                    boxCollider2D.RestitutionThreshold = boxCollider2DNode["RestitutionThreshold"].as<float>();
+                }
+
             }
 
         }

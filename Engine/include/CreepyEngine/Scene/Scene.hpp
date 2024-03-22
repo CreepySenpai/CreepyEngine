@@ -4,6 +4,8 @@
 #include <CreepyEngine/Renderer/EditorCamera.hpp>
 #include <entt/entt.hpp>
 
+class b2World;
+
 namespace Creepy {
 
     class Entity;
@@ -21,6 +23,9 @@ namespace Creepy {
             void OnUpdateEditor(TimeStep timeStep, EditorCamera& camera) noexcept;
             void OnUpdateRunTime(TimeStep timeStep) noexcept;
 
+            void OnRuntimePlay() noexcept;
+            void OnRuntimeStop() noexcept;
+
             void OnViewPortResize(uint32_t width, uint32_t height) noexcept;
 
             // TODO: Remove it
@@ -34,6 +39,8 @@ namespace Creepy {
             entt::registry m_registry;
             uint32_t m_viewPortWidth{0};
             uint32_t m_viewPortHeight{0};
+
+            b2World* m_physicWorld;
 
             friend class Entity;
             friend class SceneHierarchyPanel;

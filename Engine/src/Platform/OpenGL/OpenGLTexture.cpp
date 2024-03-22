@@ -3,14 +3,14 @@
 
 namespace Creepy {
 
-    OpenGLTexture2D::OpenGLTexture2D(const std::string& filePath) noexcept : m_path{filePath} {
+    OpenGLTexture2D::OpenGLTexture2D(const std::filesystem::path& filePath) noexcept : m_filePath{filePath} {
         stbi_set_flip_vertically_on_load(1);
         int width, height, channels;
-
-        auto imgData = stbi_load(filePath.c_str(), &width, &height, &channels, 0);
+        std::string path = filePath.string();
+        auto imgData = stbi_load(path.c_str(), &width, &height, &channels, 0);
 
         if(!imgData){
-            ENGINE_LOG_ERROR("Faile to load image {}!", filePath);
+            ENGINE_LOG_ERROR("Faile to load image {}!", filePath.string());
         }
 
         m_width = static_cast<uint32_t>(width);

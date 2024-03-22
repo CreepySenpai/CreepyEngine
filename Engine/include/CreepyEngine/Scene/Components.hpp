@@ -5,6 +5,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <string>
 #include <functional>
+#include <cstdint>
 
 #include <CreepyEngine/Core/TimeStep.hpp>
 #include <CreepyEngine/Core/Core.hpp>
@@ -85,6 +86,36 @@ namespace Creepy {
             };
 
         }
+    };
+
+    // Physic
+
+    struct RigidBody2DComponent{
+        enum class BodyType : uint32_t {
+            STATIC = 0, DYNAMIC, KINEMATIC
+        };
+
+        BodyType Type{BodyType::STATIC};
+        bool FixedRotation{false};
+        
+        //TODO: Change To Something Else
+        void* RuntimeBody{nullptr};
+
+    };
+
+    struct BoxCollider2DComponent{
+        glm::vec2 Offset{0.0f, 0.0f};
+        glm::vec2 Size{0.5f, 0.5f};
+
+        // TODO: Move to physic material
+        float Density{1.0f};
+        float Friction{1.0f};
+        float Restitution{0.0f};
+        float RestitutionThreshold{0.5f};
+
+        // //TODO: Change To Something Else
+        // void* RuntimeFixture{nullptr};
+
     };
 
 }

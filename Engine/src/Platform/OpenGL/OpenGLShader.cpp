@@ -491,8 +491,12 @@ namespace Creepy {
         shaderIDs.reserve(m_openGLSPIRV.size());
 
         ENGINE_LOG_WARNING("Gona Loop");
+
+        // TODO: Compile Vulkan Shader
         for(auto& [type, spirv] : m_openGLSPIRV){
             GLuint shaderID = shaderIDs.emplace_back(glCreateShader(type));
+
+            // Read File From Binary Was Gen To Create Shader
             glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size() * sizeof(uint32_t));
             glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
             glAttachShader(program, shaderID);

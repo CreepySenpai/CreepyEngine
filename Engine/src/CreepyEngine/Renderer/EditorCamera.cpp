@@ -8,11 +8,14 @@ namespace Creepy {
     EditorCamera::EditorCamera(float fov, float aspectRatio, float nearClip, float farClip) noexcept
     : m_fov{fov}, m_aspectRatio{aspectRatio}, m_nearClip{nearClip}, m_farClip{farClip}, 
     Camera{glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip)} {
+        m_previousMousePosition = {Input::GetMouseX(), Input::GetMouseY()};
         this->updateViewMatrix();
     }
 
     void EditorCamera::OnUpdate(TimeStep timeStep) noexcept {
+
         if(Input::IsKeyPressed(KeyCode::KEY_LEFT_ALT)){
+
             const glm::vec2& currentMousePos{Input::GetMouseX(), Input::GetMouseY()};
 
             glm::vec2 delta = (currentMousePos - m_previousMousePosition) * 0.003f;
@@ -73,10 +76,9 @@ namespace Creepy {
 
     void EditorCamera::mousePan(const glm::vec2& delta) noexcept {
         auto [xSpeed, ySpeed] = this->panSpeed();
-
+        
         m_focalPoint += -GetRightDirection() * delta.x * xSpeed * m_distance;
         m_focalPoint += GetUpDirection() * delta.y * ySpeed * m_distance;
-
     }
 
     void EditorCamera::mouseRotate(const glm::vec2& delta) noexcept {

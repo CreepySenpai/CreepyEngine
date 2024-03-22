@@ -30,7 +30,12 @@ namespace Creepy {
             return nullptr;
     }
 
-    Ref<Texture2D> Texture2D::Create(const std::string& filePath) noexcept {
+    Ref<Texture2D> Texture2D::Create(const std::filesystem::path& filePath) noexcept {
+        if(!std::filesystem::exists(filePath)){
+            ENGINE_LOG_WARNING("Assets {} don't exits", filePath.string());
+            return nullptr;
+        }
+        
         switch (Renderer::GetRenderAPI())
         {
             case RendererAPI::API::NONE: {
