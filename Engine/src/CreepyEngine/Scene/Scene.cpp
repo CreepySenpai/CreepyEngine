@@ -1,6 +1,7 @@
 #include <CreepyEngine/Scene/Scene.hpp>
 #include <CreepyEngine/Renderer/Renderer2D.hpp>
 #include <CreepyEngine/Scene/Entity.hpp>
+#include <CreepyEngine/Scene/ScriptableEntity.hpp>
 #include <CreepyEngine/Scene/Components.hpp>
 
 #include <box2d/b2_world.h>
@@ -36,11 +37,16 @@ namespace Creepy {
     }
 
     Entity Scene::CreateEntity(const std::string& tag) noexcept {
-        Entity entity{m_registry.create(), this};
+        return CreateEntity(UUID{}, tag);
+    }
 
-        // By default all entity will have transform, tag component
-        entity.AddComponent<TransformComponent>();
+    Entity Scene::CreateEntity(UUID uuid, const std::string& tag) noexcept {
+        Entity entity{m_registry.create(), this};
+        
+        entity.AddComponent<IDComponent>(uuid);
         entity.AddComponent<TagComponent>(tag);
+        entity.AddComponent<TransformComponent>();
+
         return entity;
     }
 
@@ -156,11 +162,6 @@ namespace Creepy {
                 cameraComp.Camera.SetViewPortSize(m_viewPortWidth, m_viewPortHeight);
             }
         }
-    }
-
-    template <typename T>
-    void Scene::OnComponentAdded(Entity& entity, T& component){
-        
     }
 
     Entity Scene::GetPrimaryCameraEntity() noexcept {

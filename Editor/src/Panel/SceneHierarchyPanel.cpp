@@ -471,10 +471,10 @@ namespace Creepy {
         DrawComponent<BoxCollider2DComponent>("BoxCollider 2D", entity, [](BoxCollider2DComponent& boxCollider2DComponent){
             ImGui::DragFloat2("Offset", glm::value_ptr(boxCollider2DComponent.Offset));
             ImGui::DragFloat2("Size", glm::value_ptr(boxCollider2DComponent.Size));
-            ImGui::DragFloat("Density", &boxCollider2DComponent.Density);
-            ImGui::DragFloat("Friction", &boxCollider2DComponent.Friction);
-            ImGui::DragFloat("Restitution", &boxCollider2DComponent.Restitution);
-            ImGui::DragFloat("RestitutionThreshold", &boxCollider2DComponent.RestitutionThreshold);
+            ImGui::DragFloat("Density", &boxCollider2DComponent.Density, 0.1f, 0.0f);
+            ImGui::DragFloat("Friction", &boxCollider2DComponent.Friction, 0.1f, 0.0f);
+            ImGui::DragFloat("Restitution", &boxCollider2DComponent.Restitution, 0.1f, 0.0f);
+            ImGui::DragFloat("RestitutionThreshold", &boxCollider2DComponent.RestitutionThreshold, 0.1f, 0.0f);
 
         });
 

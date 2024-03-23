@@ -1,6 +1,7 @@
 #pragma once
 
 #include <CreepyEngine/Core/TimeStep.hpp>
+#include <CreepyEngine/Core/UUID.hpp>
 #include <CreepyEngine/Renderer/EditorCamera.hpp>
 #include <entt/entt.hpp>
 
@@ -17,6 +18,7 @@ namespace Creepy {
             ~Scene() noexcept;
 
             Entity CreateEntity(const std::string& tag = std::string{"Entity"}) noexcept;
+            Entity CreateEntity(UUID uuid, const std::string& tag = std::string{"Entity"}) noexcept;
 
             void DestroyEntity(Entity& entity) noexcept;
 
@@ -33,7 +35,9 @@ namespace Creepy {
 
         private:
             template <typename T>
-            void OnComponentAdded(Entity& entity, T& component);
+            void OnComponentAdded(Entity& entity, T& component) {
+
+            }
         
         private:
             entt::registry m_registry;

@@ -2,6 +2,7 @@
 
 
 #include "Scene.hpp"
+#include "Components.hpp"
 #include <entt/entt.hpp>
 
 namespace Creepy {
@@ -44,6 +45,10 @@ namespace Creepy {
 
             [[nodiscard]] constexpr bool IsExits() const noexcept {
                 return m_scene != nullptr;
+            }
+
+            UUID& GetUUID() noexcept {
+                return this->GetComponent<IDComponent>().ID;
             }
             
         private:

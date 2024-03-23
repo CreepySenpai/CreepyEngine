@@ -9,11 +9,36 @@ namespace Creepy
 
     }
 
+    static std::string ConvertRigidBodyToString(RigidBody2DComponent::BodyType bodyType) noexcept{
+        std::string name;
+        switch(bodyType){
+            case RigidBody2DComponent::BodyType::STATIC:
+                name.assign("Static");
+                break;
+            case RigidBody2DComponent::BodyType::DYNAMIC:
+                name.assign("Dynamic");
+                break;
+            case RigidBody2DComponent::BodyType::KINEMATIC:
+                name.assign("Kinematic");
+                break;
+        }
+        return name;
+    }
+
+    static RigidBody2DComponent::BodyType ConvertRigidBodyNameToType(const std::string& name) noexcept {
+        if(name == "Static"){
+            return RigidBody2DComponent::BodyType::STATIC;
+        } else if(name == "Dynamic"){
+            return RigidBody2DComponent::BodyType::DYNAMIC;
+        }
+        return RigidBody2DComponent::BodyType::KINEMATIC;
+    }
+
     static void SerializeEntity(YAML::Emitter& writer, Entity& entity) noexcept {
         writer << YAML::BeginMap;
 
         writer << YAML::Key << "Entity";
-        writer << "12345";       // TODO: Add entity id
+        writer << entity.GetUUID().GetID();       // TODO: Add entity id
 
 
         if(entity.HasComponent<TagComponent>()){
@@ -44,6 +69,7 @@ namespace Creepy
             
             auto& spriteComponent = entity.GetComponent<SpriteComponent>();
             writer << YAML::Key << "Color" << YAML::Value << spriteComponent.Color;
+            writer << YAML::Key << "TilingFactor" << YAML::Value << spriteComponent.TilingFactor;
             
             if(spriteComponent.Texture){
                 writer << YAML::Key << "Texture" << YAML::Value << spriteComponent.Texture->GetTexturePath().string();
@@ -90,7 +116,7 @@ namespace Creepy
 
             {
                 writer << YAML::BeginMap;
-                writer << YAML::Key << "BodyType" << YAML::Value << std::to_underlying(rigid2D.Type);
+                writer << YAML::Key << "BodyType" << YAML::Value << ConvertRigidBodyToString(rigid2D.Type);
                 writer << YAML::Key << "FixedRotation" << YAML::Value << rigid2D.FixedRotation;
                 writer << YAML::EndMap;
             }
@@ -169,15 +195,16 @@ namespace Creepy
 
             for(auto&& entity : entities){
 
-                uint64_t entityID = entity["Entity"].as<uint64_t>();    // 
+                auto uuid = entity["Entity"].as<uint64_t>();
                 std::string entityName;
 
                 auto&& tagNode = entity["TagComponent"];
+                
                 if(tagNode){
                     entityName = tagNode["Tag"].as<std::string>();
                 }
 
-                Entity deserializeEntity = m_scene->CreateEntity(entityName);
+                Entity deserializeEntity = m_scene->CreateEntity(uuid, entityName);
 
                 auto&& transformNode = entity["TransformComponent"];
                 if(transformNode){
@@ -192,7 +219,7 @@ namespace Creepy
 
                     auto& spriteComponent = deserializeEntity.AddComponent<SpriteComponent>();
                     spriteComponent.Color = spriteNode["Color"].as<glm::vec4>();
-
+                    spriteComponent.TilingFactor = spriteNode["TilingFactor"].as<float>();
                     if(spriteNode["Texture"]){
                         spriteComponent.Texture = Texture2D::Create(spriteNode["Texture"].as<std::string>());
                     }
@@ -223,7 +250,7 @@ namespace Creepy
                 auto&& rigidBody2DNode = entity["RigidBody2DComponent"];
                 if(rigidBody2DNode){
                     auto& rigidBody2D = deserializeEntity.AddComponent<RigidBody2DComponent>();
-                    rigidBody2D.Type = static_cast<RigidBody2DComponent::BodyType>(rigidBody2DNode["BodyType"].as<uint32_t>());
+                    rigidBody2D.Type = ConvertRigidBodyNameToType(rigidBody2DNode["BodyType"].as<std::string>());
                     rigidBody2D.FixedRotation = rigidBody2DNode["FixedRotation"].as<bool>();
                 }
 

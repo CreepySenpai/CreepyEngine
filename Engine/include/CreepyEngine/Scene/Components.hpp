@@ -9,17 +9,26 @@
 
 #include <CreepyEngine/Core/TimeStep.hpp>
 #include <CreepyEngine/Core/Core.hpp>
+#include <CreepyEngine/Core/UUID.hpp>
 #include <CreepyEngine/Renderer/Texture.hpp>
 #include "SceneCamera.hpp"
-#include "ScriptableEntity.hpp"
 
 namespace Creepy {
 
+    struct IDComponent {
+        UUID ID;
+
+        IDComponent() noexcept = default;
+
+        IDComponent(UUID uuid) noexcept : ID{uuid} {
+
+        }
+    };
     struct TagComponent{
         std::string Tag{};
 
         constexpr TagComponent() noexcept = default;
-        
+
         constexpr TagComponent(const std::string& tag) noexcept : Tag{tag} {}
     };
 
@@ -62,6 +71,9 @@ namespace Creepy {
         CameraComponent() noexcept = default;
     };
 
+    // Forward Declare
+    class ScriptableEntity;
+
     // TODO: Change to new file
     template <typename T>
     concept IsScriptableEntity = std::derived_from<T, ScriptableEntity>;
@@ -98,7 +110,7 @@ namespace Creepy {
         BodyType Type{BodyType::STATIC};
         bool FixedRotation{false};
         
-        //TODO: Change To Something Else
+        //TODO: Change To std::any
         void* RuntimeBody{nullptr};
 
     };
@@ -112,9 +124,6 @@ namespace Creepy {
         float Friction{1.0f};
         float Restitution{0.0f};
         float RestitutionThreshold{0.5f};
-
-        // //TODO: Change To Something Else
-        // void* RuntimeFixture{nullptr};
 
     };
 
