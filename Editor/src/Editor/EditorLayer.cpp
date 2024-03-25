@@ -21,42 +21,7 @@ namespace Creepy {
         m_stopIcon = Texture2D::Create("./assets/icons/stop_icon.png");
 
         m_editorCamera = EditorCamera{45.0f, 1.0f, 0.01f, 1000.0f};
-        // m_editorCamera.SetViewPortSize(Application::GetInstanc);
-
-        class Test : public ScriptableEntity{
-            protected:
-
-                void OnCreate() noexcept override {
-
-                }
-
-                void OnUpdate(TimeStep timeStep) noexcept override {
-                    auto& position = GetComponent<TransformComponent>().Position;
-
-                    if(Input::IsKeyPressed(KeyCode::KEY_LEFT)){
-                        position.x -= 2.0f * timeStep.GetSeconds();
-                    }
-
-                    if(Input::IsKeyPressed(KeyCode::KEY_RIGHT)){
-                        position.x += 2.0f * timeStep.GetSeconds();
-                    }
-
-                    if(Input::IsKeyPressed(KeyCode::KEY_UP)){
-                        position.y += 2.0f * timeStep.GetSeconds();
-                    }
-
-                    if(Input::IsKeyPressed(KeyCode::KEY_DOWN)){
-                        position.y -= 2.0f * timeStep.GetSeconds();
-                    }
-                    
-                    // APP_LOG_WARNING("Time By Script {}", timeStep.GetSeconds());
-
-                }
-
-                void OnDestroy() noexcept override {
-
-                }
-        };
+        
 
         m_hierarchyPanel.SetScene(m_activeScene);
     }
@@ -113,31 +78,38 @@ namespace Creepy {
                 break;
         }
 
-        auto [mX, mY] = ImGui::GetMousePos();
 
-        mX -= m_viewPortBounds[0].x;
-        mY -= m_viewPortBounds[0].y;
-        glm::vec2 viewPortSize{m_viewPortBounds[1] - m_viewPortBounds[0]};
+        {   // Mouse Picking
+            auto [mX, mY] = ImGui::GetMousePos();
 
-        // Flip Coord From Top Left -> Bottom Left To Match Texture Coord
-        mY = viewPortSize.y - mY;
-        int mouseXInViewPort = static_cast<int>(mX);
-        int mouseYInViewPort = static_cast<int>(mY);
-        
-        if(mouseXInViewPort > 0 && mouseYInViewPort > 0 && mouseXInViewPort < viewPortSize.x && mouseYInViewPort < viewPortSize.y){
-            int entityID = m_frameBuffer->ReadPixel(1, mouseXInViewPort, mouseYInViewPort);
-            if(entityID == -1){
-                m_selectedEntity = {};
-            } else {
-                m_selectedEntity = {static_cast<entt::entity>(entityID), m_activeScene.get()};
+            mX -= m_viewPortBounds[0].x;
+            mY -= m_viewPortBounds[0].y;
+            glm::vec2 viewPortSize{m_viewPortBounds[1] - m_viewPortBounds[0]};
+
+            // Flip Coord From Top Left -> Bottom Left To Match Texture Coord
+            mY = viewPortSize.y - mY;
+            int mouseXInViewPort = static_cast<int>(mX);
+            int mouseYInViewPort = static_cast<int>(mY);
+            
+            if(mouseXInViewPort > 0 && mouseYInViewPort > 0 && mouseXInViewPort < viewPortSize.x && mouseYInViewPort < viewPortSize.y){
+                int entityID = m_frameBuffer->ReadPixel(1, mouseXInViewPort, mouseYInViewPort);
+                if(entityID == -1){
+                    m_selectedEntity = {};
+                } else {
+                    m_selectedEntity = {static_cast<entt::entity>(entityID), m_activeScene.get()};
+                }
             }
+        }
+
+        {
+            
+            this->onOverlayRender();
         }
         
         m_frameBuffer->UnBind();
     }
 
     void EditorLayer::OnImGuiRender() noexcept {
-        static bool p_open = false;
         static bool opt_fullscreen = true;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
@@ -162,7 +134,7 @@ namespace Creepy {
         if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
             window_flags |= ImGuiWindowFlags_NoBackground;
         
-        ImGui::Begin("DockSpace Demo", &p_open, window_flags);
+        ImGui::Begin("DockSpace Demo", nullptr, window_flags);
 
         if (opt_fullscreen)
             ImGui::PopStyleVar(2);
@@ -309,6 +281,7 @@ namespace Creepy {
         ImGui::Text("Total Vertex: %d", stats.GetTotalVertexCount());
         ImGui::Text("Total Index: %d", stats.GetTotalIndexCount());
         ImGui::Text("Camera Position: %f , %f , %f", m_editorCamera.GetPosition().x, m_editorCamera.GetPosition().y, m_editorCamera.GetPosition().z);
+        ImGui::Checkbox("Show Physic Collider", &m_showPhysicCollider);
         ImGui::End();
 
         {
@@ -404,6 +377,42 @@ namespace Creepy {
         }
 
         return false;
+    }
+
+    void EditorLayer::onOverlayRender() noexcept {
+        
+        if(m_sceneState == SceneState::PLAY){
+            Entity camera = m_activeScene->GetPrimaryCameraEntity();
+            Renderer2D::BeginScene(camera.GetComponent<CameraComponent>().Camera, camera.GetComponent<TransformComponent>().GetTransform());
+        }
+        else {
+            Renderer2D::BeginScene(m_editorCamera);
+        }
+
+        if(m_showPhysicCollider){
+            m_activeScene->GetAllEntitiesType<TransformComponent, CircleCollider2DComponent>().each([](auto entityID, TransformComponent& transformComponent, CircleCollider2DComponent& circleCollider2DComponent){
+                glm::vec3 debugPosition = transformComponent.Position + glm::vec3{circleCollider2DComponent.Offset, 0.001f};
+
+                glm::vec3 debugScale = transformComponent.Scale * glm::vec3{circleCollider2DComponent.Radius * 2.0f};
+
+                glm::mat4 transform = glm::translate(glm::mat4{1.0f}, debugPosition) * glm::scale(glm::mat4{1.0f}, debugScale);
+
+                Renderer2D::DrawCircle(transform, glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, 0.01f);
+            });
+
+            m_activeScene->GetAllEntitiesType<TransformComponent, BoxCollider2DComponent>().each([](auto entityID, TransformComponent& transformComponent, BoxCollider2DComponent& boxC2DComp){
+                glm::vec3 debugPosition = transformComponent.Position + glm::vec3{boxC2DComp.Offset, 0.001f};
+                glm::vec3 debugScale = transformComponent.Scale * glm::vec3{boxC2DComp.Size * 2.0f, 1.0f};
+
+                glm::mat4 transform = glm::translate(glm::mat4{1.0f}, debugPosition) 
+                    * glm::rotate(glm::mat4{1.0f}, transformComponent.Rotation.z, glm::vec3{0.0f, 0.0f, 1.0f}) 
+                    * glm::scale(glm::mat4{1.0f}, debugScale);
+
+                Renderer2D::DrawLineRect(transform, {0.0f, 1.0f, 0.0f, 1.0f});
+            });
+        }
+
+        Renderer2D::EndScene();
     }
 
     void EditorLayer::onScenePlay() noexcept {

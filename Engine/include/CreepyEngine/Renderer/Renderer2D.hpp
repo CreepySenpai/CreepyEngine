@@ -34,15 +34,17 @@ namespace Creepy {
             static void DrawRect(const glm::mat4& transform, const glm::vec4& color, float tilingFactor = 1.0f, int entityID = -1) noexcept;
             static void DrawRect(const glm::mat4& transform, const Ref<Texture2D>& texture, const glm::vec4& tilingColor = glm::vec4(1.0f), float tilingFactor = 1.0f, int entityID = -1) noexcept;
 
-            static void DrawSprite(TransformComponent& transform, SpriteComponent& sprite, uint32_t entityID) noexcept;
+            static void DrawSprite(TransformComponent& transform, SpriteComponent& sprite, int entityID = -1) noexcept;
 
-            static void DrawCircle(TransformComponent& transform, CircleSpriteComponent& circle, uint32_t entityID) noexcept;
+            static void DrawCircle(TransformComponent& transform, CircleSpriteComponent& circle, int entityID = -1) noexcept;
 
-            static void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, uint32_t entityID) noexcept;
+            static void DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickNess = 1.0f, float fade = 0.005f, int entityID = -1) noexcept;
 
-            static void DrawLineRect(const glm::vec3& pos, const glm::vec2& size, const glm::vec4& color, uint32_t entityID) noexcept;
-            
-            static void DrawLineRect(const glm::mat4& transform, const glm::vec4& color, uint32_t entityID) noexcept;
+            static void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, int entityID = -1) noexcept;
+
+            static void DrawLineRect(const glm::vec3& pos, const glm::vec2& size, const glm::vec4& color, int entityID = -1) noexcept;
+
+            static void DrawLineRect(const glm::mat4& transform, const glm::vec4& color, int entityID = -1) noexcept;
 
             struct Statistics{
                 uint32_t DrawCalls{0};

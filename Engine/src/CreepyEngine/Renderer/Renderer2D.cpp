@@ -522,14 +522,14 @@ namespace Creepy {
         setRectProperty(transform, tilingColor, textureCoords, textureIndex, tilingFactor, entityID);
     }
 
-    void Renderer2D::DrawSprite(TransformComponent& transform, SpriteComponent& sprite, uint32_t entityID) noexcept {
+    void Renderer2D::DrawSprite(TransformComponent& transform, SpriteComponent& sprite, int entityID) noexcept {
         if(sprite.Texture){
             DrawRect(transform.GetTransform(), sprite.Texture, sprite.Color, sprite.TilingFactor, entityID);
         }
         DrawRect(transform.GetTransform(), sprite.Color, sprite.TilingFactor, entityID);
     }
 
-    void Renderer2D::DrawCircle(TransformComponent& transform, CircleSpriteComponent& circle, uint32_t entityID) noexcept {
+    void Renderer2D::DrawCircle(TransformComponent& transform, CircleSpriteComponent& circle, int entityID) noexcept {
         if(s_renderer2dStorage.CircleIndexCount >= s_renderer2dStorage.MaxIndex){
             flushAndReset();
         }
@@ -550,7 +550,27 @@ namespace Creepy {
 
     }
 
-    void Renderer2D::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, uint32_t entityID) noexcept {
+    void Renderer2D::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickNess, float fade, int entityID) noexcept {
+        if(s_renderer2dStorage.CircleIndexCount >= s_renderer2dStorage.MaxIndex){
+            flushAndReset();
+        }
+
+        for(uint32_t i{}; i < 4; i++){
+
+            s_renderer2dStorage.CircleVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[i];
+            s_renderer2dStorage.CircleVertexBufferPointer->LocalPosition = s_renderer2dStorage.RectVertexPosition[i] * 2.0f;
+            s_renderer2dStorage.CircleVertexBufferPointer->Color = color;
+            s_renderer2dStorage.CircleVertexBufferPointer->Thickness = thickNess;
+            s_renderer2dStorage.CircleVertexBufferPointer->Fade = fade;
+            s_renderer2dStorage.CircleVertexBufferPointer->EntityID = entityID;
+
+            s_renderer2dStorage.CircleVertexBufferPointer++;
+        }
+
+        s_renderer2dStorage.CircleIndexCount += 6;
+    }
+
+    void Renderer2D::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, int entityID) noexcept {
 
         s_renderer2dStorage.LineVertexBufferPointer->Position = start;
         s_renderer2dStorage.LineVertexBufferPointer->Color = color;
@@ -566,7 +586,7 @@ namespace Creepy {
     }
 
 
-    void Renderer2D::DrawLineRect(const glm::vec3& pos, const glm::vec2& size, const glm::vec4& color, uint32_t entityID) noexcept {
+    void Renderer2D::DrawLineRect(const glm::vec3& pos, const glm::vec2& size, const glm::vec4& color, int entityID) noexcept {
 
         glm::vec3 p0 = glm::vec3{pos.x - size.x * 0.5f, pos.y - size.y * 0.5f, pos.z};
         glm::vec3 p1 = glm::vec3{pos.x + size.x * 0.5f, pos.y - size.y * 0.5f, pos.z};
@@ -580,7 +600,7 @@ namespace Creepy {
 
     }
             
-    void Renderer2D::DrawLineRect(const glm::mat4& transform, const glm::vec4& color, uint32_t entityID) noexcept {
+    void Renderer2D::DrawLineRect(const glm::mat4& transform, const glm::vec4& color, int entityID) noexcept {
         glm::vec3 lineVertex[4];
 
         for(size_t i{}; i < 4; i++){

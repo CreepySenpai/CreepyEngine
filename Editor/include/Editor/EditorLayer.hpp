@@ -28,6 +28,7 @@ namespace Creepy {
         private:
             bool onKeyPressed(KeyPressedEvent& event) noexcept;
             bool onMouseButtonPressed(MouseButtonPressedEvent& event) noexcept;
+            void onOverlayRender() noexcept;
             void onScenePlay() noexcept;
             void onSceneStop() noexcept;
 
@@ -69,6 +70,7 @@ namespace Creepy {
             int m_gizmosType{-1};
             bool m_viewPortFocused;
             bool m_viewPortHovered;
+            bool m_showPhysicCollider{true};
 
             SceneState m_sceneState{SceneState::EDIT};
             

@@ -35,6 +35,11 @@ namespace Creepy {
 
             void DuplicateEntity(Entity& entity) noexcept;
 
+            template <typename... Comps>
+            [[nodiscard]] decltype(auto) GetAllEntitiesType() noexcept{
+                return m_registry.view<Comps...>();
+            }
+
             static Ref<Scene> Copy(const Ref<Scene>& scene) noexcept;
 
         private:
