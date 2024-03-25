@@ -9,31 +9,39 @@ namespace Creepy
     {
         public:
 
-            constexpr static inline void Init() noexcept {
+            constexpr static void Init() noexcept {
                 s_rendererAPI->Init();
             }
             
-            constexpr static inline void DrawIndex(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0) noexcept {
+            constexpr static void DrawIndex(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) noexcept {
                 s_rendererAPI->DrawIndex(vertexArray, indexCount);
             }
 
-            constexpr static inline void SetClearColor(const glm::vec4& color) noexcept {
+            constexpr static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount = 0) noexcept {
+                s_rendererAPI->DrawLines(vertexArray, vertexCount);
+            }
+
+            constexpr static void SetClearColor(const glm::vec4& color) noexcept {
                 s_rendererAPI->SetClearColor(color);
             }
 
-            constexpr static inline void Clear() noexcept {
+            constexpr static void Clear() noexcept {
                 s_rendererAPI->Clear();
             }
 
-            constexpr static inline void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept {
+            constexpr static void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept {
                 s_rendererAPI->SetViewPort(x, y, width, height);
             }
 
-            constexpr static inline void EnableDepth() noexcept {
+            constexpr static void SetLineThickness(float thickness) noexcept {
+                s_rendererAPI->SetLineThickness(thickness);
+            }
+
+            constexpr static void EnableDepth() noexcept {
                 s_rendererAPI->EnableDepth();
             }
 
-            constexpr static inline void DisableDepth() noexcept {
+            constexpr static void DisableDepth() noexcept {
                 s_rendererAPI->DisableDepth();
             }
 

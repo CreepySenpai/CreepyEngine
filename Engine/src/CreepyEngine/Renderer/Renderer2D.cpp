@@ -33,6 +33,13 @@ namespace Creepy {
         int EntityID{-1};
     };
 
+    struct LineVertex{
+        glm::vec3 Position;
+        glm::vec4 Color;
+
+        int EntityID{-1};
+    };
+
     struct Renderer2DStorage {
         const uint32_t MaxRects{10000};
         const uint32_t MaxVertex{MaxRects * 4};
@@ -48,6 +55,10 @@ namespace Creepy {
         Ref<VertexBuffer> CircleVertexBuffer;
         Ref<Shader> CircleShader;
 
+        Ref<VertexArray> LineVertexArray;
+        Ref<VertexBuffer> LineVertexBuffer;
+        Ref<Shader> LineShader;
+
         uint32_t RectIndexCount{0};     // use to keep track how many rect we need to draw
         RectVertex* RectVertexBufferBase{nullptr};
         RectVertex* RectVertexBufferPointer{nullptr};
@@ -55,6 +66,10 @@ namespace Creepy {
         uint32_t CircleIndexCount{0};
         CircleVertex* CircleVertexBufferBase{nullptr};
         CircleVertex* CircleVertexBufferPointer{nullptr};
+
+        uint32_t LineVertexCount{0};
+        LineVertex* LineVertexBufferBase{nullptr};
+        LineVertex* LineVertexBufferPointer{nullptr};
 
         std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
         uint32_t TextureSlotIndex{1};   // 0: white texture
@@ -149,6 +164,26 @@ namespace Creepy {
 
         }
 
+        // Lines
+        {
+            s_renderer2dStorage.LineVertexArray = VertexArray::Create();
+
+            s_renderer2dStorage.LineVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxVertex * sizeof(LineVertex));
+
+            Creepy::BufferLayout lineVertexBufferLayout{
+                {Creepy::ShaderDataType::Float3, "a_position"},
+                {Creepy::ShaderDataType::Float4, "a_color"},
+                {Creepy::ShaderDataType::Int, "a_entityID"},
+            };
+
+            s_renderer2dStorage.LineVertexBuffer->SetLayout(lineVertexBufferLayout);
+            
+            // We need add buffer after it add layout, if not it will empty
+            s_renderer2dStorage.LineVertexArray->AddVertexBuffer(s_renderer2dStorage.LineVertexBuffer);
+            
+            s_renderer2dStorage.LineVertexBufferBase = new LineVertex[s_renderer2dStorage.MaxVertex];
+        }
+
         delete[] rectIndex;
         rectIndex = nullptr;
 
@@ -165,6 +200,8 @@ namespace Creepy {
 
         s_renderer2dStorage.CircleShader = Shader::Create("./assets/shaders/CircleVertexShader.glsl", "./assets/shaders/CircleFragmentShader.glsl");
         
+        s_renderer2dStorage.LineShader = Shader::Create("./assets/shaders/LineVertexShader.glsl", "./assets/shaders/LineFragmentShader.glsl");
+
         // std::array<int, s_renderer2dStorage.MaxTextureSlots> samplers;
 
         // std::ranges::iota(samplers, 0);
@@ -187,12 +224,20 @@ namespace Creepy {
         
         delete[] s_renderer2dStorage.RectVertexBufferBase;
         delete[] s_renderer2dStorage.CircleVertexBufferBase;
+        delete[] s_renderer2dStorage.LineVertexBufferBase;
+
         s_renderer2dStorage.RectVertexArray.reset();
         s_renderer2dStorage.RectVertexBuffer.reset();
         s_renderer2dStorage.RectShader.reset();
+
         s_renderer2dStorage.CircleVertexArray.reset();
         s_renderer2dStorage.CircleVertexBuffer.reset();
         s_renderer2dStorage.CircleShader.reset();
+
+        s_renderer2dStorage.LineVertexArray.reset();
+        s_renderer2dStorage.LineVertexBuffer.reset();
+        s_renderer2dStorage.LineShader.reset();
+
         s_renderer2dStorage.WhiteTexture.reset();
     }
 
@@ -249,6 +294,16 @@ namespace Creepy {
             ++s_renderer2dStorage.Stats.DrawCalls;
         }
         
+        if(s_renderer2dStorage.LineVertexCount){
+            uint32_t dataSize = reinterpret_cast<uint8_t*>(s_renderer2dStorage.LineVertexBufferPointer) - reinterpret_cast<uint8_t*>(s_renderer2dStorage.LineVertexBufferBase);
+        
+            s_renderer2dStorage.LineVertexBuffer->SetData(s_renderer2dStorage.LineVertexBufferBase, dataSize);
+        
+            s_renderer2dStorage.LineShader->Bind();
+            RenderCommand::DrawLines(s_renderer2dStorage.LineVertexArray, s_renderer2dStorage.LineVertexCount);
+            ++s_renderer2dStorage.Stats.DrawCalls;
+        }
+
     }
 
     void Renderer2D::startBatch() noexcept{
@@ -257,6 +312,9 @@ namespace Creepy {
 
         s_renderer2dStorage.CircleIndexCount = 0;
         s_renderer2dStorage.CircleVertexBufferPointer = s_renderer2dStorage.CircleVertexBufferBase;
+
+        s_renderer2dStorage.LineVertexCount = 0;
+        s_renderer2dStorage.LineVertexBufferPointer = s_renderer2dStorage.LineVertexBufferBase;
 
         s_renderer2dStorage.TextureSlotIndex = 1;
     }
@@ -490,6 +548,49 @@ namespace Creepy {
 
         s_renderer2dStorage.CircleIndexCount += 6;
 
+    }
+
+    void Renderer2D::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, uint32_t entityID) noexcept {
+
+        s_renderer2dStorage.LineVertexBufferPointer->Position = start;
+        s_renderer2dStorage.LineVertexBufferPointer->Color = color;
+        s_renderer2dStorage.LineVertexBufferPointer->EntityID = entityID;
+        s_renderer2dStorage.LineVertexBufferPointer++;
+
+        s_renderer2dStorage.LineVertexBufferPointer->Position = end;
+        s_renderer2dStorage.LineVertexBufferPointer->Color = color;
+        s_renderer2dStorage.LineVertexBufferPointer->EntityID = entityID;
+        s_renderer2dStorage.LineVertexBufferPointer++;
+
+        s_renderer2dStorage.LineVertexCount += 2;
+    }
+
+
+    void Renderer2D::DrawLineRect(const glm::vec3& pos, const glm::vec2& size, const glm::vec4& color, uint32_t entityID) noexcept {
+
+        glm::vec3 p0 = glm::vec3{pos.x - size.x * 0.5f, pos.y - size.y * 0.5f, pos.z};
+        glm::vec3 p1 = glm::vec3{pos.x + size.x * 0.5f, pos.y - size.y * 0.5f, pos.z};
+        glm::vec3 p2 = glm::vec3{pos.x + size.x * 0.5f, pos.y + size.y * 0.5f, pos.z};
+        glm::vec3 p3 = glm::vec3{pos.x - size.x * 0.5f, pos.y + size.y * 0.5f, pos.z};
+
+        DrawLine(p0, p1, color, entityID);
+        DrawLine(p1, p2, color, entityID);
+        DrawLine(p2, p3, color, entityID);
+        DrawLine(p3, p0, color, entityID);
+
+    }
+            
+    void Renderer2D::DrawLineRect(const glm::mat4& transform, const glm::vec4& color, uint32_t entityID) noexcept {
+        glm::vec3 lineVertex[4];
+
+        for(size_t i{}; i < 4; i++){
+            lineVertex[i] = transform * s_renderer2dStorage.RectVertexPosition[i];
+        }
+
+        DrawLine(lineVertex[0], lineVertex[1], color, entityID);
+        DrawLine(lineVertex[1], lineVertex[2], color, entityID);
+        DrawLine(lineVertex[2], lineVertex[3], color, entityID);
+        DrawLine(lineVertex[3], lineVertex[0], color, entityID);
     }
 
 

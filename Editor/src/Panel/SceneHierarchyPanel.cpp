@@ -335,6 +335,13 @@ namespace Creepy {
                     ImGui::CloseCurrentPopup();
                 }
             }
+
+            if(!entity.HasComponent<CircleCollider2DComponent>()){
+                if(ImGui::MenuItem("CircleCollider2DComponent")){
+                    m_selectedEntity.AddComponent<CircleCollider2DComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+            }
             
 
             ImGui::EndPopup();
@@ -490,6 +497,16 @@ namespace Creepy {
             ImGui::DragFloat("Friction", &boxCollider2DComponent.Friction, 0.1f, 0.0f);
             ImGui::DragFloat("Restitution", &boxCollider2DComponent.Restitution, 0.1f, 0.0f);
             ImGui::DragFloat("RestitutionThreshold", &boxCollider2DComponent.RestitutionThreshold, 0.1f, 0.0f);
+
+        });
+
+        DrawComponent<CircleCollider2DComponent>("BoxCollider 2D", entity, [](CircleCollider2DComponent& circleCollider2DComponent){
+            ImGui::DragFloat2("Offset", glm::value_ptr(circleCollider2DComponent.Offset));
+            ImGui::DragFloat("Radius", &circleCollider2DComponent.Radius, 1.0f, 0.0f);
+            ImGui::DragFloat("Density", &circleCollider2DComponent.Density, 0.1f, 0.0f);
+            ImGui::DragFloat("Friction", &circleCollider2DComponent.Friction, 0.1f, 0.0f);
+            ImGui::DragFloat("Restitution", &circleCollider2DComponent.Restitution, 0.1f, 0.0f);
+            ImGui::DragFloat("RestitutionThreshold", &circleCollider2DComponent.RestitutionThreshold, 0.1f, 0.0f);
 
         });
 

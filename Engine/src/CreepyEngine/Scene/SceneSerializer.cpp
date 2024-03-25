@@ -155,6 +155,25 @@ namespace Creepy
             }
         }
 
+        if(entity.HasComponent<CircleCollider2DComponent>()){
+            writer << YAML::Key << "CircleCollider2DComponent";
+
+            auto& circleCollider2D = entity.GetComponent<CircleCollider2DComponent>();
+
+            {
+                writer << YAML::BeginMap;
+
+                writer << YAML::Key << "Offset" << YAML::Value << circleCollider2D.Offset;
+                writer << YAML::Key << "Radius" << YAML::Value << circleCollider2D.Radius;
+                writer << YAML::Key << "Density" << YAML::Value << circleCollider2D.Density;
+                writer << YAML::Key << "Friction" << YAML::Value << circleCollider2D.Friction;
+                writer << YAML::Key << "Restitution" << YAML::Value << circleCollider2D.Restitution;
+                writer << YAML::Key << "RestitutionThreshold" << YAML::Value << circleCollider2D.RestitutionThreshold;
+                
+                writer << YAML::EndMap;
+            }
+        }
+
         writer << YAML::EndMap;
     }
 
@@ -284,6 +303,17 @@ namespace Creepy
                     boxCollider2D.Friction = boxCollider2DNode["Friction"].as<float>();
                     boxCollider2D.Restitution = boxCollider2DNode["Restitution"].as<float>();
                     boxCollider2D.RestitutionThreshold = boxCollider2DNode["RestitutionThreshold"].as<float>();
+                }
+
+                auto&& circleCollider2DNode = entity["CircleCollider2DComponent"];
+                if(circleCollider2DNode){
+                    auto& circleCollider2D = deserializeEntity.AddComponent<CircleCollider2DComponent>();
+                    circleCollider2D.Offset = circleCollider2DNode["Offset"].as<glm::vec2>();
+                    circleCollider2D.Radius = circleCollider2DNode["Radius"].as<float>();
+                    circleCollider2D.Density = circleCollider2DNode["Density"].as<float>();
+                    circleCollider2D.Friction = circleCollider2DNode["Friction"].as<float>();
+                    circleCollider2D.Restitution = circleCollider2DNode["Restitution"].as<float>();
+                    circleCollider2D.RestitutionThreshold = circleCollider2DNode["RestitutionThreshold"].as<float>();
                 }
 
             }

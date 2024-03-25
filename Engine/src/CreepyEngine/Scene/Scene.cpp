@@ -8,6 +8,7 @@
 #include <box2d/b2_body.h>
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_polygon_shape.h>
+#include <box2d/b2_circle_shape.h>
 
 namespace Creepy {
 
@@ -238,6 +239,24 @@ namespace Creepy {
                 body->CreateFixture(&fixtureDef);
             }
 
+            if(entity.HasComponent<CircleCollider2DComponent>()){
+
+                auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+
+                b2CircleShape circleShape;
+                circleShape.m_p.Set(cc2d.Offset.x, cc2d.Offset.y);
+                circleShape.m_radius = cc2d.Radius;
+
+                b2FixtureDef fixtureDef;
+                fixtureDef.shape = &circleShape;
+                fixtureDef.density = cc2d.Density;
+                fixtureDef.friction = cc2d.Friction;
+                fixtureDef.restitution = cc2d.Restitution;
+                fixtureDef.restitutionThreshold = cc2d.RestitutionThreshold;
+
+                body->CreateFixture(&fixtureDef);
+            }
+
         }
     }
 
@@ -334,7 +353,7 @@ namespace Creepy {
         // Copy Component except IDComponent, TagComponent
 
         CopyAllComponents<TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent, 
-            RigidBody2DComponent, BoxCollider2DComponent>::CopyComponents(srcRegistry, destRegistry, enttMap);
+            RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent>::CopyComponents(srcRegistry, destRegistry, enttMap);
 
         return newScene;
     }
@@ -343,7 +362,7 @@ namespace Creepy {
         Entity newEntity = CreateEntity(entity.GetName());
 
         CopyAllComponents<TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent, 
-            RigidBody2DComponent, BoxCollider2DComponent>::CopyComponentIfExits(entity, newEntity);
+            RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent>::CopyComponentIfExits(entity, newEntity);
 
     }
 }

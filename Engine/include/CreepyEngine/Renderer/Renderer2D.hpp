@@ -38,6 +38,12 @@ namespace Creepy {
 
             static void DrawCircle(TransformComponent& transform, CircleSpriteComponent& circle, uint32_t entityID) noexcept;
 
+            static void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, uint32_t entityID) noexcept;
+
+            static void DrawLineRect(const glm::vec3& pos, const glm::vec2& size, const glm::vec4& color, uint32_t entityID) noexcept;
+            
+            static void DrawLineRect(const glm::mat4& transform, const glm::vec4& color, uint32_t entityID) noexcept;
+
             struct Statistics{
                 uint32_t DrawCalls{0};
                 uint32_t RectCount{0};
