@@ -23,20 +23,38 @@ namespace Creepy {
         int EntityID{-1};
     };
 
+    struct CircleVertex{
+        glm::vec3 Position;
+        glm::vec2 LocalPosition;
+        glm::vec4 Color;
+        float Thickness;
+        float Fade;
+
+        int EntityID{-1};
+    };
+
     struct Renderer2DStorage {
         const uint32_t MaxRects{10000};
         const uint32_t MaxVertex{MaxRects * 4};
         const uint32_t MaxIndex{MaxRects * 6};
         static const uint32_t MaxTextureSlots{32};     //TODO: Change Texture SLot To Asset Manager
 
-        Ref<VertexArray> vertexArray;
-        Ref<VertexBuffer> vertexBuffer;
-        Ref<Shader> shader;
-        Ref<Texture2D> whiteTexture;
+        Ref<VertexArray> RectVertexArray;
+        Ref<VertexBuffer> RectVertexBuffer;
+        Ref<Shader> RectShader;
+        Ref<Texture2D> WhiteTexture;
+
+        Ref<VertexArray> CircleVertexArray;
+        Ref<VertexBuffer> CircleVertexBuffer;
+        Ref<Shader> CircleShader;
 
         uint32_t RectIndexCount{0};     // use to keep track how many rect we need to draw
         RectVertex* RectVertexBufferBase{nullptr};
         RectVertex* RectVertexBufferPointer{nullptr};
+
+        uint32_t CircleIndexCount{0};
+        CircleVertex* CircleVertexBufferBase{nullptr};
+        CircleVertex* CircleVertexBufferPointer{nullptr};
 
         std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
         uint32_t TextureSlotIndex{1};   // 0: white texture
@@ -56,13 +74,15 @@ namespace Creepy {
     static Renderer2DStorage s_renderer2dStorage;
 
     void Renderer2D::Init() noexcept {
+        // Rect
+
         ENGINE_LOG_WARNING("Gona Create Vertex Arrray");
-        s_renderer2dStorage.vertexArray = Creepy::VertexArray::Create();
+        s_renderer2dStorage.RectVertexArray = Creepy::VertexArray::Create();
 
         ENGINE_LOG_WARNING("Gona Create Vertex Buffer");
-        s_renderer2dStorage.vertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxVertex * sizeof(RectVertex));
+        s_renderer2dStorage.RectVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxVertex * sizeof(RectVertex));
 
-        Creepy::BufferLayout vertexBufferLayout{
+        Creepy::BufferLayout rectVertexBufferLayout{
             {Creepy::ShaderDataType::Float3, "a_position"},
             {Creepy::ShaderDataType::Float4, "a_color"},
             {Creepy::ShaderDataType::Float2, "a_textureCoord"},
@@ -71,20 +91,20 @@ namespace Creepy {
             {Creepy::ShaderDataType::Int, "a_entityID"},
         };
 
-        s_renderer2dStorage.vertexBuffer->SetLayout(vertexBufferLayout);
-        
-        // We need add buffer after it add layout, if not it will empty
-        s_renderer2dStorage.vertexArray->AddVertexBuffer(s_renderer2dStorage.vertexBuffer);
+        s_renderer2dStorage.RectVertexBuffer->SetLayout(rectVertexBufferLayout);
 
-        
+        // We need add buffer after it add layout, if not it will empty
+        s_renderer2dStorage.RectVertexArray->AddVertexBuffer(s_renderer2dStorage.RectVertexBuffer);
+
         s_renderer2dStorage.RectVertexBufferBase = new RectVertex[s_renderer2dStorage.MaxVertex];
-        
 
         // Because alloc too much index on stack may cause stack overflow so we alloc on heap
+
         uint32_t* rectIndex = new uint32_t[s_renderer2dStorage.MaxIndex];
 
         uint32_t offset{0};
-        for(uint32_t i{}; i < s_renderer2dStorage.MaxIndex; i += 6){
+        for (uint32_t i{}; i < s_renderer2dStorage.MaxIndex; i += 6)
+        {
 
             rectIndex[i + 0] = offset + 0;
             rectIndex[i + 1] = offset + 1;
@@ -100,33 +120,60 @@ namespace Creepy {
         ENGINE_LOG_WARNING("Gona Create Index");
         auto indexBuffer = Creepy::IndexBuffer::Create(rectIndex, s_renderer2dStorage.MaxIndex);
 
-        s_renderer2dStorage.vertexArray->SetIndexBuffer(indexBuffer);
+        s_renderer2dStorage.RectVertexArray->SetIndexBuffer(indexBuffer);
 
-        // WARING: May cause bug be cause upload data to GPU may not don't and we delete it data
+
+        // Circle
+        {
+            s_renderer2dStorage.CircleVertexArray = VertexArray::Create();
+
+            s_renderer2dStorage.CircleVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxVertex * sizeof(CircleVertex));
+
+            Creepy::BufferLayout circleVertexBufferLayout{
+                {Creepy::ShaderDataType::Float3, "a_position"},
+                {Creepy::ShaderDataType::Float2, "a_localPosition"},
+                {Creepy::ShaderDataType::Float4, "a_color"},
+                {Creepy::ShaderDataType::Float, "a_thickness"},
+                {Creepy::ShaderDataType::Float, "a_fade"},
+                {Creepy::ShaderDataType::Int, "a_entityID"},
+            };
+
+            s_renderer2dStorage.CircleVertexBuffer->SetLayout(circleVertexBufferLayout);
+            
+            // We need add buffer after it add layout, if not it will empty
+            s_renderer2dStorage.CircleVertexArray->AddVertexBuffer(s_renderer2dStorage.CircleVertexBuffer);
+
+            s_renderer2dStorage.CircleVertexArray->SetIndexBuffer(indexBuffer); // rectIndex
+            
+            s_renderer2dStorage.CircleVertexBufferBase = new CircleVertex[s_renderer2dStorage.MaxVertex];
+
+        }
+
         delete[] rectIndex;
         rectIndex = nullptr;
 
+
         ENGINE_LOG_WARNING("Gona Create White Texture");
-        s_renderer2dStorage.whiteTexture = Texture2D::Create(1, 1);
+        s_renderer2dStorage.WhiteTexture = Texture2D::Create(1, 1);
 
         uint32_t whiteTextureData = 0xffffffff;
 
-        s_renderer2dStorage.whiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+        s_renderer2dStorage.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
         
         ENGINE_LOG_WARNING("Gona Create Shader");
-        s_renderer2dStorage.shader = Shader::Create("./assets/shaders/VertexShader.glsl", "./assets/shaders/FragmentShader.glsl");
+        s_renderer2dStorage.RectShader = Shader::Create("./assets/shaders/RectVertexShader.glsl", "./assets/shaders/RectFragmentShader.glsl");
 
-        s_renderer2dStorage.shader->Bind();
+        s_renderer2dStorage.CircleShader = Shader::Create("./assets/shaders/CircleVertexShader.glsl", "./assets/shaders/CircleFragmentShader.glsl");
         
         // std::array<int, s_renderer2dStorage.MaxTextureSlots> samplers;
 
         // std::ranges::iota(samplers, 0);
 
         // We need to init default texture unit
-        // s_renderer2dStorage.shader->SetUniformIntArray("u_textures", samplers);
+        // s_renderer2dStorage.RectShader->SetUniformIntArray("u_textures", samplers);
 
         // Set default slot 0 for white texture
-        s_renderer2dStorage.TextureSlots[0] = s_renderer2dStorage.whiteTexture;
+        s_renderer2dStorage.TextureSlots[0] = s_renderer2dStorage.WhiteTexture;
 
         s_renderer2dStorage.RectVertexPosition[0] = {-0.5, -0.5, 0.0f, 1.0f};
         s_renderer2dStorage.RectVertexPosition[1] = { 0.5, -0.5, 0.0f, 1.0f};
@@ -139,79 +186,86 @@ namespace Creepy {
     void Renderer2D::ShutDown() noexcept {
         
         delete[] s_renderer2dStorage.RectVertexBufferBase;
-        s_renderer2dStorage.vertexArray.reset();
-        s_renderer2dStorage.vertexBuffer.reset();
-        s_renderer2dStorage.shader.reset();
-        s_renderer2dStorage.whiteTexture.reset();
+        delete[] s_renderer2dStorage.CircleVertexBufferBase;
+        s_renderer2dStorage.RectVertexArray.reset();
+        s_renderer2dStorage.RectVertexBuffer.reset();
+        s_renderer2dStorage.RectShader.reset();
+        s_renderer2dStorage.CircleVertexArray.reset();
+        s_renderer2dStorage.CircleVertexBuffer.reset();
+        s_renderer2dStorage.CircleShader.reset();
+        s_renderer2dStorage.WhiteTexture.reset();
     }
+
+    
 
     void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform) noexcept {
 
         glm::mat4 viewProjection = camera.GetProjection() * glm::inverse(transform);
-        
-        s_renderer2dStorage.shader->Bind();
-
-        // s_renderer2dStorage.shader->SetUniformMat4("u_Camera.ViewProjectionMatrix", viewProjection);
 
         s_renderer2dStorage.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
         s_renderer2dStorage.uniformBuffer->SetData(&s_renderer2dStorage.CameraBuffer, sizeof(s_renderer2dStorage.CameraBuffer));
 
         // Reset
-        s_renderer2dStorage.RectIndexCount = 0;
-        s_renderer2dStorage.RectVertexBufferPointer = s_renderer2dStorage.RectVertexBufferBase;
-
-        s_renderer2dStorage.TextureSlotIndex = 1;
+        startBatch();
     }
 
     void Renderer2D::BeginScene(const EditorCamera& camera) noexcept {
         glm::mat4 viewProjection = camera.GetViewProjectionMatrix();
-        
-        s_renderer2dStorage.shader->Bind();
-
-        // s_renderer2dStorage.shader->SetUniformMat4("u_Camera.ViewProjectionMatrix", viewProjection);
-
-        // s_renderer2dStorage.shader->SetUniformMat4("u_viewProjectionMatrix", viewProjection);
 
         s_renderer2dStorage.CameraBuffer.ViewProjection = viewProjection;
         s_renderer2dStorage.uniformBuffer->SetData(&s_renderer2dStorage.CameraBuffer, sizeof(s_renderer2dStorage.CameraBuffer));
 
-        // Reset
-        s_renderer2dStorage.RectIndexCount = 0;
-        s_renderer2dStorage.RectVertexBufferPointer = s_renderer2dStorage.RectVertexBufferBase;
-
-        s_renderer2dStorage.TextureSlotIndex = 1;
+        startBatch();
     }
 
     void Renderer2D::EndScene() noexcept {
-        
-        // Get Data Size In Byte
-        uint32_t dataSize = reinterpret_cast<uint8_t*>(s_renderer2dStorage.RectVertexBufferPointer) - reinterpret_cast<uint8_t*>(s_renderer2dStorage.RectVertexBufferBase);
-        
-        s_renderer2dStorage.vertexBuffer->SetData(s_renderer2dStorage.RectVertexBufferBase, dataSize);
-
         Flush();
     }
 
     void Renderer2D::Flush() noexcept {
-        // Bind All Texture
-        for(uint32_t i{0}; i < s_renderer2dStorage.TextureSlotIndex; i++){
-            s_renderer2dStorage.TextureSlots[i]->Bind(i);
+
+        if(s_renderer2dStorage.RectIndexCount){
+            uint32_t dataSize = reinterpret_cast<uint8_t*>(s_renderer2dStorage.RectVertexBufferPointer) - reinterpret_cast<uint8_t*>(s_renderer2dStorage.RectVertexBufferBase);
+        
+            s_renderer2dStorage.RectVertexBuffer->SetData(s_renderer2dStorage.RectVertexBufferBase, dataSize);
+            
+            // Bind All Texture
+            for(uint32_t i{0}; i < s_renderer2dStorage.TextureSlotIndex; i++){
+                s_renderer2dStorage.TextureSlots[i]->Bind(i);
+            }
+
+            s_renderer2dStorage.RectShader->Bind();
+            RenderCommand::DrawIndex(s_renderer2dStorage.RectVertexArray, s_renderer2dStorage.RectIndexCount);
+            ++s_renderer2dStorage.Stats.DrawCalls;
         }
 
-        RenderCommand::DrawIndex(s_renderer2dStorage.vertexArray, s_renderer2dStorage.RectIndexCount);
-
-        ++s_renderer2dStorage.Stats.DrawCalls;
+        if(s_renderer2dStorage.CircleIndexCount){
+            uint32_t dataSize = reinterpret_cast<uint8_t*>(s_renderer2dStorage.CircleVertexBufferPointer) - reinterpret_cast<uint8_t*>(s_renderer2dStorage.CircleVertexBufferBase);
         
+            s_renderer2dStorage.CircleVertexBuffer->SetData(s_renderer2dStorage.CircleVertexBufferBase, dataSize);
+        
+            s_renderer2dStorage.CircleShader->Bind();
+            RenderCommand::DrawIndex(s_renderer2dStorage.CircleVertexArray, s_renderer2dStorage.CircleIndexCount);
+            ++s_renderer2dStorage.Stats.DrawCalls;
+        }
+        
+    }
+
+    void Renderer2D::startBatch() noexcept{
+        s_renderer2dStorage.RectIndexCount = 0;
+        s_renderer2dStorage.RectVertexBufferPointer = s_renderer2dStorage.RectVertexBufferBase;
+
+        s_renderer2dStorage.CircleIndexCount = 0;
+        s_renderer2dStorage.CircleVertexBufferPointer = s_renderer2dStorage.CircleVertexBufferBase;
+
+        s_renderer2dStorage.TextureSlotIndex = 1;
     }
 
     void Renderer2D::flushAndReset() noexcept {
 
         EndScene();
 
-        s_renderer2dStorage.RectIndexCount = 0;
-        s_renderer2dStorage.RectVertexBufferPointer = s_renderer2dStorage.RectVertexBufferBase;
-
-        s_renderer2dStorage.TextureSlotIndex = 1;
+        startBatch();
     }
 
     void Renderer2D::setRectProperty(const glm::mat4& transform, const glm::vec4& color, const std::array<glm::vec2, 4>& textureCoords, float textureIndex, float tilingFactor, int entityID) noexcept {
@@ -415,6 +469,27 @@ namespace Creepy {
             DrawRect(transform.GetTransform(), sprite.Texture, sprite.Color, sprite.TilingFactor, entityID);
         }
         DrawRect(transform.GetTransform(), sprite.Color, sprite.TilingFactor, entityID);
+    }
+
+    void Renderer2D::DrawCircle(TransformComponent& transform, CircleSpriteComponent& circle, uint32_t entityID) noexcept {
+        if(s_renderer2dStorage.CircleIndexCount >= s_renderer2dStorage.MaxIndex){
+            flushAndReset();
+        }
+
+        for(uint32_t i{}; i < 4; i++){
+
+            s_renderer2dStorage.CircleVertexBufferPointer->Position = transform.GetTransform() * s_renderer2dStorage.RectVertexPosition[i];
+            s_renderer2dStorage.CircleVertexBufferPointer->LocalPosition = s_renderer2dStorage.RectVertexPosition[i] * 2.0f;
+            s_renderer2dStorage.CircleVertexBufferPointer->Color = circle.Color;
+            s_renderer2dStorage.CircleVertexBufferPointer->Thickness = circle.Thickness;
+            s_renderer2dStorage.CircleVertexBufferPointer->Fade = circle.Fade;
+            s_renderer2dStorage.CircleVertexBufferPointer->EntityID = entityID;
+
+            s_renderer2dStorage.CircleVertexBufferPointer++;
+        }
+
+        s_renderer2dStorage.CircleIndexCount += 6;
+
     }
 
 

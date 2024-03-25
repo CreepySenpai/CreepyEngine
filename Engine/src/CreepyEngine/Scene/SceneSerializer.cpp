@@ -78,6 +78,19 @@ namespace Creepy
             writer << YAML::EndMap;
         }
 
+        if(entity.HasComponent<CircleSpriteComponent>()){
+            writer << YAML::Key << "CircleSpriteComponent";
+            writer << YAML::BeginMap;
+
+            auto& circleComponent = entity.GetComponent<CircleSpriteComponent>();
+
+            writer << YAML::Key << "Color" << YAML::Value << circleComponent.Color;
+            writer << YAML::Key << "Thickness" << YAML::Value << circleComponent.Thickness;
+            writer << YAML::Key << "Fade" << YAML::Value << circleComponent.Fade;
+
+            writer << YAML::EndMap;
+        }
+
         if(entity.HasComponent<CameraComponent>()){
             writer << YAML::Key << "CameraComponent";
             writer << YAML::BeginMap;
@@ -224,6 +237,14 @@ namespace Creepy
                         spriteComponent.Texture = Texture2D::Create(spriteNode["Texture"].as<std::string>());
                     }
 
+                }
+
+                auto&& circleSpriteNode = entity["CircleSpriteComponent"];
+                if(circleSpriteNode){
+                    auto& circleSpiteComponent = deserializeEntity.AddComponent<CircleSpriteComponent>();
+                    circleSpiteComponent.Color = circleSpriteNode["Color"].as<glm::vec4>();
+                    circleSpiteComponent.Thickness = circleSpriteNode["Thickness"].as<float>();
+                    circleSpiteComponent.Fade = circleSpriteNode["Fade"].as<float>();
                 }
 
                 auto&& cameraNode = entity["CameraComponent"];

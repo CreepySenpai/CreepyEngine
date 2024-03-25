@@ -15,6 +15,10 @@ namespace Creepy {
                 return m_uuid;
             }
 
+            bool operator==(const UUID& other) const {
+                return m_uuid == other.m_uuid;
+            }
+
         private:
             uint64_t m_uuid;
     };
@@ -23,7 +27,7 @@ namespace Creepy {
 namespace std {
     template <>
     struct hash<Creepy::UUID> {
-        size_t operator()(const Creepy::UUID& uuid){
+        size_t operator()(const Creepy::UUID& uuid) const noexcept {
             return hash<uint64_t>()(uuid.GetID());
         }
     };

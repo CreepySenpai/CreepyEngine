@@ -36,6 +36,8 @@ namespace Creepy {
 
             static void DrawSprite(TransformComponent& transform, SpriteComponent& sprite, uint32_t entityID) noexcept;
 
+            static void DrawCircle(TransformComponent& transform, CircleSpriteComponent& circle, uint32_t entityID) noexcept;
+
             struct Statistics{
                 uint32_t DrawCalls{0};
                 uint32_t RectCount{0};
@@ -54,6 +56,7 @@ namespace Creepy {
 
         private:
             static void setRectProperty(const glm::mat4& transform, const glm::vec4& color, const std::array<glm::vec2, 4>& textureCoords, float textureIndex, float tilingFactor = 1.0f, int entityID = -1) noexcept;
+            static void startBatch() noexcept;
             static void flushAndReset() noexcept;
     };
     

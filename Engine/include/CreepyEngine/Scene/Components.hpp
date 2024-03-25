@@ -62,6 +62,16 @@ namespace Creepy {
         constexpr SpriteComponent(const glm::vec4& color) noexcept : Color{color} {}
 
     };
+
+    struct CircleSpriteComponent{
+        glm::vec4 Color{1.0f, 1.0f, 1.0f, 1.0f};
+        float Thickness{1.0f};
+        float Fade{0.005f};
+
+        constexpr CircleSpriteComponent() noexcept = default;
+
+        constexpr CircleSpriteComponent(const glm::vec4& color) noexcept : Color{color} {}
+    };
     
     struct CameraComponent {
         SceneCamera Camera;
@@ -102,6 +112,7 @@ namespace Creepy {
 
     // Physic
 
+
     struct RigidBody2DComponent{
         enum class BodyType : uint32_t {
             STATIC = 0, DYNAMIC, KINEMATIC
@@ -110,7 +121,7 @@ namespace Creepy {
         BodyType Type{BodyType::STATIC};
         bool FixedRotation{false};
         
-        //TODO: Change To std::any
+        
         void* RuntimeBody{nullptr};
 
     };

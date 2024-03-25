@@ -30,8 +30,12 @@ namespace Creepy {
 
             void OnViewPortResize(uint32_t width, uint32_t height) noexcept;
 
-            // TODO: Remove it
+            // TODO: Use it to change gizmos camera
             Entity GetPrimaryCameraEntity() noexcept;
+
+            void DuplicateEntity(Entity& entity) noexcept;
+
+            static Ref<Scene> Copy(const Ref<Scene>& scene) noexcept;
 
         private:
             template <typename T>
@@ -44,7 +48,8 @@ namespace Creepy {
             uint32_t m_viewPortWidth{0};
             uint32_t m_viewPortHeight{0};
 
-            Scope<b2World> m_physicWorld;
+            // Need to copy so we can't use std::unique_ptr
+            b2World* m_physicWorld;
 
             friend class Entity;
             friend class SceneHierarchyPanel;

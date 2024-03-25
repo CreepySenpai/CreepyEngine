@@ -61,11 +61,21 @@ namespace Creepy {
 
         Renderer2D::BeginScene(camera);
 
-        m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
+        {
+            m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
 
-            Renderer2D::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
-        
-        });
+                Renderer2D::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
+            
+            });
+
+        }
+
+        {
+            m_registry.view<TransformComponent, CircleSpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, CircleSpriteComponent& circle){
+                Renderer2D::DrawCircle(transformComponent, circle, static_cast<uint32_t>(entityID));
+            });
+        }
+
 
         Renderer2D::EndScene();
     }
@@ -134,11 +144,19 @@ namespace Creepy {
 
                 Renderer2D::BeginScene(*mainCamera, transformMatrix);
 
-                m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
+                {
+                    m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
 
-                    Renderer2D::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
+                        Renderer2D::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
 
-                });
+                    });
+                }
+
+                {
+                    m_registry.view<TransformComponent, CircleSpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, CircleSpriteComponent& circle){
+                        Renderer2D::DrawCircle(transformComponent, circle, static_cast<uint32_t>(entityID));
+                    });
+                }
 
                 Renderer2D::EndScene();
             }
@@ -179,7 +197,8 @@ namespace Creepy {
     }
 
     void Scene::OnRuntimePlay() noexcept {
-        m_physicWorld = std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, -9.8f)));
+        // m_physicWorld = std::make_unique<b2World>(new b2World(b2Vec2(0.0f, -9.8f)));
+        m_physicWorld = new b2World(b2Vec2(0.0f, -9.8f));
 
         // Can not use lambda because can not capture std::unique_ptr
         auto&& rigidView  = m_registry.view<RigidBody2DComponent>();
@@ -208,7 +227,7 @@ namespace Creepy {
                 
                 b2PolygonShape boxShape;
                 boxShape.SetAsBox(transform.Scale.x * bxCol2D.Size.x, transform.Scale.y * bxCol2D.Size.y);
-
+                
                 b2FixtureDef fixtureDef;
                 fixtureDef.shape = &boxShape;
                 fixtureDef.density = bxCol2D.Density;
@@ -219,7 +238,6 @@ namespace Creepy {
                 body->CreateFixture(&fixtureDef);
             }
 
-            
         }
     }
 
@@ -229,8 +247,103 @@ namespace Creepy {
         for(auto&& entityID : entityDestroy){
             Entity entity{entityID, this};
             m_physicWorld->DestroyBody(reinterpret_cast<b2Body*>(entity.GetComponent<RigidBody2DComponent>().RuntimeBody));
+
+            entity.GetComponent<RigidBody2DComponent>().RuntimeBody = nullptr;
         }
 
-        m_physicWorld.reset();
+        // m_physicWorld.reset();
+        delete m_physicWorld;
+    }
+
+    template <typename Component>
+    static void CopyComponentIfExits(Entity& srcEntity, Entity& destEntity) noexcept {
+        if(srcEntity.HasComponent<Component>()){
+            destEntity.AddOrReplaceComponent<Component>(srcEntity.GetComponent<Component>());
+        }
+    }
+
+    template <typename... Components>
+    struct CopyAllComponents{
+
+        static void CopyComponents(const entt::registry& sources, entt::registry& dest, const std::unordered_map<UUID, entt::entity>& enttMap) noexcept;
+
+        static void CopyComponentIfExits(Entity& srcEntity, Entity& destEntity) noexcept;
+
+    };
+
+    template<>
+    struct CopyAllComponents<>{
+
+        static void CopyComponents(const entt::registry& sources, entt::registry& dest, const std::unordered_map<UUID, entt::entity>& enttMap) noexcept {}
+
+        static void CopyComponentIfExits(Entity& srcEntity, Entity& destEntity) noexcept { }
+
+    };
+
+    template <typename Com1, typename... Comps>
+    struct CopyAllComponents<Com1, Comps...>{
+
+        static void CopyComponents(const entt::registry& sources, entt::registry& dest, const std::unordered_map<UUID, entt::entity>& enttMap) noexcept{
+            auto&& componentList = sources.view<Com1>();
+
+            for(auto&& sourcesEntity : componentList){
+
+                const UUID uuid = sources.get<IDComponent>(sourcesEntity).ID;
+
+                auto destEntity = enttMap.at(uuid);
+
+                dest.emplace_or_replace<Com1>(destEntity, sources.get<Com1>(sourcesEntity));
+
+            }
+            CopyAllComponents<Comps...>::CopyComponents(sources, dest, enttMap);
+        }
+
+
+        static void CopyComponentIfExits(Entity& srcEntity, Entity& destEntity) noexcept {
+
+            if(srcEntity.HasComponent<Com1>()){
+                destEntity.AddOrReplaceComponent<Com1>(srcEntity.GetComponent<Com1>());
+            }
+
+            CopyAllComponents<Comps...>::CopyComponentIfExits(srcEntity, destEntity);
+        }
+    };
+
+    Ref<Scene> Scene::Copy(const Ref<Scene>& scene) noexcept {
+        Ref<Scene> newScene = std::make_shared<Scene>();
+
+        newScene->m_viewPortWidth = scene->m_viewPortWidth;
+        newScene->m_viewPortHeight = scene->m_viewPortHeight;
+
+        std::unordered_map<UUID, entt::entity> enttMap;
+
+        auto& srcRegistry = scene->m_registry;
+        auto& destRegistry = newScene->m_registry;
+
+        auto&& entities = srcRegistry.view<IDComponent>();
+
+        for(auto& sourcesEntity : entities){
+
+            auto uuid = srcRegistry.get<IDComponent>(sourcesEntity).ID;
+            const auto& name = srcRegistry.get<TagComponent>(sourcesEntity).Tag;
+
+            auto entity = newScene->CreateEntity(uuid, name);
+            enttMap[uuid] = entity.m_entityHandle;
+        }
+
+        // Copy Component except IDComponent, TagComponent
+
+        CopyAllComponents<TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent, 
+            RigidBody2DComponent, BoxCollider2DComponent>::CopyComponents(srcRegistry, destRegistry, enttMap);
+
+        return newScene;
+    }
+
+    void Scene::DuplicateEntity(Entity& entity) noexcept {
+        Entity newEntity = CreateEntity(entity.GetName());
+
+        CopyAllComponents<TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent, 
+            RigidBody2DComponent, BoxCollider2DComponent>::CopyComponentIfExits(entity, newEntity);
+
     }
 }

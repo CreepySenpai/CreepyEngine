@@ -12,7 +12,9 @@ namespace Creepy {
         FrameBufferSpecification spec{.Width = 700, .Height = 700, .Attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::GREEN_INT, FrameBufferTextureFormat::DEPTH}};
         m_frameBuffer = FrameBuffer::Create(spec);
 
-        m_scene = std::make_shared<Scene>();
+        // Point to same scene
+        m_editorScene = std::make_shared<Scene>();
+        m_activeScene = m_editorScene;
 
         m_playIcon = Texture2D::Create("./assets/icons/play_icon.png");
 
@@ -56,7 +58,7 @@ namespace Creepy {
                 }
         };
 
-        m_hierarchyPanel.SetScene(m_scene);
+        m_hierarchyPanel.SetScene(m_activeScene);
     }
 
     EditorLayer::~EditorLayer() noexcept {
@@ -83,7 +85,7 @@ namespace Creepy {
 
             m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
 
-            m_scene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
+            m_activeScene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
         }
 
         if(m_viewPortFocused){
@@ -104,10 +106,10 @@ namespace Creepy {
         switch (m_sceneState)
         {
             case SceneState::EDIT:
-                m_scene->OnUpdateEditor(timeStep, m_editorCamera);
+                m_activeScene->OnUpdateEditor(timeStep, m_editorCamera);
                 break;
             case SceneState::PLAY:
-                m_scene->OnUpdateRunTime(timeStep);
+                m_activeScene->OnUpdateRunTime(timeStep);
                 break;
         }
 
@@ -127,7 +129,7 @@ namespace Creepy {
             if(entityID == -1){
                 m_selectedEntity = {};
             } else {
-                m_selectedEntity = {static_cast<entt::entity>(entityID), m_scene.get()};
+                m_selectedEntity = {static_cast<entt::entity>(entityID), m_activeScene.get()};
             }
         }
         
@@ -336,7 +338,8 @@ namespace Creepy {
             return false;
         }
 
-        bool ctrl = Input::IsKeyPressed(KeyCode::KEY_LEFT_CONTROL) || Input::IsKeyPressed(KeyCode::KEY_RIGHT_CONTROL);
+        const bool ctrl = Input::IsKeyPressed(KeyCode::KEY_LEFT_CONTROL) || Input::IsKeyPressed(KeyCode::KEY_RIGHT_CONTROL);
+        const bool shift = Input::IsKeyPressed(KeyCode::KEY_LEFT_SHIFT) || Input::IsKeyPressed(KeyCode::KEY_RIGHT_SHIFT);
 
         switch (event.GetKeyCode())
         {
@@ -355,8 +358,21 @@ namespace Creepy {
             }
 
             case KeyCode::KEY_S: {
+
                 if(ctrl){
-                    this->saveSceneAs();
+                    if(shift){
+                        this->saveSceneAs();
+                    } else {
+                        this->saveScene();
+                    }
+                }
+                
+                break;
+            }
+
+            case KeyCode::KEY_D: {
+                if(ctrl){
+                    this->onDuplicateEntity();
                 }
                 break;
             }
@@ -392,12 +408,35 @@ namespace Creepy {
 
     void EditorLayer::onScenePlay() noexcept {
         m_sceneState = SceneState::PLAY;
-        m_scene->OnRuntimePlay();
+
+        // Copy data to new scene
+        m_activeScene = Scene::Copy(m_editorScene); // Copy Editor Scene
+
+        m_activeScene->OnRuntimePlay();
+
+        m_hierarchyPanel.SetScene(m_activeScene);
     }
 
     void EditorLayer::onSceneStop() noexcept {
         m_sceneState = SceneState::EDIT;
-        m_scene->OnRuntimeStop();
+        m_activeScene->OnRuntimeStop();
+        // Reset Runtime
+        m_activeScene.reset();
+
+        m_activeScene = m_editorScene;
+
+        m_hierarchyPanel.SetScene(m_activeScene);
+    }
+
+    void EditorLayer::onDuplicateEntity() noexcept {
+        if(m_sceneState != SceneState::EDIT){
+            return;
+        }
+
+        Entity entity = m_hierarchyPanel.GetSelectedEntity();
+        if(entity.IsExits()){
+            m_editorScene->DuplicateEntity(entity);
+        }
     }
 
     void EditorLayer::uiDrawToolBar() noexcept {
@@ -555,14 +594,29 @@ namespace Creepy {
     }
 
     void EditorLayer::newScene() noexcept {
-        m_scene = std::make_shared<Scene>();    // Create New Empty Scene
-        m_scene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+        if(m_sceneState != SceneState::EDIT){
+            this->onSceneStop();
+        }
+
+        m_editorScene.reset();
+        m_editorScene = std::make_shared<Scene>();
+        m_editorScene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+
+        m_activeScene.reset();
+        m_activeScene = m_editorScene;
+        
         m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
-        m_hierarchyPanel.SetScene(m_scene);
+        m_hierarchyPanel.SetScene(m_activeScene);
+
+        m_editorScenePath.clear();
     }
 
     void EditorLayer::openScene() noexcept
     {
+        // TODO: Add Dialog to check user
+        if(m_sceneState != SceneState::EDIT){
+            this->onSceneStop();
+        }
         auto filePath = FileDialogs::OpenFile("Creepy Scene (*.creepy)\0*.creepy\0");
 
         if (!filePath.empty())
@@ -574,31 +628,61 @@ namespace Creepy {
     void EditorLayer::openScene(const std::filesystem::path& filePath) noexcept {
 
         if(std::filesystem::exists(filePath) && filePath.extension().string() == ".creepy"){
-            m_scene.reset();
-            m_scene = std::make_shared<Scene>(); // Create New Empty Scene
-            m_scene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
-            m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
             
-            m_hierarchyPanel.SetScene(m_scene);
+            Ref<Scene> newScene = std::make_shared<Scene>();
+            SceneSerializer serializer{newScene};
 
-            SceneSerializer serializer{m_scene};
-            serializer.DeserializeFromYaml(filePath.string());
+            if(serializer.DeserializeFromYaml(filePath.string())){
+
+                m_editorScene.reset();
+                m_editorScene = newScene;
+
+                m_editorScene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+                m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+                
+                m_hierarchyPanel.SetScene(m_editorScene);
+
+                m_activeScene.reset();
+                m_activeScene = m_editorScene; // Create New Empty Scene
+
+                m_editorScenePath = filePath;
+            }
+            
         }
         
     }
 
+    void EditorLayer::saveScene() noexcept {
+        if(std::filesystem::exists(m_editorScenePath)){
+            SceneSerializer serializer{m_activeScene};
+            serializer.SerializeToYaml(m_editorScenePath);
+        }
+        else {
+            this->saveSceneAs();
+        }
+    }
+
     void EditorLayer::saveSceneAs() noexcept
     {
+        if(m_sceneState != SceneState::EDIT){
+            this->onSceneStop();
+        }
         auto filePath = FileDialogs::SaveFile("Creepy Scene (*.creepy)\0*.creepy\0");
 
         if (!filePath.empty())
         {
-            SceneSerializer serializer{m_scene};
+            SceneSerializer serializer{m_activeScene};
             serializer.SerializeToYaml(filePath);
+            m_editorScenePath = filePath;
         }
     }
 
     bool EditorLayer::canMousePicking() noexcept {
         return m_viewPortHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(KeyCode::KEY_LEFT_ALT);
+    }
+
+    void EditorLayer::duplicateEntity(Entity& entity) noexcept {
+        Entity newEntity = m_activeScene->CreateEntity(entity.GetName());
+
     }
 }

@@ -72,7 +72,7 @@ namespace Creepy {
     }
 
     static const char* GetCacheDirectory() noexcept {
-        return "./assets/shaders";
+        return "./assets/shaders/cache";
     }
 
     static void CreateCacheDirectoryIfNeed() noexcept {

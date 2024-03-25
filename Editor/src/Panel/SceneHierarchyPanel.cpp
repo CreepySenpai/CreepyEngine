@@ -292,10 +292,10 @@ namespace Creepy {
 
         if (ImGui::Button("Add Component"))
         {
-            ImGui::OpenPopup("AddComponets"); // open by id
+            ImGui::OpenPopup("AddComponents"); // open by id
         }
 
-        if (ImGui::BeginPopup("AddComponets"))
+        if (ImGui::BeginPopup("AddComponents"))
         { // sign id
 
             if(!entity.HasComponent<CameraComponent>()){
@@ -310,6 +310,14 @@ namespace Creepy {
                 if (ImGui::MenuItem("Sprite"))
                 {
                     m_selectedEntity.AddComponent<SpriteComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+
+            if(!entity.HasComponent<CircleSpriteComponent>()){
+                if (ImGui::MenuItem("CircleSprite"))
+                {
+                    m_selectedEntity.AddComponent<CircleSpriteComponent>();
                     ImGui::CloseCurrentPopup();
                 }
             }
@@ -436,6 +444,13 @@ namespace Creepy {
 
             ImGui::DragFloat("Tiling Factor", &spriteComponent.TilingFactor, 0.1f, 0.0f, 10.0f);
 
+        });
+
+
+        DrawComponent<CircleSpriteComponent>("Circle Sprite", entity, [](CircleSpriteComponent& circleSprite){
+            ImGui::ColorEdit4("Color", glm::value_ptr(circleSprite.Color));
+            ImGui::DragFloat("Thickness", &circleSprite.Thickness, 0.025f, 0.0f, 1.0f);
+            ImGui::DragFloat("Fade", &circleSprite.Fade, 0.025f, 0.0f, 1.0f);
         });
 
         DrawComponent<RigidBody2DComponent>("RigidBody 2D", entity, [](RigidBody2DComponent& rigid2DComponent){

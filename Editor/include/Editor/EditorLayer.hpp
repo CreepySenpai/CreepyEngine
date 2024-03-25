@@ -31,9 +31,12 @@ namespace Creepy {
             void onScenePlay() noexcept;
             void onSceneStop() noexcept;
 
+            void onDuplicateEntity() noexcept;
+
             void newScene() noexcept;
             void openScene() noexcept;
             void openScene(const std::filesystem::path& filePath) noexcept;
+            void saveScene() noexcept;
             void saveSceneAs() noexcept;
 
             void drawGizmos() noexcept;
@@ -42,12 +45,19 @@ namespace Creepy {
             // UI Stuff
             void uiDrawToolBar() noexcept;
 
+
+            // Editor Function Stuff
+
             bool canMousePicking() noexcept;
+
+            void duplicateEntity(Entity& entity) noexcept;
+            
         private:
             Ref<FrameBuffer> m_frameBuffer;
             Ref<Texture2D> m_playIcon;
             Ref<Texture2D> m_stopIcon;
-            Ref<Scene> m_scene;
+            Ref<Scene> m_activeScene;
+            Ref<Scene> m_editorScene;
             EditorCamera m_editorCamera;
             SceneHierarchyPanel m_hierarchyPanel;
             ContentBrowserPanel m_contentBrowserPanel;
@@ -61,7 +71,8 @@ namespace Creepy {
             bool m_viewPortHovered;
 
             SceneState m_sceneState{SceneState::EDIT};
-
+            
+            std::filesystem::path m_editorScenePath;
     };
     
     

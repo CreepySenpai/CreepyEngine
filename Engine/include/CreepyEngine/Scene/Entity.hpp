@@ -20,6 +20,13 @@ namespace Creepy {
             }
 
             template <typename T>
+            constexpr std::remove_cvref_t<T>& AddOrReplaceComponent(auto&&... args) noexcept {
+                auto& component = m_scene->m_registry.emplace_or_replace<std::remove_cvref_t<T>>(m_entityHandle, std::forward<decltype(args)>(args)...);
+                m_scene->OnComponentAdded<std::remove_cvref_t<T>>(*this, component);
+                return component;
+            }
+
+            template <typename T>
             [[nodiscard]] constexpr std::remove_cvref_t<T>& GetComponent() noexcept {
                 return m_scene->m_registry.get<std::remove_cvref_t<T>>(m_entityHandle);
             }
@@ -49,6 +56,10 @@ namespace Creepy {
 
             UUID& GetUUID() noexcept {
                 return this->GetComponent<IDComponent>().ID;
+            }
+
+            const std::string& GetName() noexcept{
+                return this->GetComponent<TagComponent>().Tag;
             }
             
         private:
