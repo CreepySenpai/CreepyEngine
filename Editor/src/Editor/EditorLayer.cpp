@@ -20,6 +20,8 @@ namespace Creepy {
 
         m_stopIcon = Texture2D::Create("./assets/icons/stop_icon.png");
 
+        m_simulationIcon = Texture2D::Create("./assets/icons/simulation_icon.png");
+
         m_editorCamera = EditorCamera{45.0f, 1.0f, 0.01f, 1000.0f};
         
 
@@ -53,15 +55,9 @@ namespace Creepy {
             m_activeScene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
         }
 
-        if(m_viewPortFocused){
-            // m_cameraController.OnUpdate(timeStep);
-            m_editorCamera.OnUpdate(timeStep);
-        }
-        
-
         m_frameBuffer->Bind();
 
-        RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
+        RenderCommand::SetClearColor({182.0f / 255.0f, 200.0f / 255.0f, 231.0f / 255.0f, 1.0f});
         RenderCommand::Clear();
         Renderer2D::ResetStatistics();
         
@@ -71,8 +67,21 @@ namespace Creepy {
         switch (m_sceneState)
         {
             case SceneState::EDIT:
-                m_activeScene->OnUpdateEditor(timeStep, m_editorCamera);
-                break;
+                {
+                    if(m_viewPortHovered){
+                        m_editorCamera.OnUpdate(timeStep);
+                    }
+                    m_activeScene->OnUpdateEditor(timeStep, m_editorCamera);
+                    break;
+                }
+            case SceneState::SIMULATION:
+                {
+                    if(m_viewPortHovered){
+                        m_editorCamera.OnUpdate(timeStep);
+                    }
+                    m_activeScene->OnUpdateSimulation(timeStep, m_editorCamera);
+                    break;
+                }
             case SceneState::PLAY:
                 m_activeScene->OnUpdateRunTime(timeStep);
                 break;
@@ -307,7 +316,7 @@ namespace Creepy {
     }
 
     bool EditorLayer::onKeyPressed(KeyPressedEvent& event) noexcept {
-        if(event.GetRepeatCount() > 0){
+        if(event.IsRepeat()){
             return false;
         }
 
@@ -383,25 +392,29 @@ namespace Creepy {
         
         if(m_sceneState == SceneState::PLAY){
             Entity camera = m_activeScene->GetPrimaryCameraEntity();
+
+            if(!camera.IsExits()){
+                return;
+            }
             Renderer2D::BeginScene(camera.GetComponent<CameraComponent>().Camera, camera.GetComponent<TransformComponent>().GetTransform());
         }
         else {
             Renderer2D::BeginScene(m_editorCamera);
         }
-
+        
         if(m_showPhysicCollider){
-            m_activeScene->GetAllEntitiesType<TransformComponent, CircleCollider2DComponent>().each([](auto entityID, TransformComponent& transformComponent, CircleCollider2DComponent& circleCollider2DComponent){
-                glm::vec3 debugPosition = transformComponent.Position + glm::vec3{circleCollider2DComponent.Offset, 0.001f};
+            m_activeScene->GetAllEntitiesType<TransformComponent, CircleCollider2DComponent>().each([editorDepth = m_editorCamera.GetPosition().z](auto entityID, TransformComponent& transformComponent, CircleCollider2DComponent& circleCollider2DComponent){
+                glm::vec3 debugPosition = transformComponent.Position + glm::vec3{circleCollider2DComponent.Offset, editorDepth > transformComponent.Position.z ? 0.001f : -0.001f};
 
                 glm::vec3 debugScale = transformComponent.Scale * glm::vec3{circleCollider2DComponent.Radius * 2.0f};
 
                 glm::mat4 transform = glm::translate(glm::mat4{1.0f}, debugPosition) * glm::scale(glm::mat4{1.0f}, debugScale);
 
-                Renderer2D::DrawCircle(transform, glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, 0.01f);
+                Renderer2D::DrawCircle(transform, glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, 0.1f);
             });
 
-            m_activeScene->GetAllEntitiesType<TransformComponent, BoxCollider2DComponent>().each([](auto entityID, TransformComponent& transformComponent, BoxCollider2DComponent& boxC2DComp){
-                glm::vec3 debugPosition = transformComponent.Position + glm::vec3{boxC2DComp.Offset, 0.001f};
+            m_activeScene->GetAllEntitiesType<TransformComponent, BoxCollider2DComponent>().each([editorDepth = m_editorCamera.GetPosition().z](auto entityID, TransformComponent& transformComponent, BoxCollider2DComponent& boxC2DComp){
+                glm::vec3 debugPosition = transformComponent.Position + glm::vec3{boxC2DComp.Offset, editorDepth > transformComponent.Position.z ? 0.001f : -0.001f};
                 glm::vec3 debugScale = transformComponent.Scale * glm::vec3{boxC2DComp.Size * 2.0f, 1.0f};
 
                 glm::mat4 transform = glm::translate(glm::mat4{1.0f}, debugPosition) 
@@ -416,6 +429,11 @@ namespace Creepy {
     }
 
     void EditorLayer::onScenePlay() noexcept {
+
+        if(m_sceneState == SceneState::SIMULATION){
+            this->onSceneStop();
+        }
+
         m_sceneState = SceneState::PLAY;
 
         // Copy data to new scene
@@ -426,15 +444,38 @@ namespace Creepy {
         m_hierarchyPanel.SetScene(m_activeScene);
     }
 
-    void EditorLayer::onSceneStop() noexcept {
-        m_sceneState = SceneState::EDIT;
-        m_activeScene->OnRuntimeStop();
-        // Reset Runtime
-        m_activeScene.reset();
+    void EditorLayer::onSimulationPlay() noexcept {
 
-        m_activeScene = m_editorScene;
+        if(m_sceneState == SceneState::PLAY){
+            this->onSceneStop();
+        }
+
+        m_sceneState = SceneState::SIMULATION;
+
+        // Copy data to new scene
+        m_activeScene = Scene::Copy(m_editorScene); // Copy Editor Scene
+
+        m_activeScene->OnSimulationPlay();
 
         m_hierarchyPanel.SetScene(m_activeScene);
+    }
+
+    void EditorLayer::onSceneStop() noexcept {
+
+        if(m_sceneState == SceneState::PLAY){
+            m_activeScene->OnRuntimeStop();
+        }
+        else if(m_sceneState == SceneState::SIMULATION) {
+            m_activeScene->OnSimulationStop();
+        }
+
+        m_sceneState = SceneState::EDIT;
+
+        // Reset Runtime
+        m_activeScene.reset();
+        m_activeScene = m_editorScene;
+        m_hierarchyPanel.SetScene(m_activeScene);
+
     }
 
     void EditorLayer::onDuplicateEntity() noexcept {
@@ -458,22 +499,44 @@ namespace Creepy {
 
         ImGui::Begin("##toolBar", nullptr, 
             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-        auto iconID =  reinterpret_cast<ImTextureID>(m_sceneState == SceneState::EDIT ? m_playIcon->GetRendererID() : m_stopIcon->GetRendererID());
-
-        const float iconSize{ImGui::GetWindowHeight() - 2.0f};  // Padding
-
-        // Center Icon
-        ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x * 0.5f) - (iconSize * 0.5f));
-
-        if(ImGui::ImageButton(iconID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0)){
-
-            if(m_sceneState == SceneState::EDIT){
-                this->onScenePlay();
-            } else if(m_sceneState == SceneState::PLAY){
-                this->onSceneStop();
-            }
         
+        {
+            auto iconID = reinterpret_cast<ImTextureID>(m_sceneState == SceneState::EDIT 
+                    || m_sceneState == SceneState::SIMULATION ? m_playIcon->GetRendererID() : m_stopIcon->GetRendererID());
+
+            const float iconSize{ImGui::GetWindowHeight() - 2.0f};  // Padding
+
+            // Center Icon
+            ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x * 0.5f) - (iconSize * 0.5f));
+
+            if(ImGui::ImageButton(iconID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0)){
+
+                if(m_sceneState == SceneState::EDIT || m_sceneState == SceneState::SIMULATION){
+                    this->onScenePlay();
+                } else if(m_sceneState == SceneState::PLAY){
+                    this->onSceneStop();
+                }
+            
+            }
+        }
+
+        ImGui::SameLine();
+
+        {
+            auto iconID = reinterpret_cast<ImTextureID>(m_sceneState == SceneState::EDIT 
+                    || m_sceneState == SceneState::PLAY ? m_simulationIcon->GetRendererID() : m_stopIcon->GetRendererID());
+
+            const float iconSize{ImGui::GetWindowHeight() - 2.0f};  // Padding
+
+            if(ImGui::ImageButton(iconID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0)){
+
+                if(m_sceneState == SceneState::EDIT || m_sceneState == SceneState::PLAY){
+                    this->onSimulationPlay();
+                } else if(m_sceneState == SceneState::SIMULATION){
+                    this->onSceneStop();
+                }
+            
+            }
         }
 
         ImGui::PopStyleVar(2);
@@ -489,8 +552,8 @@ namespace Creepy {
             ImGuizmo::SetOrthographic(true);
             ImGuizmo::SetDrawlist();
             
-            float windowWidth = ImGui::GetWindowWidth();
-            float windowHeight = ImGui::GetWindowHeight();
+            const float windowWidth = ImGui::GetWindowWidth();
+            const float windowHeight = ImGui::GetWindowHeight();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
                 // auto cameraEntity = m_scene->GetPrimaryCameraEntity();
@@ -609,23 +672,22 @@ namespace Creepy {
 
         m_editorScene.reset();
         m_editorScene = std::make_shared<Scene>();
-        m_editorScene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
 
         m_activeScene.reset();
         m_activeScene = m_editorScene;
-        
-        m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+
         m_hierarchyPanel.SetScene(m_activeScene);
 
+        m_activeScene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+
+        m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+        
         m_editorScenePath.clear();
+        
     }
 
     void EditorLayer::openScene() noexcept
     {
-        // TODO: Add Dialog to check user
-        if(m_sceneState != SceneState::EDIT){
-            this->onSceneStop();
-        }
         auto filePath = FileDialogs::OpenFile("Creepy Scene (*.creepy)\0*.creepy\0");
 
         if (!filePath.empty())
@@ -635,6 +697,11 @@ namespace Creepy {
     }
 
     void EditorLayer::openScene(const std::filesystem::path& filePath) noexcept {
+        
+        // TODO: Add Dialog to check user
+        if(m_sceneState != SceneState::EDIT){
+            this->onSceneStop();
+        }
 
         if(std::filesystem::exists(filePath) && filePath.extension().string() == ".creepy"){
             
@@ -645,16 +712,16 @@ namespace Creepy {
 
                 m_editorScene.reset();
                 m_editorScene = newScene;
-
-                m_editorScene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
-                m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
-                
-                m_hierarchyPanel.SetScene(m_editorScene);
-
                 m_activeScene.reset();
                 m_activeScene = m_editorScene; // Create New Empty Scene
 
+                m_hierarchyPanel.SetScene(m_activeScene);
+
+                m_activeScene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+                m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+                
                 m_editorScenePath = filePath;
+
             }
             
         }

@@ -10,7 +10,7 @@ namespace Creepy {
 
         int state = glfwGetKey(window, std::to_underlying(keyCode));
 
-        return (state == GLFW_PRESS) || (state == GLFW_REPEAT);
+        return state == GLFW_PRESS;
     }
     
     bool Input::IsMouseButtonPressed(MouseButtonCode mouseButton) noexcept {
@@ -18,7 +18,7 @@ namespace Creepy {
 
         int state = glfwGetMouseButton(window, std::to_underlying(mouseButton));
 
-        return (state == GLFW_PRESS);
+        return state == GLFW_PRESS;
     }
 
     float Input::GetMouseX() noexcept {

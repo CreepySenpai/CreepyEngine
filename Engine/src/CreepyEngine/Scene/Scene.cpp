@@ -32,8 +32,13 @@ namespace Creepy {
     }
 
     Scene::~Scene() noexcept {
+
+        // For sure
+        this->onPhysic2DStop();
+
         // Remove All Exit Entity
         m_registry.clear();
+
         ENGINE_LOG_WARNING("A scene was destroy!!!");
     }
 
@@ -58,27 +63,7 @@ namespace Creepy {
     }
 
     void Scene::OnUpdateEditor(TimeStep timeStep, EditorCamera& camera) noexcept {
-        auto renderEntity = m_registry.view<TransformComponent, SpriteComponent>();
-
-        Renderer2D::BeginScene(camera);
-
-        {
-            m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
-
-                Renderer2D::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
-            
-            });
-
-        }
-
-        {
-            m_registry.view<TransformComponent, CircleSpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, CircleSpriteComponent& circle){
-                Renderer2D::DrawCircle(transformComponent, circle, static_cast<uint32_t>(entityID));
-            });
-        }
-
-
-        Renderer2D::EndScene();
+        this->renderScene(camera);
     }
 
     void Scene::OnUpdateRunTime(TimeStep timeStep) noexcept {
@@ -103,8 +88,8 @@ namespace Creepy {
         // Physic
 
         {
-            constexpr const int32_t velocityIteration = 6;
-            constexpr const int32_t positionIteration = 2;
+            constexpr const int32_t velocityIteration = 8;
+            constexpr const int32_t positionIteration = 3;
 
             m_physicWorld->Step(timeStep.GetSeconds(), velocityIteration, positionIteration);
 
@@ -165,6 +150,36 @@ namespace Creepy {
 
     }
 
+    void Scene::OnUpdateSimulation(TimeStep timeStep, EditorCamera& camera) noexcept {
+        // Physic
+
+        {
+            constexpr const int32_t velocityIteration{8};
+            constexpr const int32_t positionIteration{3};
+
+            m_physicWorld->Step(timeStep.GetSeconds(), velocityIteration, positionIteration);
+
+            auto&& view = m_registry.view<RigidBody2DComponent>();
+
+            for(auto&& entityID : view){
+                Entity entity{entityID, this};
+                auto& transform = entity.GetComponent<TransformComponent>();
+                auto& rigid2D = entity.GetComponent<RigidBody2DComponent>();
+
+                auto body = static_cast<b2Body*>(rigid2D.RuntimeBody);
+                auto&& position = body->GetPosition();
+                
+                transform.Position.x = position.x;
+                transform.Position.y = position.y;
+
+                transform.Rotation.z = body->GetAngle();
+            }
+        }
+
+        // Render
+        this->renderScene(camera);
+    }
+
 
     void Scene::OnViewPortResize(uint32_t width, uint32_t height) noexcept {
         m_viewPortWidth = width;
@@ -198,10 +213,24 @@ namespace Creepy {
     }
 
     void Scene::OnRuntimePlay() noexcept {
-        // m_physicWorld = std::make_unique<b2World>(new b2World(b2Vec2(0.0f, -9.8f)));
-        m_physicWorld = new b2World(b2Vec2(0.0f, -9.8f));
+        this->onPhysic2DStart();
+    }
 
-        // Can not use lambda because can not capture std::unique_ptr
+    void Scene::OnRuntimeStop() noexcept {
+        this->onPhysic2DStop();
+    }
+
+    void Scene::OnSimulationPlay() noexcept {
+        this->onPhysic2DStart();
+    }
+
+    void Scene::OnSimulationStop() noexcept {
+        this->onPhysic2DStop();
+    }
+
+    void Scene::onPhysic2DStart() noexcept {
+        m_physicWorld = new b2World(b2Vec2{0.0f, -9.8f});
+
         auto&& rigidView  = m_registry.view<RigidBody2DComponent>();
 
         for(auto&& entityID : rigidView){
@@ -260,7 +289,11 @@ namespace Creepy {
         }
     }
 
-    void Scene::OnRuntimeStop() noexcept {
+    void Scene::onPhysic2DStop() noexcept {
+        if(!m_physicWorld){
+            return;
+        }
+
         auto&& entityDestroy = m_registry.view<RigidBody2DComponent>();
 
         for(auto&& entityID : entityDestroy){
@@ -270,8 +303,31 @@ namespace Creepy {
             entity.GetComponent<RigidBody2DComponent>().RuntimeBody = nullptr;
         }
 
-        // m_physicWorld.reset();
         delete m_physicWorld;
+        m_physicWorld = nullptr;
+    }
+
+    void Scene::renderScene(EditorCamera& editorCamera) noexcept {
+
+        Renderer2D::BeginScene(editorCamera);
+
+        {
+            m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
+
+                Renderer2D::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
+            
+            });
+
+        }
+
+        {
+            m_registry.view<TransformComponent, CircleSpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, CircleSpriteComponent& circle){
+                Renderer2D::DrawCircle(transformComponent, circle, static_cast<uint32_t>(entityID));
+            });
+        }
+
+
+        Renderer2D::EndScene();
     }
 
     template <typename Component>

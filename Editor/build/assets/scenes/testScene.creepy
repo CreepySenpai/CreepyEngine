@@ -1,5 +1,46 @@
 Scene: Untitled
 Entities:
+  - Entity: 18246462896418597809
+    TagComponent:
+      Tag: T2
+    TransformComponent:
+      Position: [-1.71099997, 3.43073225, 1.6983262e-11]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteComponent:
+      Color: [1, 1, 1, 1]
+      TilingFactor: 1
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 14185261603953781639
+    TagComponent:
+      Tag: C1
+    TransformComponent:
+      Position: [-4.67493916, 1.49465406, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CircleSpriteComponent:
+      Color: [1, 1, 1, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
   - Entity: 32437285953429307
     TagComponent:
       Tag: T1
@@ -24,7 +65,7 @@ Entities:
     TagComponent:
       Tag: C1
     TransformComponent:
-      Position: [-3.46135449, -2.65130762e-09, 0]
+      Position: [-6.45464516, 2.37639689, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     CircleSpriteComponent:
@@ -123,7 +164,7 @@ Entities:
     TagComponent:
       Tag: T2
     TransformComponent:
-      Position: [-1.71099997, 3.43073225, 0]
+      Position: [-3.04915404, 3.43073225, 1.6983262e-11]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     SpriteComponent:
@@ -175,6 +216,132 @@ Entities:
     BoxCollider2DComponent:
       Offset: [0, 0]
       Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 5248116237520624454
+    TagComponent:
+      Tag: C6
+    TransformComponent:
+      Position: [-3.46135449, -2.65130762e-09, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CircleSpriteComponent:
+      Color: [1, 1, 1, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 8017849244390583836
+    TagComponent:
+      Tag: C5
+    TransformComponent:
+      Position: [-5.96993351, -2.65130762e-09, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CircleSpriteComponent:
+      Color: [1, 1, 1, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 2155407864189660067
+    TagComponent:
+      Tag: C4
+    TransformComponent:
+      Position: [-9.47690201, -2.65130762e-09, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CircleSpriteComponent:
+      Color: [1, 1, 1, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 10840102256686306145
+    TagComponent:
+      Tag: C3
+    TransformComponent:
+      Position: [-9.47690201, 1.49465406, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CircleSpriteComponent:
+      Color: [1, 1, 1, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 11551469915440712628
+    TagComponent:
+      Tag: C2
+    TransformComponent:
+      Position: [-7.28768826, 1.49465406, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CircleSpriteComponent:
+      Color: [1, 1, 1, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 12690176528797957801
+    TagComponent:
+      Tag: C1
+    TransformComponent:
+      Position: [-4.67493916, 2.82359219, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CircleSpriteComponent:
+      Color: [1, 1, 1, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
       Density: 1
       Friction: 1
       Restitution: 0

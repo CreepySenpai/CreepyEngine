@@ -111,7 +111,7 @@ namespace Creepy {
             switch (action)
             {
                 case GLFW_PRESS: {
-                    KeyPressedEvent event{static_cast<KeyCode>(keyCode), 0};
+                    KeyPressedEvent event{static_cast<KeyCode>(keyCode), false};
                     windowData.EventCallBack(event);
                     break;
                 }
@@ -121,7 +121,7 @@ namespace Creepy {
                     break;
                 }
                 case GLFW_REPEAT: {
-                    KeyPressedEvent event{static_cast<KeyCode>(keyCode), 1};
+                    KeyPressedEvent event{static_cast<KeyCode>(keyCode), true};
                     windowData.EventCallBack(event);
                     break;
                 }

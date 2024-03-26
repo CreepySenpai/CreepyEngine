@@ -15,7 +15,7 @@ namespace Creepy
     }
 
     std::string KeyPressedEvent::ToString() const noexcept {
-        return std::format("Key Press: {}, Repeat: {}\n", std::to_underlying(m_keyCode), m_repeatCount);
+        return std::format("Key Press: {}, Is Repeat: {}\n", std::to_underlying(m_keyCode), m_isRepeat);
     }
 
     // KeyRelease

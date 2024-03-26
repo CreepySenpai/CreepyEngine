@@ -24,9 +24,12 @@ namespace Creepy {
 
             void OnUpdateEditor(TimeStep timeStep, EditorCamera& camera) noexcept;
             void OnUpdateRunTime(TimeStep timeStep) noexcept;
+            void OnUpdateSimulation(TimeStep timeStep, EditorCamera& camera) noexcept;
 
             void OnRuntimePlay() noexcept;
             void OnRuntimeStop() noexcept;
+            void OnSimulationPlay() noexcept;
+            void OnSimulationStop() noexcept;
 
             void OnViewPortResize(uint32_t width, uint32_t height) noexcept;
 
@@ -47,6 +50,12 @@ namespace Creepy {
             void OnComponentAdded(Entity& entity, T& component) {
 
             }
+
+            void onPhysic2DStart() noexcept;
+
+            void onPhysic2DStop() noexcept;
+
+            void renderScene(EditorCamera& editorCamera) noexcept;
         
         private:
             entt::registry m_registry;
@@ -54,7 +63,7 @@ namespace Creepy {
             uint32_t m_viewPortHeight{0};
 
             // Need to copy so we can't use std::unique_ptr
-            b2World* m_physicWorld;
+            b2World* m_physicWorld{nullptr};
 
             friend class Entity;
             friend class SceneHierarchyPanel;

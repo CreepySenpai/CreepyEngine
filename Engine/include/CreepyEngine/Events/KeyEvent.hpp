@@ -24,7 +24,7 @@ namespace Creepy {
 
     class KeyPressedEvent : public KeyEvent {
         public:
-            constexpr KeyPressedEvent(KeyCode keyCode, int repeatCount) noexcept : KeyEvent(keyCode), m_repeatCount{repeatCount} {
+            constexpr KeyPressedEvent(KeyCode keyCode, bool isRepeat) noexcept : KeyEvent(keyCode), m_isRepeat{isRepeat} {
 
             }
 
@@ -40,11 +40,11 @@ namespace Creepy {
 
             virtual std::string ToString() const noexcept override;
 
-            constexpr inline int GetRepeatCount() const {
-                return m_repeatCount;
+            constexpr inline bool IsRepeat() const {
+                return m_isRepeat;
             }
         private:
-            int m_repeatCount{0};
+            bool m_isRepeat;
     };
 
 

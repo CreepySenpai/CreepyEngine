@@ -11,6 +11,7 @@ namespace Creepy {
     }
 
     void SceneHierarchyPanel::SetScene(const Ref<Scene>& scene) noexcept {
+        m_scene.reset();
         m_scene = scene;
         
         // TODO: If we have multi scene and we want keep it last selected entity we need to change it
@@ -152,60 +153,100 @@ namespace Creepy {
         ImGui::PopID();
     }
 
-    template <typename T, typename UIFunction>
-    static void DrawComponent(const std::string& label, Entity& entity, UIFunction&& func) noexcept
-    {
-        if (entity.HasComponent<T>())
+    template <typename T>
+    struct MyDrawComponent {
+        template<typename UIFunction>
+        static void DrawComponent(const std::string& label, Entity& entity, UIFunction&& func) noexcept
         {
-            constexpr ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap
-                | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
-
-            // Get content available before set padding
-            auto&& contentAvailable = ImGui::GetContentRegionAvail();
-
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{4.0f, 4.0f});
-
-            // Calculate after setup frame padding
-            const float lineHeight = GImGui->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-            
-            ImGui::Separator();
-
-            bool isOpened = ImGui::TreeNodeEx(reinterpret_cast<void *>(typeid(T).hash_code()), treeNodeFlags, label.c_str());
-
-            ImGui::PopStyleVar();
-
-            ImGui::SameLine(contentAvailable.x - lineHeight * 0.5f);
-
-            if (ImGui::Button("+", ImVec2{lineHeight, lineHeight}))
+            if (entity.HasComponent<T>())
             {
-                ImGui::OpenPopup("ComponentSettings");
-            }
+                constexpr ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap
+                    | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
 
-            bool isRemovedComponent{false};
+                // Get content available before set padding
+                auto&& contentAvailable = ImGui::GetContentRegionAvail();
 
-            if (ImGui::BeginPopup("ComponentSettings"))
-            {
-                if (ImGui::MenuItem("Remove Component"))
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{4.0f, 4.0f});
+
+                // Calculate after setup frame padding
+                const float lineHeight = GImGui->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+                
+                ImGui::Separator();
+
+                bool isOpened = ImGui::TreeNodeEx(reinterpret_cast<void *>(typeid(T).hash_code()), treeNodeFlags, label.c_str());
+
+                ImGui::PopStyleVar();
+
+                ImGui::SameLine(contentAvailable.x - lineHeight * 0.5f);
+
+                if (ImGui::Button("+", ImVec2{lineHeight, lineHeight}))
                 {
-                    isRemovedComponent = true;
+                    ImGui::OpenPopup("ComponentSettings");
                 }
 
-                ImGui::EndPopup();
-            }
+                bool isRemovedComponent{false};
 
-            if (isOpened)
-            {
-                func(entity.GetComponent<T>());
+                if (ImGui::BeginPopup("ComponentSettings"))
+                {
+                    if (ImGui::MenuItem("Remove Component"))
+                    {
+                        isRemovedComponent = true;
+                    }
 
-                ImGui::TreePop();
-            }
+                    ImGui::EndPopup();
+                }
 
-            if (isRemovedComponent)
-            {
-                entity.RemoveComponent<T>();
+                if (isOpened)
+                {
+                    func(entity.GetComponent<T>());
+
+                    ImGui::TreePop();
+                }
+
+                if (isRemovedComponent)
+                {
+                    entity.RemoveComponent<T>();
+                }
             }
         }
-    }
+    };
+
+
+    // Specific for transform component
+    template <>
+    struct MyDrawComponent<TransformComponent>{
+        template <typename UIFunction>
+        static void DrawComponent(const std::string& label, Entity& entity, UIFunction&& func) noexcept {
+            if (entity.HasComponent<TransformComponent>())
+            {
+                constexpr ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap
+                    | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
+
+                // Get content available before set padding
+                auto&& contentAvailable = ImGui::GetContentRegionAvail();
+
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{4.0f, 4.0f});
+
+                // Calculate after setup frame padding
+                const float lineHeight = GImGui->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+                
+                ImGui::Separator();
+
+                bool isOpened = ImGui::TreeNodeEx(reinterpret_cast<void *>(typeid(TransformComponent).hash_code()), treeNodeFlags, label.c_str());
+
+                ImGui::PopStyleVar();
+
+                if (isOpened)
+                {
+                    func(entity.GetComponent<TransformComponent>());
+
+                    ImGui::TreePop();
+                }
+
+            }
+        }
+    };
+
 
     void SceneHierarchyPanel::drawEntityNode(Entity& entity) noexcept {
 
@@ -349,13 +390,13 @@ namespace Creepy {
 
         ImGui::PopItemWidth();
 
-        DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& transformComponent){
+        MyDrawComponent<TransformComponent>::DrawComponent("Transform", entity, [](TransformComponent& transformComponent){
             drawVec3Control("Position", transformComponent.Position);
             drawVec3Control("Rotation", transformComponent.Rotation);
             drawVec3Control("Scale", transformComponent.Scale);
         });
 
-        DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& cameraComponent){
+        MyDrawComponent<CameraComponent>::DrawComponent("Camera", entity, [](CameraComponent& cameraComponent){
             auto& camera = cameraComponent.Camera;
             const char* projectionType[] = {"Orthographic", "Perspective"};
             const char* currentProjection = projectionType[std::to_underlying(camera.GetProjectionType())];
@@ -423,7 +464,7 @@ namespace Creepy {
             }
         });
 
-        DrawComponent<SpriteComponent>("Sprite Render", entity, [](SpriteComponent& spriteComponent){
+        MyDrawComponent<SpriteComponent>::DrawComponent("Sprite Render", entity, [](SpriteComponent& spriteComponent){
             ImGui::ColorEdit4("", glm::value_ptr(spriteComponent.Color));
 
             ImGui::Button("Texture", {100.0f, 0.0f});
@@ -454,13 +495,13 @@ namespace Creepy {
         });
 
 
-        DrawComponent<CircleSpriteComponent>("Circle Sprite", entity, [](CircleSpriteComponent& circleSprite){
+        MyDrawComponent<CircleSpriteComponent>::DrawComponent("Circle Sprite", entity, [](CircleSpriteComponent& circleSprite){
             ImGui::ColorEdit4("Color", glm::value_ptr(circleSprite.Color));
             ImGui::DragFloat("Thickness", &circleSprite.Thickness, 0.025f, 0.0f, 1.0f);
             ImGui::DragFloat("Fade", &circleSprite.Fade, 0.025f, 0.0f, 1.0f);
         });
 
-        DrawComponent<RigidBody2DComponent>("RigidBody 2D", entity, [](RigidBody2DComponent& rigid2DComponent){
+        MyDrawComponent<RigidBody2DComponent>::DrawComponent("RigidBody 2D", entity, [](RigidBody2DComponent& rigid2DComponent){
 
             const char* bodyType[] = {"Static", "Dynamic", "Kinematic"};
 
@@ -490,7 +531,7 @@ namespace Creepy {
             }
         });
 
-        DrawComponent<BoxCollider2DComponent>("BoxCollider 2D", entity, [](BoxCollider2DComponent& boxCollider2DComponent){
+        MyDrawComponent<BoxCollider2DComponent>::DrawComponent("BoxCollider 2D", entity, [](BoxCollider2DComponent& boxCollider2DComponent){
             ImGui::DragFloat2("Offset", glm::value_ptr(boxCollider2DComponent.Offset));
             ImGui::DragFloat2("Size", glm::value_ptr(boxCollider2DComponent.Size));
             ImGui::DragFloat("Density", &boxCollider2DComponent.Density, 0.1f, 0.0f);
@@ -500,7 +541,7 @@ namespace Creepy {
 
         });
 
-        DrawComponent<CircleCollider2DComponent>("CircleCollider 2D", entity, [](CircleCollider2DComponent& circleCollider2DComponent){
+        MyDrawComponent<CircleCollider2DComponent>::DrawComponent("CircleCollider 2D", entity, [](CircleCollider2DComponent& circleCollider2DComponent){
             ImGui::DragFloat2("Offset", glm::value_ptr(circleCollider2DComponent.Offset));
             ImGui::DragFloat("Radius", &circleCollider2DComponent.Radius, 1.0f, 0.0f);
             ImGui::DragFloat("Density", &circleCollider2DComponent.Density, 0.1f, 0.0f);

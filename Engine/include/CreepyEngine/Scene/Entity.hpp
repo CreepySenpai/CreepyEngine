@@ -54,11 +54,11 @@ namespace Creepy {
                 return m_scene != nullptr;
             }
 
-            UUID& GetUUID() noexcept {
+            [[nodiscard]] UUID& GetUUID() noexcept {
                 return this->GetComponent<IDComponent>().ID;
             }
 
-            const std::string& GetName() noexcept{
+            [[nodiscard]] const std::string& GetName() noexcept{
                 return this->GetComponent<TagComponent>().Tag;
             }
             

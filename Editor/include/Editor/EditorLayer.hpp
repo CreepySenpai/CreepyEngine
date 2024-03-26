@@ -7,7 +7,7 @@
 namespace Creepy {
 
     enum class SceneState : uint8_t {
-        EDIT = 0, PLAY, STOP
+        EDIT = 0, PLAY, STOP, SIMULATION
     };
     class EditorLayer : public Layer
     {
@@ -31,6 +31,7 @@ namespace Creepy {
             void onOverlayRender() noexcept;
             void onScenePlay() noexcept;
             void onSceneStop() noexcept;
+            void onSimulationPlay() noexcept;
 
             void onDuplicateEntity() noexcept;
 
@@ -57,6 +58,7 @@ namespace Creepy {
             Ref<FrameBuffer> m_frameBuffer;
             Ref<Texture2D> m_playIcon;
             Ref<Texture2D> m_stopIcon;
+            Ref<Texture2D> m_simulationIcon;
             Ref<Scene> m_activeScene;
             Ref<Scene> m_editorScene;
             EditorCamera m_editorCamera;
