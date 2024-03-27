@@ -117,7 +117,10 @@ void main(){
             break;
     }
 
-    // color = v_color * texture(u_textures[int(v_textureIndex)], v_vertexInput.TextureCoord * v_vertexInput.TilingFactor);
+    if(texColor.a == 0.0){
+        discard;
+    }
+    
     out_Color = texColor;
 
     out_EntityID = v_entityID;

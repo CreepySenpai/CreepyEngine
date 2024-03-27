@@ -8,7 +8,7 @@ namespace Creepy {
     class OpenGLContext : public GraphicContext
     {
         public:
-            OpenGLContext(GLFWwindow* windowHandle);
+            OpenGLContext(GLFWwindow* windowHandle) noexcept;
 
             void Init() noexcept override;
             void SwapBuffers() noexcept override;

@@ -65,7 +65,7 @@ namespace Creepy {
             SceneHierarchyPanel m_hierarchyPanel;
             ContentBrowserPanel m_contentBrowserPanel;
 
-            Entity m_selectedEntity;
+            Entity m_hoverEntity;
             glm::vec2 m_viewPortSize;
             glm::vec2 m_viewPortBounds[2];
 

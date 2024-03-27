@@ -93,7 +93,8 @@ namespace Creepy {
 
             mX -= m_viewPortBounds[0].x;
             mY -= m_viewPortBounds[0].y;
-            glm::vec2 viewPortSize{m_viewPortBounds[1] - m_viewPortBounds[0]};
+
+            const glm::vec2 viewPortSize{m_viewPortBounds[1] - m_viewPortBounds[0]};
 
             // Flip Coord From Top Left -> Bottom Left To Match Texture Coord
             mY = viewPortSize.y - mY;
@@ -103,9 +104,9 @@ namespace Creepy {
             if(mouseXInViewPort > 0 && mouseYInViewPort > 0 && mouseXInViewPort < viewPortSize.x && mouseYInViewPort < viewPortSize.y){
                 int entityID = m_frameBuffer->ReadPixel(1, mouseXInViewPort, mouseYInViewPort);
                 if(entityID == -1){
-                    m_selectedEntity = {};
+                    m_hoverEntity = {};
                 } else {
-                    m_selectedEntity = {static_cast<entt::entity>(entityID), m_activeScene.get()};
+                    m_hoverEntity = {static_cast<entt::entity>(entityID), m_activeScene.get()};
                 }
             }
         }
@@ -187,7 +188,13 @@ namespace Creepy {
 
                 ImGui::Separator();
 
-                if(ImGui::MenuItem("Save As...", "Ctrl+S")){
+                if(ImGui::MenuItem("Save", "Ctrl++S")){
+                    this->saveScene();
+                }
+
+                ImGui::Separator();
+
+                if(ImGui::MenuItem("Save As...", "Ctrl+Shift+S")){
                     this->saveSceneAs();
                 }
 
@@ -280,8 +287,8 @@ namespace Creepy {
         auto stats = Creepy::Renderer2D::GetStatistics();
 
         std::string hoveredName ="None";
-        if(m_selectedEntity.IsExits()){
-            hoveredName.assign(m_selectedEntity.GetComponent<TagComponent>().Tag);
+        if(m_hoverEntity.IsExits()){
+            hoveredName.assign(m_hoverEntity.GetComponent<TagComponent>().Tag);
         }
         ImGui::Text("Hover Entity %s", hoveredName.c_str());
         ImGui::Text("Render2D Stats");
@@ -382,7 +389,7 @@ namespace Creepy {
 
     bool EditorLayer::onMouseButtonPressed(MouseButtonPressedEvent& event) noexcept {
         if(event.GetButton() == MouseButtonCode::MOUSE_LEFT && this->canMousePicking()){
-            m_hierarchyPanel.SetSelectedEntity(m_selectedEntity);
+            m_hierarchyPanel.SetSelectedEntity(m_hoverEntity);
         }
 
         return false;
@@ -414,15 +421,21 @@ namespace Creepy {
             });
 
             m_activeScene->GetAllEntitiesType<TransformComponent, BoxCollider2DComponent>().each([editorDepth = m_editorCamera.GetPosition().z](auto entityID, TransformComponent& transformComponent, BoxCollider2DComponent& boxC2DComp){
-                glm::vec3 debugPosition = transformComponent.Position + glm::vec3{boxC2DComp.Offset, editorDepth > transformComponent.Position.z ? 0.001f : -0.001f};
+                glm::vec3 debugPosition = transformComponent.Position + glm::vec3{boxC2DComp.Offset.x, boxC2DComp.Offset.y , editorDepth > transformComponent.Position.z ? 0.001f : -0.001f};
                 glm::vec3 debugScale = transformComponent.Scale * glm::vec3{boxC2DComp.Size * 2.0f, 1.0f};
-
+                
                 glm::mat4 transform = glm::translate(glm::mat4{1.0f}, debugPosition) 
-                    * glm::rotate(glm::mat4{1.0f}, transformComponent.Rotation.z, glm::vec3{0.0f, 0.0f, 1.0f}) 
+                    * glm::rotate(glm::mat4{1.0f}, transformComponent.Rotation.z, glm::vec3{0.0f, 0.0f, 1.0f})
                     * glm::scale(glm::mat4{1.0f}, debugScale);
 
                 Renderer2D::DrawLineRect(transform, {0.0f, 1.0f, 0.0f, 1.0f});
             });
+        }
+
+        if(Entity& selectedEntity = m_hierarchyPanel.GetSelectedEntity(); selectedEntity.IsExits()){
+
+            Renderer2D::DrawLineRect(selectedEntity.GetComponent<TransformComponent>().GetTransform(), {1.0f, 0.0f, 0.0f, 1.0f});
+
         }
 
         Renderer2D::EndScene();

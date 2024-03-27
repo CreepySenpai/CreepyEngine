@@ -214,9 +214,8 @@ namespace Creepy {
         }
 
         if(m_colorBufferAttachments.size() > 1){
-            if(m_colorBufferAttachments.size() > 32){
-                ENGINE_LOG_ERROR("Limit Color Buffer Is 32!!!");
-            }
+
+            ENGINE_ASSERT((m_colorBufferAttachments.size() < 32), "Limit Color Buffer Is 32!!!");
 
             GLenum buffer[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
                                GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7,
@@ -245,9 +244,7 @@ namespace Creepy {
     }
 
     int OpenGLFrameBuffer::ReadPixel(uint32_t attachmentIndex, int x, int y) noexcept {
-        if(attachmentIndex > m_colorBufferAttachments.size()){
-            ENGINE_LOG_ERROR("Attachment index > 32");
-        }
+        ENGINE_ASSERT((attachmentIndex < m_colorBufferAttachments.size()), "Attachment index > 32");
 
         glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
         int pixelData{};
@@ -258,9 +255,7 @@ namespace Creepy {
 
     void OpenGLFrameBuffer::ClearColorBufferAttachment(uint32_t attachmentIndex, int value) noexcept {
 
-        if(attachmentIndex > m_colorBufferAttachments.size()){
-            ENGINE_LOG_ERROR("Attachment index > 32");
-        }
+        ENGINE_ASSERT((attachmentIndex < m_colorBufferAttachments.size()), "Attachment index > 32");
 
         auto& spec = m_colorBufferAttachmentsSpec[attachmentIndex];
 

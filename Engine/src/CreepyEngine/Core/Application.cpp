@@ -8,14 +8,16 @@ namespace Creepy {
 
     Application::Application(const std::string& title, uint32_t w, uint32_t h) noexcept {
 
-        if(instance){
-            ENGINE_LOG_ERROR("Only Once Instance Exit");
-        }
+        ENGINE_ASSERT((instance == nullptr), "Only one app instance exit!!!");
 
         // Because we create a pointer point to this obj, when we create obj we create it by smart pointer so when proc die it will
         // dealloc -> no memory leak when we use raw pointer
         // In imguilayer we get instance of this class so we need init this first in this program to dont be nullptr error
         instance = this;
+
+        if(m_applicationDirectory.empty()){
+            m_applicationDirectory = std::filesystem::current_path();
+        }
 
         WindowProperty property{title, w, h};
 

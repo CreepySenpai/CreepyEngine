@@ -9,9 +9,7 @@ namespace Creepy {
         std::string path = filePath.string();
         auto imgData = stbi_load(path.c_str(), &width, &height, &channels, 0);
 
-        if(!imgData){
-            ENGINE_LOG_ERROR("Faile to load image {}!", filePath.string());
-        }
+        ENGINE_ASSERT((imgData != nullptr), std::format("Failed to load image: {}", filePath.string()));
 
         m_width = static_cast<uint32_t>(width);
         m_height = static_cast<uint32_t>(height);

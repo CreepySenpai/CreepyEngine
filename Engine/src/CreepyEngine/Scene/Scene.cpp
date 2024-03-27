@@ -256,7 +256,8 @@ namespace Creepy {
                 auto& bxCol2D = entity.GetComponent<BoxCollider2DComponent>();
                 
                 b2PolygonShape boxShape;
-                boxShape.SetAsBox(transform.Scale.x * bxCol2D.Size.x, transform.Scale.y * bxCol2D.Size.y);
+                
+                boxShape.SetAsBox(transform.Scale.x * bxCol2D.Size.x, transform.Scale.y * bxCol2D.Size.y, {bxCol2D.Offset.x, bxCol2D.Offset.y}, 0.0f);
                 
                 b2FixtureDef fixtureDef;
                 fixtureDef.shape = &boxShape;

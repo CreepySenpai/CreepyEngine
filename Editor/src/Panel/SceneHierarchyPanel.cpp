@@ -295,6 +295,17 @@ namespace Creepy {
 
     }
 
+    template <typename Comp>
+    static void DisplayAddComponent(Entity& entity, const char* label){
+        if(!entity.HasComponent<Comp>()){
+            if (ImGui::MenuItem(label))
+            {
+                entity.AddComponent<Comp>();
+                ImGui::CloseCurrentPopup();
+            }
+        }
+    }
+
     void SceneHierarchyPanel::drawEntityProperty(Entity& entity) noexcept {
 
         if(entity.HasComponent<TagComponent>()) {
@@ -342,48 +353,16 @@ namespace Creepy {
             if(!entity.HasComponent<CameraComponent>()){
                 if (ImGui::MenuItem("Camera"))
                 {
-                    m_selectedEntity.AddComponent<CameraComponent>().IsPrimary = false;
-                    ImGui::CloseCurrentPopup();
-                }
-            }
-            
-            if(!entity.HasComponent<SpriteComponent>()){
-                if (ImGui::MenuItem("Sprite"))
-                {
-                    m_selectedEntity.AddComponent<SpriteComponent>();
+                    entity.AddComponent<CameraComponent>().IsPrimary = false;
                     ImGui::CloseCurrentPopup();
                 }
             }
 
-            if(!entity.HasComponent<CircleSpriteComponent>()){
-                if (ImGui::MenuItem("CircleSprite"))
-                {
-                    m_selectedEntity.AddComponent<CircleSpriteComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-            }
-            
-            if(!entity.HasComponent<RigidBody2DComponent>()){
-                if(ImGui::MenuItem("RigidBody2D")){
-                    m_selectedEntity.AddComponent<RigidBody2DComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-            }
-            
-            if(!entity.HasComponent<BoxCollider2DComponent>()){
-                if(ImGui::MenuItem("BoxCollider2D")){
-                    m_selectedEntity.AddComponent<BoxCollider2DComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-            }
-
-            if(!entity.HasComponent<CircleCollider2DComponent>()){
-                if(ImGui::MenuItem("CircleCollider2DComponent")){
-                    m_selectedEntity.AddComponent<CircleCollider2DComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-            }
-            
+            DisplayAddComponent<SpriteComponent>(entity, "Sprite");
+            DisplayAddComponent<CircleSpriteComponent>(entity, "CircleSprite");
+            DisplayAddComponent<RigidBody2DComponent>(entity, "RigidBody2D");
+            DisplayAddComponent<BoxCollider2DComponent>(entity, "BoxCollider2D");
+            DisplayAddComponent<CircleCollider2DComponent>(entity, "CircleCollider2DComponent");
 
             ImGui::EndPopup();
         }
@@ -532,8 +511,8 @@ namespace Creepy {
         });
 
         MyDrawComponent<BoxCollider2DComponent>::DrawComponent("BoxCollider 2D", entity, [](BoxCollider2DComponent& boxCollider2DComponent){
-            ImGui::DragFloat2("Offset", glm::value_ptr(boxCollider2DComponent.Offset));
-            ImGui::DragFloat2("Size", glm::value_ptr(boxCollider2DComponent.Size));
+            ImGui::DragFloat2("Offset", glm::value_ptr(boxCollider2DComponent.Offset), 0.1f);
+            ImGui::DragFloat2("Size", glm::value_ptr(boxCollider2DComponent.Size), 0.1f);
             ImGui::DragFloat("Density", &boxCollider2DComponent.Density, 0.1f, 0.0f);
             ImGui::DragFloat("Friction", &boxCollider2DComponent.Friction, 0.1f, 0.0f);
             ImGui::DragFloat("Restitution", &boxCollider2DComponent.Restitution, 0.1f, 0.0f);
