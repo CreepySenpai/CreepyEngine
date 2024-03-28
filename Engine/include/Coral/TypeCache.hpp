@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "Core.hpp"
 #include "StableVector.hpp"
 

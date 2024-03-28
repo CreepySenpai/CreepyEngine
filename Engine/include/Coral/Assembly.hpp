@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <string_view>
+
 #include "Type.hpp"
 
 #include "StableVector.hpp"

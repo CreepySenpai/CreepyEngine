@@ -7,6 +7,7 @@
 #include <list>
 #include <atomic>
 #include <cstring>
+#include <memory>
 
 namespace Coral {
 

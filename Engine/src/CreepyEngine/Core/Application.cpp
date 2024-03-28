@@ -1,5 +1,6 @@
 #include <CreepyEngine/Core/Application.hpp>
 #include <CreepyEngine/Renderer/Renderer.hpp>
+#include <CreepyEngine/Scripting/ScriptEngine.hpp>
 #include <GLFW/glfw3.h>
 
 namespace Creepy {
@@ -23,15 +24,20 @@ namespace Creepy {
 
         m_window = Window::Create(property);
         m_window->SetEventCallBack(std::bind_front(&Application::OnEvent, this));
+        
+        ENGINE_LOG_WARNING("Gona Create Render");
+        Renderer::Init();
+        ENGINE_LOG_WARNING("Gona Create Script");
+        ScriptEngine::Init();
+        ENGINE_LOG_WARNING("Gona Create ImGui");
         m_imGuiLayer = new ImGuiLayer();
         
         this->PushOverlay(m_imGuiLayer);  // No memory leak because layerStack will free it
-
-        Renderer::Init();
     }
 
     Application::~Application() noexcept {
         Renderer::ShutDown();
+        ScriptEngine::ShutDown();
         ENGINE_LOG_WARNING("Call Shut Down Eng");
     }
 

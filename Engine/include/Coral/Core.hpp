@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string_view>
+#include <cstdint>
 
 #ifdef CORAL_WINDOWS
 	#define CORAL_CALLTYPE __cdecl

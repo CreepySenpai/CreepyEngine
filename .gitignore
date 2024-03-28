@@ -12,3 +12,5 @@ _deps
 *.cmake
 *.tcl
 *.json
+Debug
+obj

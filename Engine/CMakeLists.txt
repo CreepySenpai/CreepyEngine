@@ -17,9 +17,10 @@ file(GLOB CONTROLLER ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Controller/*.cpp)
 file(GLOB SCENE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Scene/*.cpp)
 file(GLOB MATH ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Math/*.cpp)
 file(GLOB EXTENDED_YAMLCPP ${CMAKE_SOURCE_DIR}/src/Extended/yaml-cpp/*.cpp)
+file(GLOB CORAL ${CMAKE_SOURCE_DIR}/src/Coral/*.cpp)
+file(GLOB SCRIPTING ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Scripting/*.cpp)
 
-
-add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${EVENTENGINE} ${RENDERERENGINE} ${PLATFORMWINDOWS} ${GLAD} ${IMGUI} ${DEBUG} ${OPENGL} ${CONTROLLER} ${SCENE} ${MATH} ${EXTENDED_YAMLCPP})
+add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${EVENTENGINE} ${RENDERERENGINE} ${PLATFORMWINDOWS} ${GLAD} ${IMGUI} ${DEBUG} ${OPENGL} ${CONTROLLER} ${SCENE} ${MATH} ${EXTENDED_YAMLCPP} ${CORAL} ${SCRIPTING})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/lib)
@@ -29,3 +30,5 @@ add_compile_definitions(GLFW_INCLUDE_NONE)
 add_compile_definitions(STB_IMAGE_IMPLEMENTATION)
 
 add_compile_definitions(YAML_CPP_STATIC_DEFINE)
+
+add_compile_definitions(CORAL_WINDOWS)

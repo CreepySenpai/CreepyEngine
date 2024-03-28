@@ -1,5 +1,8 @@
 #pragma once
 
+#include <functional>
+#include <string_view>
+
 #include "String.hpp"
 
 namespace Coral {
