@@ -1,14 +1,16 @@
 #include <CreepyEngine/Core/Core.hpp>
 #include <CreepyEngine/Scripting/ScriptEngine.hpp>
-#include <iostream>
+#include <CreepyEngine/Scripting/ScriptGlue.hpp>
 
 #include <Coral/HostInstance.hpp>
 #include <Coral/GC.hpp>
 #include <Coral/Array.hpp>
 #include <Coral/Attribute.hpp>
 
+
 namespace Creepy {
 
+    // TODO: Move to utils
     static void messageCallBack(std::string_view mess, Coral::MessageLevel level) noexcept {
 
         switch(level){
@@ -32,11 +34,15 @@ namespace Creepy {
         ENGINE_LOG_ERROR("Unhandled Exception: {}!!!", message);
     }
 
+
+    // Forward Declare
+
     struct ScriptEngineData {
 
         Coral::HostSettings HostSetting;
         Coral::HostInstance HostInstance;
         Coral::AssemblyLoadContext AssemblyContext;
+        Coral::ManagedAssembly ManagedAssembly;
 
     };
 
@@ -48,6 +54,24 @@ namespace Creepy {
         s_scriptEngineData = new ScriptEngineData;
 
         initCoral();
+
+        LoadAssembly(std::filesystem::current_path() / "ScriptCore.dll");
+
+        ScriptGlue::RegisterFunctions();
+
+        ScriptClass mayMain{"ScriptCore", "Main"};
+        auto str = Coral::String::New("OniChan");
+
+        auto obj = mayMain.Instantiate(str);
+
+        obj.InvokeMethod("PrintInternal", 1);
+        obj.InvokeMethod("PrintInternal", 2);
+        obj.InvokeMethod("PrintInternal", 3);
+        obj.InvokeMethod("PrintInternal", 4);
+
+        obj.InvokeMethod("CallPrintConstVec3");
+
+        Coral::String::Free(str);
     }
 
     void ScriptEngine::ShutDown() noexcept {
@@ -61,6 +85,7 @@ namespace Creepy {
     }
 
     void ScriptEngine::initCoral() noexcept {
+
         auto currentPath = std::filesystem::current_path();
         s_scriptEngineData->HostSetting.CoralDirectory = currentPath.string();
         s_scriptEngineData->HostSetting.MessageCallback = &messageCallBack;
@@ -72,18 +97,6 @@ namespace Creepy {
 
         s_scriptEngineData->AssemblyContext = s_scriptEngineData->HostInstance.CreateAssemblyLoadContext("MyTextContext");
 
-        auto testDllPath = currentPath / "ScriptCore.dll";
-
-        auto&& assembly = s_scriptEngineData->AssemblyContext.LoadAssembly(testDllPath.string());
-
-        auto myClassType = assembly.GetType("ScriptCore.MyTest");
-
-        auto str = Coral::String::New("OniChan");
-
-        auto obj = myClassType.CreateInstance(str);
-        
-        obj.InvokeMethod("PrintName");
-        
     }
 
     void ScriptEngine::shutDownCoral() noexcept{
@@ -93,6 +106,19 @@ namespace Creepy {
         Coral::GC::Collect();
     }
 
+    void ScriptEngine::LoadAssembly(const std::filesystem::path& filePath) noexcept {
+        s_scriptEngineData->ManagedAssembly = s_scriptEngineData->AssemblyContext.LoadAssembly(filePath.string());
+    }
+
+    Coral::ManagedAssembly& ScriptEngine::GetLoadedAssembly() noexcept {
+        return s_scriptEngineData->ManagedAssembly;
+    }
     
+    // Script Class
+
+    ScriptClass::ScriptClass(const std::string& classNameSpace, const std::string& className) noexcept : m_classNameSpace{classNameSpace}, m_className{className}
+    {
+        m_type = s_scriptEngineData->ManagedAssembly.GetType(m_classNameSpace + "." + m_className);
+    }
 
 }
