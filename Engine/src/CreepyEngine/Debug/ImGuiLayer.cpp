@@ -41,7 +41,7 @@ namespace Creepy
         this->SetTheme();
         
         // Be careful when get instance of this obj
-        ImGui_ImplGlfw_InitForOpenGL(reinterpret_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow()), true);
+        ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow()), true);
             
         ImGui_ImplOpenGL3_Init("#version 460");
     }

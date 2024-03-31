@@ -3,6 +3,7 @@
 #include <CreepyEngine/Scene/Entity.hpp>
 #include <CreepyEngine/Scene/ScriptableEntity.hpp>
 #include <CreepyEngine/Scene/Components.hpp>
+#include <CreepyEngine/Scripting/ScriptEngine.hpp>
 
 #include <box2d/b2_world.h>
 #include <box2d/b2_body.h>
@@ -68,7 +69,7 @@ namespace Creepy {
 
     void Scene::OnUpdateRunTime(TimeStep timeStep) noexcept {
 
-        // Script
+        // Native Script
         {
             m_registry.view<NativeScriptComponent>().each([timeStep, this](auto entity, NativeScriptComponent& nativeComponent){
                 // TODO: Move to scene play
@@ -83,6 +84,16 @@ namespace Creepy {
                 nativeComponent.Instance->OnUpdate(timeStep);
 
             });
+        }
+
+        // Script
+        {   
+            auto&& scriptEntity = m_registry.view<ScriptComponent>();
+
+            for(auto&& entityID : scriptEntity){
+                Entity entity{entityID, this};
+                ScriptEngine::OnUpdateEntity(entity, timeStep.GetSeconds());
+            }
         }
 
         // Physic
@@ -166,7 +177,7 @@ namespace Creepy {
                 auto& transform = entity.GetComponent<TransformComponent>();
                 auto& rigid2D = entity.GetComponent<RigidBody2DComponent>();
 
-                auto body = static_cast<b2Body*>(rigid2D.RuntimeBody);
+                auto body = reinterpret_cast<b2Body*>(rigid2D.RuntimeBody);
                 auto&& position = body->GetPosition();
                 
                 transform.Position.x = position.x;
@@ -214,10 +225,24 @@ namespace Creepy {
 
     void Scene::OnRuntimePlay() noexcept {
         this->onPhysic2DStart();
+        
+        {
+
+            ScriptEngine::OnRunTimeStart(this);
+
+            auto&& scriptEntity = m_registry.view<ScriptComponent>();
+            for(auto&& entityID : scriptEntity){
+                Entity entity{entityID, this};
+                ScriptEngine::OnCreateEntity(entity);
+            }
+
+        }
     }
 
     void Scene::OnRuntimeStop() noexcept {
         this->onPhysic2DStop();
+        
+        ScriptEngine::OnRunTimeStop();
     }
 
     void Scene::OnSimulationPlay() noexcept {
@@ -299,7 +324,7 @@ namespace Creepy {
 
         for(auto&& entityID : entityDestroy){
             Entity entity{entityID, this};
-            m_physicWorld->DestroyBody(reinterpret_cast<b2Body*>(entity.GetComponent<RigidBody2DComponent>().RuntimeBody));
+            m_physicWorld->DestroyBody(static_cast<b2Body*>(entity.GetComponent<RigidBody2DComponent>().RuntimeBody));
 
             entity.GetComponent<RigidBody2DComponent>().RuntimeBody = nullptr;
         }
@@ -409,17 +434,18 @@ namespace Creepy {
 
         // Copy Component except IDComponent, TagComponent
 
-        CopyAllComponents<TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent, 
-            RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent>::CopyComponents(srcRegistry, destRegistry, enttMap);
+        CopyAllComponents<TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent,
+         ScriptComponent, RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent>::CopyComponents(srcRegistry, destRegistry, enttMap);
 
         return newScene;
     }
 
     void Scene::DuplicateEntity(Entity& entity) noexcept {
+
         Entity newEntity = CreateEntity(entity.GetName());
 
-        CopyAllComponents<TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent, 
-            RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent>::CopyComponentIfExits(entity, newEntity);
+        CopyAllComponents<TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent
+        , ScriptComponent, RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent>::CopyComponentIfExits(entity, newEntity);
 
     }
 }

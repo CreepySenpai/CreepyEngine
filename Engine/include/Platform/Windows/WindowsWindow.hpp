@@ -29,7 +29,7 @@ namespace Creepy {
             constexpr virtual bool IsVSyncEnable() const noexcept override;
 
             [[nodiscard]] constexpr inline virtual void* GetNativeWindow() const noexcept override {
-                return reinterpret_cast<void*>(m_window.get());
+                return static_cast<void*>(m_window.get());
             }
 
         private:

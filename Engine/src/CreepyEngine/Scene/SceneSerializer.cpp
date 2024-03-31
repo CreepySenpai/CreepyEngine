@@ -63,6 +63,15 @@ namespace Creepy
             writer << YAML::EndMap;
         }
 
+        if(entity.HasComponent<ScriptComponent>()){
+            writer << YAML::Key << "ScriptComponent";
+            writer << YAML::BeginMap;
+
+            writer << YAML::Key << "ScriptName" << YAML::Value << entity.GetComponent<ScriptComponent>().ScriptName;
+
+            writer << YAML::EndMap;
+        }
+
         if(entity.HasComponent<SpriteComponent>()){
             writer << YAML::Key << "SpriteComponent";
             writer << YAML::BeginMap;
@@ -244,6 +253,12 @@ namespace Creepy
                     transform.Position = transformNode["Position"].as<glm::vec3>();
                     transform.Rotation = transformNode["Rotation"].as<glm::vec3>();
                     transform.Scale = transformNode["Scale"].as<glm::vec3>();
+                }
+
+                auto&& scriptNode = entity["ScriptComponent"];
+                if(scriptNode){
+                    auto& script = deserializeEntity.AddComponent<ScriptComponent>();
+                    script.ScriptName = scriptNode["ScriptName"].as<std::string>();
                 }
 
                 auto&& spriteNode = entity["SpriteComponent"];

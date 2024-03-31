@@ -1,3 +1,5 @@
+#include <CreepyEngine/Scripting/ScriptEngine.hpp>
+
 #include <Panel/SceneHierarchyPanel.hpp>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
@@ -358,6 +360,9 @@ namespace Creepy {
                 }
             }
 
+            // DisplayAddComponent<NativeScriptComponent>(entity, "NativeScript");
+
+            DisplayAddComponent<ScriptComponent>(entity, "Script");
             DisplayAddComponent<SpriteComponent>(entity, "Sprite");
             DisplayAddComponent<CircleSpriteComponent>(entity, "CircleSprite");
             DisplayAddComponent<RigidBody2DComponent>(entity, "RigidBody2D");
@@ -441,6 +446,28 @@ namespace Creepy {
                 }
 
             }
+        });
+
+        MyDrawComponent<ScriptComponent>::DrawComponent("Script", entity, [](ScriptComponent& scriptComponent){
+            
+            bool isScriptClassExits = ScriptEngine::IsClassExits(scriptComponent.ScriptName);
+
+            static char buffer[128];
+            std::ranges::fill(buffer, 0);
+            std::ranges::copy(scriptComponent.ScriptName, buffer);
+
+            if(!isScriptClassExits){
+                ImGui::PushStyleColor(ImGuiCol_Text, {0.8f, 0.2f, 0.3f, 1.0f});
+            }
+
+            if(ImGui::InputText("Class", buffer, sizeof(buffer))) {
+                scriptComponent.ScriptName = buffer;
+            }
+
+            if(!isScriptClassExits){
+                ImGui::PopStyleColor();
+            }
+
         });
 
         MyDrawComponent<SpriteComponent>::DrawComponent("Sprite Render", entity, [](SpriteComponent& spriteComponent){

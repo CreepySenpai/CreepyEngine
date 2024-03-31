@@ -11,31 +11,24 @@
 
 namespace Creepy {
 
-    #define ENGINE_ADD_INTERNAL_CALL(Func) ScriptEngine::GetLoadedAssembly().AddInternalCall("ScriptCore.InternalCalls", #Func, reinterpret_cast<void*>(&Func))
+    #define ENGINE_ADD_INTERNAL_CALL(Func) ScriptEngine::GetLoadedAssembly().AddInternalCall("Creepy.InternalCalls", #Func, reinterpret_cast<void*>(&Func))
     #define PTINNAME(Func) ENGINE_LOG_WARNING("Func Name: {}", #Func)
 
-    static void TestInternalCall(int i){
-        ENGINE_LOG_WARNING("Value Print: {}", i);
+    static void Entity_GetPosition(uint64_t uuid , glm::vec3* inPosition){
+
     }
 
+    static void Entity_SetPosition(uint64_t uuid, glm::vec3* outPosition){
+        // auto scene = ScriptEngine::GetSceneContext();
 
-    static void TestPrintVec3(glm::vec3* vec){
-        ENGINE_LOG_WARNING("X: {}, Y: {}, Z: {}", vec->x, vec->y, vec->z);
-        vec->x = vec->x * vec->x;
-        vec->y = vec->y * vec->y;
-        vec->z = vec->z * vec->z;
-    }
 
-    static void TestPrintConstVec3(const glm::vec3* vec){
-        ENGINE_LOG_WARNING("Const X: {}, Y: {}, Z: {}", vec->x, vec->y, vec->z);
     }
 
     void ScriptGlue::RegisterFunctions() noexcept {
         // // Interal Call
-
-        ENGINE_ADD_INTERNAL_CALL(TestInternalCall);
-        ENGINE_ADD_INTERNAL_CALL(TestPrintVec3);
-        ENGINE_ADD_INTERNAL_CALL(TestPrintConstVec3);
+        ENGINE_ADD_INTERNAL_CALL(Entity_GetPosition);
+        ENGINE_ADD_INTERNAL_CALL(Entity_SetPosition);
+       
         ScriptEngine::GetLoadedAssembly().UploadInternalCalls();
     }
 

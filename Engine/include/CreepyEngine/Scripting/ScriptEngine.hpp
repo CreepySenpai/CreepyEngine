@@ -3,16 +3,21 @@
 #include <string>
 #include <string_view>
 #include <filesystem>
+#include <unordered_map>
 
-#include <Coral/Type.hpp>
 
 // Forward declare
+
 namespace Coral {
     class ManagedAssembly;
     class ManagedObject;
+    class Type;
 }
 
 namespace Creepy{
+
+    class Scene;
+    class Entity;
 
     class ScriptEngine
     {
@@ -25,28 +30,25 @@ namespace Creepy{
 
             static Coral::ManagedAssembly& GetLoadedAssembly() noexcept;
 
+            static bool IsClassExits(const std::string& fullClassName) noexcept;
+
+            static std::unordered_map<std::string, Coral::Type*>& GetEntityClasses() noexcept;
+
+            static void OnRunTimeStart(Scene* scene) noexcept;
+            
+
+            static void OnRunTimeStop() noexcept;
+
+            static void OnCreateEntity(Entity& entity) noexcept;
+
+            static void OnUpdateEntity(Entity& entity, float timeStep) noexcept;
+
+            static Scene* GetSceneContext() noexcept;
+
         private:
             static void initCoral() noexcept;
 
             static void shutDownCoral() noexcept;
 
-    };
-
-    class ScriptClass {
-        
-        public:
-            ScriptClass(const std::string& classNameSpace,const std::string& className) noexcept;
-
-            ScriptClass() noexcept = default;
-
-            template <typename... Args>
-            Coral::ManagedObject Instantiate(Args&&... args) noexcept {
-                return m_type.CreateInstance(std::forward<Args>(args)...);
-            }
-
-        private:
-            std::string m_classNameSpace;
-            std::string m_className;
-            Coral::Type m_type;
     };
 }

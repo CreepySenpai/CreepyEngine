@@ -99,7 +99,7 @@ namespace Creepy {
         void Bind() noexcept {
 
             CreateScript = [](){
-                return static_cast<ScriptableEntity*>(new T);
+                return reinterpret_cast<ScriptableEntity*>(new T);
             };
 
             DestroyScript = [](NativeScriptComponent* script){
@@ -108,6 +108,13 @@ namespace Creepy {
             };
 
         }
+    };
+
+    struct ScriptComponent{
+        std::string ScriptName;
+
+        constexpr ScriptComponent() noexcept = default;
+        constexpr ScriptComponent(const std::string& name) noexcept : ScriptName{name}{ }
     };
 
     // Physic

@@ -1,6 +1,12 @@
+#include <cstdint>
+
 #include <CreepyEngine/Core/Core.hpp>
+#include <CreepyEngine/Core/UUID.hpp>
 #include <CreepyEngine/Scripting/ScriptEngine.hpp>
 #include <CreepyEngine/Scripting/ScriptGlue.hpp>
+
+#include <CreepyEngine/Scene/Scene.hpp>
+#include <CreepyEngine/Scene/Entity.hpp>
 
 #include <Coral/HostInstance.hpp>
 #include <Coral/GC.hpp>
@@ -34,8 +40,14 @@ namespace Creepy {
         ENGINE_LOG_ERROR("Unhandled Exception: {}!!!", message);
     }
 
+    struct ObjectHold{
+        Coral::ManagedObject* instance{nullptr};
 
-    // Forward Declare
+        ObjectHold(Coral::ManagedObject* obj) : instance{obj}{
+
+        }
+    };
+
 
     struct ScriptEngineData {
 
@@ -44,6 +56,11 @@ namespace Creepy {
         Coral::AssemblyLoadContext AssemblyContext;
         Coral::ManagedAssembly ManagedAssembly;
 
+        std::unordered_map<std::string, Coral::Type*> EntityClasses;
+
+        std::unordered_map<UUID, Coral::ManagedObject> EntityInstances;
+
+        Scene* SceneContext{nullptr};
     };
 
     static ScriptEngineData* s_scriptEngineData{nullptr};
@@ -58,20 +75,6 @@ namespace Creepy {
         LoadAssembly(std::filesystem::current_path() / "ScriptCore.dll");
 
         ScriptGlue::RegisterFunctions();
-
-        ScriptClass mayMain{"ScriptCore", "Main"};
-        auto str = Coral::String::New("OniChan");
-
-        auto obj = mayMain.Instantiate(str);
-
-        obj.InvokeMethod("PrintInternal", 1);
-        obj.InvokeMethod("PrintInternal", 2);
-        obj.InvokeMethod("PrintInternal", 3);
-        obj.InvokeMethod("PrintInternal", 4);
-
-        obj.InvokeMethod("CallPrintConstVec3");
-
-        Coral::String::Free(str);
     }
 
     void ScriptEngine::ShutDown() noexcept {
@@ -107,18 +110,68 @@ namespace Creepy {
     }
 
     void ScriptEngine::LoadAssembly(const std::filesystem::path& filePath) noexcept {
+        s_scriptEngineData->EntityClasses.clear();
+
         s_scriptEngineData->ManagedAssembly = s_scriptEngineData->AssemblyContext.LoadAssembly(filePath.string());
+
+        Coral::Type entityType = s_scriptEngineData->ManagedAssembly.GetType("Creepy.Entity");
+
+        for(auto& type : s_scriptEngineData->ManagedAssembly.GetTypes()){
+
+            if(type->IsSubclassOf(entityType)){
+
+                s_scriptEngineData->EntityClasses[static_cast<std::string>(type->GetFullName())] = type;
+
+            }
+        }
+
     }
+    
 
     Coral::ManagedAssembly& ScriptEngine::GetLoadedAssembly() noexcept {
         return s_scriptEngineData->ManagedAssembly;
     }
-    
-    // Script Class
 
-    ScriptClass::ScriptClass(const std::string& classNameSpace, const std::string& className) noexcept : m_classNameSpace{classNameSpace}, m_className{className}
-    {
-        m_type = s_scriptEngineData->ManagedAssembly.GetType(m_classNameSpace + "." + m_className);
+    bool ScriptEngine::IsClassExits(const std::string& fullClassName) noexcept {
+        return s_scriptEngineData->EntityClasses.contains(fullClassName);
     }
 
+    std::unordered_map<std::string, Coral::Type*>& ScriptEngine::GetEntityClasses() noexcept {
+        return s_scriptEngineData->EntityClasses;
+    }
+
+    void ScriptEngine::OnRunTimeStart(Scene* scene) noexcept {
+        s_scriptEngineData->SceneContext = scene;
+    }
+
+    void ScriptEngine::OnRunTimeStop() noexcept {
+        s_scriptEngineData->SceneContext = nullptr;
+        
+        s_scriptEngineData->EntityInstances.clear();
+    }
+
+    void ScriptEngine::OnCreateEntity(Entity& entity) noexcept {
+
+        auto& scriptComponent = entity.GetComponent<ScriptComponent>();
+
+        if(ScriptEngine::IsClassExits(scriptComponent.ScriptName)){
+            uint64_t uuid = entity.GetUUID().GetID();
+            
+            s_scriptEngineData->EntityInstances.emplace(std::make_pair(entity.GetUUID(), s_scriptEngineData->EntityClasses[scriptComponent.ScriptName]->CreateInstance(std::move(uuid))));
+
+            s_scriptEngineData->EntityInstances[entity.GetUUID()].InvokeMethod("OnCreate");
+        }
+
+    }
+
+    void ScriptEngine::OnUpdateEntity(Entity& entity, float timeStep) noexcept {
+
+        s_scriptEngineData->EntityInstances[entity.GetUUID()].InvokeMethod("OnUpdate", std::move(timeStep));
+
+    }
+
+    Scene* ScriptEngine::GetSceneContext() noexcept {
+        return s_scriptEngineData->SceneContext;
+    }
+    
 }
