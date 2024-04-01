@@ -20,6 +20,8 @@ namespace Creepy {
             Entity CreateEntity(const std::string& tag = std::string{"Entity"}) noexcept;
             Entity CreateEntity(UUID uuid, const std::string& tag = std::string{"Entity"}) noexcept;
 
+            Entity GetEntity(UUID uuid) noexcept;
+
             void DestroyEntity(Entity& entity) noexcept;
 
             void OnUpdateEditor(TimeStep timeStep, EditorCamera& camera) noexcept;
@@ -64,6 +66,8 @@ namespace Creepy {
 
             // Need to copy so we can't use std::unique_ptr
             b2World* m_physicWorld{nullptr};
+
+            std::unordered_map<UUID, entt::entity> m_entityMap;
 
             friend class Entity;
             friend class SceneHierarchyPanel;

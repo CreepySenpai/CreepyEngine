@@ -53,12 +53,25 @@ namespace Creepy {
         entity.AddComponent<IDComponent>(uuid);
         entity.AddComponent<TagComponent>(tag);
         entity.AddComponent<TransformComponent>();
+        
+        m_entityMap[uuid] = entity.m_entityHandle;
 
         return entity;
     }
 
+
+    Entity Scene::GetEntity(UUID uuid) noexcept {
+
+        if(m_entityMap.contains(uuid)){
+            return {m_entityMap.at(uuid), this};
+        }
+
+        return {};
+    }
+
     void Scene::DestroyEntity(Entity& entity) noexcept {
         APP_LOG_WARNING("Destroy ID: {}", static_cast<uint32_t>(entity));
+        m_entityMap.erase(entity.GetUUID());
         m_registry.destroy(entity.m_entityHandle);
         entity.m_scene = nullptr;
     }
