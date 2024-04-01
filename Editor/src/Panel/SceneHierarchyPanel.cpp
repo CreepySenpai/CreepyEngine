@@ -100,7 +100,7 @@ namespace Creepy {
 
         ImGui::SameLine();
 
-        ImGui::DragFloat("##X", &values.x, 0.1f, std::numeric_limits<float>::min(), std::numeric_limits<float>::max());
+        ImGui::DragFloat("##X", &values.x, 0.1f);
 
         ImGui::PopItemWidth();
 
@@ -121,7 +121,7 @@ namespace Creepy {
 
         ImGui::SameLine();
 
-        ImGui::DragFloat("##Y", &values.y, 0.1f, std::numeric_limits<float>::min(), std::numeric_limits<float>::max());
+        ImGui::DragFloat("##Y", &values.y, 0.1f);
 
         ImGui::PopItemWidth();
 
@@ -143,7 +143,7 @@ namespace Creepy {
 
         ImGui::SameLine();
 
-        ImGui::DragFloat("##Z", &values.z, 0.1f, std::numeric_limits<float>::min(), std::numeric_limits<float>::max());
+        ImGui::DragFloat("##Z", &values.z, 0.1f);
 
         ImGui::PopItemWidth();
 

@@ -7,6 +7,7 @@ namespace Creepy {
     {
         public:
             static void RegisterFunctions() noexcept;
+            static void RegisterComponents() noexcept;
     };
     
 }

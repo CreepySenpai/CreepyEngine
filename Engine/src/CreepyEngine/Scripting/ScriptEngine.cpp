@@ -75,6 +75,7 @@ namespace Creepy {
         LoadAssembly(std::filesystem::current_path() / "ScriptCore.dll");
 
         ScriptGlue::RegisterFunctions();
+        ScriptGlue::RegisterComponents();
     }
 
     void ScriptEngine::ShutDown() noexcept {
@@ -114,10 +115,10 @@ namespace Creepy {
 
         s_scriptEngineData->ManagedAssembly = s_scriptEngineData->AssemblyContext.LoadAssembly(filePath.string());
 
-        Coral::Type entityType = s_scriptEngineData->ManagedAssembly.GetType("Creepy.Entity");
+        Coral::Type& entityType = s_scriptEngineData->ManagedAssembly.GetType("Creepy.Entity");
 
         for(auto& type : s_scriptEngineData->ManagedAssembly.GetTypes()){
-
+            
             if(type->IsSubclassOf(entityType)){
 
                 s_scriptEngineData->EntityClasses[static_cast<std::string>(type->GetFullName())] = type;
@@ -160,6 +161,7 @@ namespace Creepy {
             s_scriptEngineData->EntityInstances.emplace(std::make_pair(entity.GetUUID(), s_scriptEngineData->EntityClasses[scriptComponent.ScriptName]->CreateInstance(std::move(uuid))));
 
             s_scriptEngineData->EntityInstances[entity.GetUUID()].InvokeMethod("OnCreate");
+            
         }
 
     }
