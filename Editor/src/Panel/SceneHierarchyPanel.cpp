@@ -1,4 +1,7 @@
 #include <CreepyEngine/Scripting/ScriptEngine.hpp>
+#include <CreepyEngine/Utils/ScriptEngineUtils.hpp>
+#include <Coral/ManagedObject.hpp>
+#include <Coral/Type.hpp>
 
 #include <Panel/SceneHierarchyPanel.hpp>
 #include <imgui/imgui.h>
@@ -448,7 +451,7 @@ namespace Creepy {
             }
         });
 
-        MyDrawComponent<ScriptComponent>::DrawComponent("Script", entity, [](ScriptComponent& scriptComponent){
+        MyDrawComponent<ScriptComponent>::DrawComponent("Script", entity, [&entity](ScriptComponent& scriptComponent){
             
             bool isScriptClassExits = ScriptEngine::IsClassExits(scriptComponent.ScriptName);
 
@@ -462,6 +465,25 @@ namespace Creepy {
 
             if(ImGui::InputText("Class", buffer, sizeof(buffer))) {
                 scriptComponent.ScriptName = buffer;
+            }
+            
+            auto&& entityInstance = ScriptEngine::GetEntityInstance(entity.GetUUID());
+
+            if(entityInstance) {
+
+                auto&& classType = ScriptEngine::GetEntityClass(static_cast<std::string>(entityInstance->GetType().GetFullName()));
+                
+                auto&& fields = classType->GetFields();
+
+                for(auto& field : fields){
+                    
+                    if(auto dataType = static_cast<std::string>(field.GetType().GetFullName()); Utils::ConvertStringToFieldType(dataType) == ScriptFieldDataType::FLOAT){
+                        float v = 0.0f;
+                        ImGui::DragFloat(static_cast<std::string>(field.GetName()).c_str(), &v);
+                    }
+
+                }
+
             }
 
             if(!isScriptClassExits){

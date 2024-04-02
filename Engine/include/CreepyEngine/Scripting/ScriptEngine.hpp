@@ -18,6 +18,12 @@ namespace Creepy{
 
     class Scene;
     class Entity;
+    class UUID;
+
+    enum class ScriptFieldDataType : uint32_t {
+        NONE = 0, BOOL, BYTE, SBYTE, CHAR, SHORT, USHORT, INT, UINT, NINT, LONG, ULONG, FLOAT, DOUBLE, DECIMAL, STRING,
+        ENTITY, VECTOR2, VECTOR3, VECTOR4
+    };
 
     class ScriptEngine
     {
@@ -38,8 +44,11 @@ namespace Creepy{
 
             static std::unordered_map<std::string, Coral::Type*>& GetEntityClasses() noexcept;
 
+            static Coral::Type* GetEntityClass(const std::string& className) noexcept;
+
+            static std::unordered_map<std::string_view, ScriptFieldDataType>& GetScriptFieldData() noexcept;
+
             static void OnRunTimeStart(Scene* scene) noexcept;
-            
 
             static void OnRunTimeStop() noexcept;
 
@@ -49,10 +58,14 @@ namespace Creepy{
 
             static Scene* GetSceneContext() noexcept;
 
+            static Coral::ManagedObject* GetEntityInstance(UUID uuid) noexcept;
+
         private:
             static void initCoral() noexcept;
 
             static void shutDownCoral() noexcept;
 
     };
+
+    
 }

@@ -5,6 +5,7 @@ using Creepy.NativeDataType;
 
 namespace Creepy;
 
+
 public class Entity
 {
     public readonly ulong UUID;

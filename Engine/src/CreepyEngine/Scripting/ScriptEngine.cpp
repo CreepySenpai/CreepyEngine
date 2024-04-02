@@ -16,6 +16,84 @@
 
 namespace Creepy {
 
+    inline static std::unordered_map<std::string_view, ScriptFieldDataType> s_scriptFieldDataMap{
+        {"System.Boolean", ScriptFieldDataType::BOOL},
+        {"System.Byte", ScriptFieldDataType::BYTE},
+        {"System.SByte", ScriptFieldDataType::SBYTE},
+        {"System.Char", ScriptFieldDataType::CHAR},
+        {"System.Int16", ScriptFieldDataType::SHORT},
+        {"System.UInt16", ScriptFieldDataType::USHORT},
+        {"System.Int32", ScriptFieldDataType::INT},
+        {"System.UInt32", ScriptFieldDataType::UINT},
+        {"System.IntPtr", ScriptFieldDataType::NINT},
+        {"System.Int64", ScriptFieldDataType::LONG},
+        {"System.UInt64", ScriptFieldDataType::ULONG},
+        {"System.Single", ScriptFieldDataType::FLOAT},
+        {"System.Double", ScriptFieldDataType::DOUBLE},
+        {"System.Decimal", ScriptFieldDataType::DECIMAL},
+        {"System.String", ScriptFieldDataType::STRING},
+        {"Creepy.Entity", ScriptFieldDataType::ENTITY},
+        {"System.Numerics.Vector2", ScriptFieldDataType::VECTOR2},
+        {"System.Numerics.Vector3", ScriptFieldDataType::VECTOR3},
+        {"System.Numerics.Vector4", ScriptFieldDataType::VECTOR4},
+    };
+
+    // // TODO: Move to utils
+    // static ScriptFieldDataType ConvertStringToFieldType(std::string_view typeName) noexcept {
+    //     if(s_scriptFieldDataMap.contains(typeName)){
+    //         ENGINE_LOG_ERROR("Data type not exit in map");
+    //     }
+    //     return s_scriptFieldDataMap[typeName];
+    // }
+
+    // // TODO: Move to utils
+    // static constexpr std::string_view ConvertFieldTypeToString(ScriptFieldDataType type) noexcept {
+
+    //     switch(type){
+    //         case ScriptFieldDataType::BOOL:
+    //             return "bool";
+    //         case ScriptFieldDataType::BYTE:
+    //             return "byte";
+    //         case ScriptFieldDataType::SBYTE:
+    //             return "sbyte";
+    //         case ScriptFieldDataType::CHAR:
+    //             return "char";
+    //         case ScriptFieldDataType::SHORT:
+    //             return "short";
+    //         case ScriptFieldDataType::USHORT:
+    //             return "ushort";
+    //         case ScriptFieldDataType::INT:
+    //             return "int";
+    //         case ScriptFieldDataType::UINT:
+    //             return "uint";
+    //         case ScriptFieldDataType::NINT:
+    //             return "nint";
+    //         case ScriptFieldDataType::LONG:
+    //             return "long";
+    //         case ScriptFieldDataType::ULONG:
+    //             return "ulong";
+    //         case ScriptFieldDataType::FLOAT:
+    //             return "float";
+    //         case ScriptFieldDataType::DOUBLE:
+    //             return "double";
+    //         case ScriptFieldDataType::DECIMAL:
+    //             return "decimal";
+    //         case ScriptFieldDataType::STRING:
+    //             return "string";
+    //         case ScriptFieldDataType::ENTITY:
+    //             return "Entity";
+    //         case ScriptFieldDataType::VECTOR2:
+    //             return "Vector2";
+    //         case ScriptFieldDataType::VECTOR3:
+    //             return "Vector3";
+    //         case ScriptFieldDataType::VECTOR4:
+    //             return "Vector4";
+    //     }
+
+    //     std::unreachable();
+    //     return "";
+    // }
+
     // TODO: Move to utils
     static void messageCallBack(std::string_view mess, Coral::MessageLevel level) noexcept {
 
@@ -142,6 +220,14 @@ namespace Creepy {
                 ENGINE_LOG_WARNING("Name: {}", (std::string)type->GetFullName());
                 s_scriptEngineData->EntityClasses[static_cast<std::string>(type->GetFullName())] = type;
 
+                auto fields = type->GetFields();
+
+                for(auto& f : fields){
+                    // auto t = ConvertStringToFieldType((std::string)f.GetType().GetFullName());
+                    // ENGINE_LOG_WARNING("Field: {} {} {}", std::to_underlying(f.GetAccessibility()), ConvertFieldTypeToString(t), (std::string)f.GetName());
+                    ENGINE_LOG_WARNING("Field: {} {} {}", std::to_underlying(f.GetAccessibility()), (std::string)f.GetType().GetFullName(), (std::string)f.GetName());
+                }
+
             }
         }
 
@@ -164,6 +250,17 @@ namespace Creepy {
         return s_scriptEngineData->EntityClasses;
     }
 
+    Coral::Type* ScriptEngine::GetEntityClass(const std::string& className) noexcept {
+        if(!s_scriptEngineData->EntityClasses.contains(className)) {
+            ENGINE_LOG_ERROR("Class {} doesn't exit in map");
+        }
+        return s_scriptEngineData->EntityClasses[className];
+    }
+
+    std::unordered_map<std::string_view, ScriptFieldDataType>& ScriptEngine::GetScriptFieldData() noexcept {
+        return s_scriptFieldDataMap;
+    }
+
     void ScriptEngine::OnRunTimeStart(Scene* scene) noexcept {
         s_scriptEngineData->SceneContext = scene;
     }
@@ -184,12 +281,13 @@ namespace Creepy {
             s_scriptEngineData->EntityInstances.emplace(std::make_pair(entity.GetUUID(), s_scriptEngineData->EntityClasses[scriptComponent.ScriptName]->CreateInstance(std::move(uuid))));
 
             s_scriptEngineData->EntityInstances[entity.GetUUID()].InvokeMethod("OnCreate");
+
         }
 
     }
 
     void ScriptEngine::OnUpdateEntity(Entity& entity, float timeStep) noexcept {
-        
+
         s_scriptEngineData->EntityInstances[entity.GetUUID()].InvokeMethod("OnUpdate", std::move(timeStep));
 
     }
@@ -198,4 +296,14 @@ namespace Creepy {
         return s_scriptEngineData->SceneContext;
     }
     
+    // BUG: Make editor mode can get entity
+    Coral::ManagedObject* ScriptEngine::GetEntityInstance(UUID uuid) noexcept {
+
+        if(!s_scriptEngineData->EntityInstances.contains(uuid)){
+            // ENGINE_LOG_ERROR("Entity Instance not exits");
+            return nullptr;
+        }
+
+        return &s_scriptEngineData->EntityInstances[uuid];
+    }
 }

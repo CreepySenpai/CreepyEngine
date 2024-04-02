@@ -93,7 +93,7 @@ namespace Creepy {
         ScriptEngine::GetLoadedCoreAssembly().UploadInternalCalls();
     }
 
-    // TODO: This solution maybe not work with other compiler
+    // TODO: Use reflection to get name, use variadic template
     // String Pattern: N6Creepy11IDComponentE
     template <typename T>
     static void RegisterComponent() noexcept {
