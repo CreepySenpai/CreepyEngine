@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <Reference Include="ScriptCore">
+      <HintPath>..\..\..\ScriptCore\bin\Release\net8.0\ScriptCore.dll</HintPath>
+    </Reference>
+    <ProjectReference Include="..\..\..\ScriptCore\ScriptCore.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

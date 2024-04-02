@@ -16,8 +16,6 @@ public class Entity
 
     public virtual void OnCreate(){}
 
-    // public virtual void OnCreate(){}
-
     public virtual void OnUpdate(float timeStep){}
 
     internal Entity(ulong uuid)

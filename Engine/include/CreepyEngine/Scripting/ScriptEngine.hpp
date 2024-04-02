@@ -26,9 +26,13 @@ namespace Creepy{
 
             static void ShutDown() noexcept;
 
-            static void LoadAssembly(const std::filesystem::path& filePath) noexcept;
+            static void LoadCoreAssembly(const std::filesystem::path& filePath) noexcept;
+            
+            static void LoadAppAssembly(const std::filesystem::path& filePath) noexcept;
 
-            static Coral::ManagedAssembly& GetLoadedAssembly() noexcept;
+            static Coral::ManagedAssembly& GetLoadedCoreAssembly() noexcept;
+
+            static Coral::ManagedAssembly& GetLoaderAppAssembly() noexcept;
 
             static bool IsClassExits(const std::string& fullClassName) noexcept;
 

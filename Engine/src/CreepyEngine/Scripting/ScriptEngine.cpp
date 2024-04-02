@@ -52,9 +52,13 @@ namespace Creepy {
     struct ScriptEngineData {
 
         Coral::HostSettings HostSetting;
+        
         Coral::HostInstance HostInstance;
-        Coral::AssemblyLoadContext AssemblyContext;
-        Coral::ManagedAssembly ManagedAssembly;
+        Coral::AssemblyLoadContext CoreAssemblyContext;
+        Coral::ManagedAssembly CoreManagedAssembly;
+
+        Coral::AssemblyLoadContext AppAssemblyContext;
+        Coral::ManagedAssembly AppManagedAssembly;
 
         std::unordered_map<std::string, Coral::Type*> EntityClasses;
 
@@ -72,7 +76,8 @@ namespace Creepy {
 
         initCoral();
 
-        LoadAssembly(std::filesystem::current_path() / "ScriptCore.dll");
+        LoadCoreAssembly(std::filesystem::current_path() / "ScriptCore.dll");
+        LoadAppAssembly(std::filesystem::current_path() / "SandboxProject.dll");
 
         ScriptGlue::RegisterFunctions();
         ScriptGlue::RegisterComponents();
@@ -99,28 +104,42 @@ namespace Creepy {
 
         ENGINE_ASSERT(success, "Init Scripting Engine");
 
-        s_scriptEngineData->AssemblyContext = s_scriptEngineData->HostInstance.CreateAssemblyLoadContext("MyTextContext");
+        s_scriptEngineData->CoreAssemblyContext = s_scriptEngineData->HostInstance.CreateAssemblyLoadContext("CoreAssemblyContext");
+        s_scriptEngineData->AppAssemblyContext = s_scriptEngineData->HostInstance.CreateAssemblyLoadContext("AppAssemblyContext");
 
     }
 
     void ScriptEngine::shutDownCoral() noexcept{
 
-        s_scriptEngineData->HostInstance.UnloadAssemblyLoadContext(s_scriptEngineData->AssemblyContext);
+        s_scriptEngineData->HostInstance.UnloadAssemblyLoadContext(s_scriptEngineData->CoreAssemblyContext);
+        s_scriptEngineData->HostInstance.UnloadAssemblyLoadContext(s_scriptEngineData->AppAssemblyContext);
+
+        s_scriptEngineData->HostInstance.Shutdown();
 
         Coral::GC::Collect();
     }
 
-    void ScriptEngine::LoadAssembly(const std::filesystem::path& filePath) noexcept {
+    // TODO: May be core have some class inherit from entity
+    void ScriptEngine::LoadCoreAssembly(const std::filesystem::path& filePath) noexcept {
+
+        s_scriptEngineData->CoreManagedAssembly = s_scriptEngineData->CoreAssemblyContext.LoadAssembly(filePath.string());
+
+    }
+
+    void ScriptEngine::LoadAppAssembly(const std::filesystem::path& filePath) noexcept {
+
         s_scriptEngineData->EntityClasses.clear();
 
-        s_scriptEngineData->ManagedAssembly = s_scriptEngineData->AssemblyContext.LoadAssembly(filePath.string());
+        s_scriptEngineData->AppManagedAssembly = s_scriptEngineData->AppAssemblyContext.LoadAssembly(filePath.string());
 
-        Coral::Type& entityType = s_scriptEngineData->ManagedAssembly.GetType("Creepy.Entity");
-
-        for(auto& type : s_scriptEngineData->ManagedAssembly.GetTypes()){
+        // Get base class from core assembly
+        Coral::Type& entityType = s_scriptEngineData->CoreManagedAssembly.GetType("Creepy.Entity");
+        
+        // Get deriver class from app assembly
+        for(auto& type : s_scriptEngineData->AppManagedAssembly.GetTypes()){
             
             if(type->IsSubclassOf(entityType)){
-
+                ENGINE_LOG_WARNING("Name: {}", (std::string)type->GetFullName());
                 s_scriptEngineData->EntityClasses[static_cast<std::string>(type->GetFullName())] = type;
 
             }
@@ -129,8 +148,12 @@ namespace Creepy {
     }
     
 
-    Coral::ManagedAssembly& ScriptEngine::GetLoadedAssembly() noexcept {
-        return s_scriptEngineData->ManagedAssembly;
+    Coral::ManagedAssembly& ScriptEngine::GetLoadedCoreAssembly() noexcept {
+        return s_scriptEngineData->CoreManagedAssembly;
+    }
+
+    Coral::ManagedAssembly& ScriptEngine::GetLoaderAppAssembly() noexcept {
+        return s_scriptEngineData->AppManagedAssembly;
     }
 
     bool ScriptEngine::IsClassExits(const std::string& fullClassName) noexcept {
@@ -157,17 +180,16 @@ namespace Creepy {
 
         if(ScriptEngine::IsClassExits(scriptComponent.ScriptName)){
             uint64_t uuid = entity.GetUUID().GetID();
-            
+
             s_scriptEngineData->EntityInstances.emplace(std::make_pair(entity.GetUUID(), s_scriptEngineData->EntityClasses[scriptComponent.ScriptName]->CreateInstance(std::move(uuid))));
 
             s_scriptEngineData->EntityInstances[entity.GetUUID()].InvokeMethod("OnCreate");
-            
         }
 
     }
 
     void ScriptEngine::OnUpdateEntity(Entity& entity, float timeStep) noexcept {
-
+        
         s_scriptEngineData->EntityInstances[entity.GetUUID()].InvokeMethod("OnUpdate", std::move(timeStep));
 
     }

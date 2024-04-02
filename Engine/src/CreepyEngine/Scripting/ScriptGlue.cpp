@@ -15,7 +15,7 @@
 
 namespace Creepy {
 
-    #define ENGINE_ADD_INTERNAL_CALL(Func) ScriptEngine::GetLoadedAssembly().AddInternalCall("Creepy.InternalCalls", #Func, reinterpret_cast<void*>(&Func))
+    #define ENGINE_ADD_INTERNAL_CALL(Func) ScriptEngine::GetLoadedCoreAssembly().AddInternalCall("Creepy.InternalCalls", #Func, reinterpret_cast<void*>(&Func))
 
     static std::unordered_map<std::string, std::function<bool(Entity&)>> s_entityHasComponentFuncs;
 
@@ -90,7 +90,7 @@ namespace Creepy {
         ENGINE_ADD_INTERNAL_CALL(TransformComponent_GetScale);
         ENGINE_ADD_INTERNAL_CALL(TransformComponent_SetScale);
        
-        ScriptEngine::GetLoadedAssembly().UploadInternalCalls();
+        ScriptEngine::GetLoadedCoreAssembly().UploadInternalCalls();
     }
 
     // TODO: This solution maybe not work with other compiler
