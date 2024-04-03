@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Creepy;
 
-internal static class InternalCalls {
+public static class InternalCalls {
 
     internal static unsafe delegate* <KeyCode, bool> Input_IsKeyPressed;
     

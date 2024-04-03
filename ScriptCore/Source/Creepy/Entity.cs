@@ -2,7 +2,6 @@ using System;
 using System.Numerics;
 using Creepy.NativeDataType;
 
-
 namespace Creepy;
 
 
@@ -19,7 +18,7 @@ public class Entity
 
     public virtual void OnUpdate(float timeStep){}
 
-    internal Entity(ulong uuid)
+    protected internal Entity(ulong uuid)
     {
         UUID = uuid;
     }

@@ -472,14 +472,17 @@ namespace Creepy {
             if(entityInstance) {
 
                 auto&& classType = ScriptEngine::GetEntityClass(static_cast<std::string>(entityInstance->GetType().GetFullName()));
-                
-                auto&& fields = classType->GetFields();
 
-                for(auto& field : fields){
+                for(auto&& field : classType->GetFields()){
                     
                     if(auto dataType = static_cast<std::string>(field.GetType().GetFullName()); Utils::ConvertStringToFieldType(dataType) == ScriptFieldDataType::FLOAT){
-                        float v = 0.0f;
-                        ImGui::DragFloat(static_cast<std::string>(field.GetName()).c_str(), &v);
+                        auto&& fieldName = static_cast<std::string>(field.GetName());
+                        auto&& value = entityInstance->GetFieldValue<float>(fieldName);
+                        
+                        if(ImGui::DragFloat(fieldName.c_str(), &value)) {
+                            entityInstance->SetFieldValue(fieldName, std::move(value));
+                        }
+
                     }
 
                 }
