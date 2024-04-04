@@ -25,6 +25,11 @@ namespace Creepy {
             void OnImGuiRender() noexcept override;
 
             void OnEvent(Event &event) noexcept override;
+
+            SceneState GetEditorState() const noexcept;
+
+            static EditorLayer& GetInstance() noexcept;
+
         private:
             bool onKeyPressed(KeyPressedEvent& event) noexcept;
             bool onMouseButtonPressed(MouseButtonPressedEvent& event) noexcept;
@@ -77,6 +82,8 @@ namespace Creepy {
             SceneState m_sceneState{SceneState::EDIT};
             
             std::filesystem::path m_editorScenePath;
+
+            static EditorLayer* s_instance;
     };
     
     

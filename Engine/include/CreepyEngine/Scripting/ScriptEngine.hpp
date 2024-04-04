@@ -4,6 +4,9 @@
 #include <string_view>
 #include <filesystem>
 #include <unordered_map>
+#include <algorithm>
+#include <cstring>
+#include <cstddef>
 
 
 // Forward declare
@@ -19,15 +22,19 @@ namespace Creepy{
     class Scene;
     class Entity;
     class UUID;
+    class ScriptField;
 
     enum class ScriptFieldDataType : uint32_t {
         NONE = 0, BOOL, BYTE, SBYTE, CHAR, SHORT, USHORT, INT, UINT, NINT, LONG, ULONG, FLOAT, DOUBLE, DECIMAL, STRING,
         ENTITY, VECTOR2, VECTOR3, VECTOR4
     };
 
+
     class ScriptEngine
     {
         public:
+            using FieldMap = std::unordered_map<std::string, ScriptField>;
+
             static void Init() noexcept;
 
             static void ShutDown() noexcept;
@@ -46,7 +53,9 @@ namespace Creepy{
 
             static Coral::Type* GetEntityClass(const std::string& className) noexcept;
 
-            static std::unordered_map<std::string_view, ScriptFieldDataType>& GetScriptFieldData() noexcept;
+            static std::unordered_map<std::string_view, ScriptFieldDataType>& GetScriptFieldDataType() noexcept;
+
+            static std::unordered_map<UUID, FieldMap>& GetScriptFieldData() noexcept;
 
             static void OnRunTimeStart(Scene* scene) noexcept;
 
@@ -58,7 +67,7 @@ namespace Creepy{
 
             static Scene* GetSceneContext() noexcept;
 
-            static Coral::ManagedObject* GetEntityInstance(UUID uuid) noexcept;
+            static Coral::ManagedObject GetEntityInstance(UUID uuid) noexcept;
 
         private:
             static void initCoral() noexcept;
@@ -67,5 +76,40 @@ namespace Creepy{
 
     };
 
+    class ScriptField
+    {
+        public:
+
+            ScriptField() noexcept {
+                std::ranges::fill(m_buffer, 0);
+            }
+            ScriptField(ScriptFieldDataType dataType) noexcept : DataType{dataType} {
+                std::ranges::fill(m_buffer, 0);
+            }
+
+            template <typename T>
+            requires(sizeof(T) <= 16)
+            T GetValue() noexcept
+            {
+                return *reinterpret_cast<T*>(m_buffer);
+            }
+
+            template <typename T>
+            requires(sizeof(T) <= 16)
+            void SetValue(T value) noexcept
+            {
+                std::memcpy(m_buffer, &value, sizeof(T));
+            }
+
+            const uint8_t* GetValueRaw() noexcept {
+                return m_buffer;
+            }
+
+        public:
+            ScriptFieldDataType DataType{ScriptFieldDataType::NONE};
+
+        private:
+            uint8_t m_buffer[16];
+    };
     
 }

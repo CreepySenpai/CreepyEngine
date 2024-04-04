@@ -237,6 +237,7 @@ namespace Creepy {
     }
 
     void Scene::OnRuntimePlay() noexcept {
+        m_isScenePlay = true;
         this->onPhysic2DStart();
         
         {
@@ -253,6 +254,7 @@ namespace Creepy {
     }
 
     void Scene::OnRuntimeStop() noexcept {
+        m_isScenePlay = false;
         this->onPhysic2DStop();
         
         ScriptEngine::OnRunTimeStop();
@@ -264,6 +266,10 @@ namespace Creepy {
 
     void Scene::OnSimulationStop() noexcept {
         this->onPhysic2DStop();
+    }
+
+    bool Scene::IsScenePlay() const noexcept {
+        return m_isScenePlay;
     }
 
     void Scene::onPhysic2DStart() noexcept {

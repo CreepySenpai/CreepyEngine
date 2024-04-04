@@ -3,7 +3,9 @@
 #include <Coral/ManagedObject.hpp>
 #include <Coral/Type.hpp>
 
+
 #include <Panel/SceneHierarchyPanel.hpp>
+#include <Editor/EditorLayer.hpp>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
@@ -451,7 +453,7 @@ namespace Creepy {
             }
         });
 
-        MyDrawComponent<ScriptComponent>::DrawComponent("Script", entity, [&entity](ScriptComponent& scriptComponent){
+        MyDrawComponent<ScriptComponent>::DrawComponent("Script", entity, [&entity, this](ScriptComponent& scriptComponent){
             
             bool isScriptClassExits = ScriptEngine::IsClassExits(scriptComponent.ScriptName);
 
@@ -466,25 +468,78 @@ namespace Creepy {
             if(ImGui::InputText("Class", buffer, sizeof(buffer))) {
                 scriptComponent.ScriptName = buffer;
             }
-            
-            auto&& entityInstance = ScriptEngine::GetEntityInstance(entity.GetUUID());
 
-            if(entityInstance) {
+            // WARING: If wrong name maybe something happen
+            auto&& classType = ScriptEngine::GetEntityClass(scriptComponent.ScriptName);
 
-                auto&& classType = ScriptEngine::GetEntityClass(static_cast<std::string>(entityInstance->GetType().GetFullName()));
+            if(classType){
+                
+                const bool isPlay = m_scene->IsScenePlay();
 
-                for(auto&& field : classType->GetFields()){
+                auto& scriptFieldData = ScriptEngine::GetScriptFieldData();
+
+                auto&& uuid = entity.GetUUID();
+
+                if(!scriptFieldData.contains(uuid)){
                     
-                    if(auto dataType = static_cast<std::string>(field.GetType().GetFullName()); Utils::ConvertStringToFieldType(dataType) == ScriptFieldDataType::FLOAT){
+                    for(auto&& field : classType->GetFields()){
                         auto&& fieldName = static_cast<std::string>(field.GetName());
-                        auto&& value = entityInstance->GetFieldValue<float>(fieldName);
-                        
-                        if(ImGui::DragFloat(fieldName.c_str(), &value)) {
-                            entityInstance->SetFieldValue(fieldName, std::move(value));
+                        if(fieldName == "UUID") {
+                            continue;
+                        }
+                        auto&& fieldDataName = static_cast<std::string>(field.GetType().GetFullName());
+                        auto&& fieldDataType = Utils::ConvertStringToFieldType(fieldDataName);
+
+                        scriptFieldData[uuid].emplace(std::make_pair(fieldName, fieldDataType));
+                    }
+
+                }
+
+                // For Sure
+                if(scriptFieldData.contains(uuid)){
+
+                    for(auto&& field : classType->GetFields()){
+
+                        auto&& fieldName = static_cast<std::string>(field.GetName());
+                        if(fieldName == "UUID"){
+                            continue;
+                        }
+
+                        if(scriptFieldData.at(uuid).contains(fieldName)){
+                            auto&& fieldMap = scriptFieldData.at(uuid).at(fieldName);
+
+                            auto&& type = fieldMap.DataType;
+
+                            // TODO: Use Switch case to Set More Data Type
+                            if(type == ScriptFieldDataType::FLOAT){
+
+                                if(isPlay){
+
+                                    auto&& entityInstance = ScriptEngine::GetEntityInstance(uuid);
+                                    float value = entityInstance.GetFieldValue<float>(fieldName);
+
+                                    if(ImGui::DragFloat(fieldName.c_str(), &value)){
+                                        entityInstance.SetFieldValue(fieldName, std::move(value));
+                                    }
+
+                                }
+
+                                else {
+
+                                    float value = fieldMap.GetValue<float>();
+
+                                    if (ImGui::DragFloat(fieldName.c_str(), &value))
+                                    {
+                                        fieldMap.SetValue<float>(value);
+                                    }
+
+                                }
+
+                            }
+
                         }
 
                     }
-
                 }
 
             }

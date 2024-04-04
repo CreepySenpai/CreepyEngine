@@ -40,6 +40,8 @@ namespace Creepy {
 
             void DuplicateEntity(Entity& entity) noexcept;
 
+            bool IsScenePlay() const noexcept;
+
             template <typename... Comps>
             [[nodiscard]] decltype(auto) GetAllEntitiesType() noexcept{
                 return m_registry.view<Comps...>();
@@ -68,6 +70,8 @@ namespace Creepy {
             b2World* m_physicWorld{nullptr};
 
             std::unordered_map<UUID, entt::entity> m_entityMap;
+
+            bool m_isScenePlay{false};
 
             friend class Entity;
             friend class SceneHierarchyPanel;

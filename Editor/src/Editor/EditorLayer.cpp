@@ -7,7 +7,13 @@ namespace Creepy {
 
     static char buffer[256];
 
+    EditorLayer* EditorLayer::s_instance = nullptr;
+
     EditorLayer::EditorLayer() noexcept : Layer{"LevelEditor"}{
+        if(s_instance){
+            APP_LOG_ERROR("Only once Editor Instance exit");
+        }
+        s_instance = this;
 
         FrameBufferSpecification spec{.Width = 700, .Height = 700, .Attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::GREEN_INT, FrameBufferTextureFormat::DEPTH}};
         m_frameBuffer = FrameBuffer::Create(spec);
@@ -385,6 +391,14 @@ namespace Creepy {
         }
 
         return false;
+    }
+
+    SceneState EditorLayer::GetEditorState() const noexcept {
+        return m_sceneState;
+    }
+
+    EditorLayer& EditorLayer::GetInstance() noexcept {
+        return *s_instance;
     }
 
     bool EditorLayer::onMouseButtonPressed(MouseButtonPressedEvent& event) noexcept {

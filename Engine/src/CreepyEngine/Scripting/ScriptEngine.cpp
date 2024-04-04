@@ -1,9 +1,11 @@
 #include <cstdint>
+#include <cstring>
 
 #include <CreepyEngine/Core/Core.hpp>
 #include <CreepyEngine/Core/UUID.hpp>
 #include <CreepyEngine/Scripting/ScriptEngine.hpp>
 #include <CreepyEngine/Scripting/ScriptGlue.hpp>
+#include <CreepyEngine/Utils/ScriptEngineUtils.hpp>
 
 #include <CreepyEngine/Scene/Scene.hpp>
 #include <CreepyEngine/Scene/Entity.hpp>
@@ -16,7 +18,7 @@
 
 namespace Creepy {
 
-    inline static std::unordered_map<std::string_view, ScriptFieldDataType> s_scriptFieldDataMap{
+    inline static std::unordered_map<std::string_view, ScriptFieldDataType> s_scriptFieldDataTypeMap{
         {"System.Boolean", ScriptFieldDataType::BOOL},
         {"System.Byte", ScriptFieldDataType::BYTE},
         {"System.SByte", ScriptFieldDataType::SBYTE},
@@ -37,7 +39,6 @@ namespace Creepy {
         {"System.Numerics.Vector3", ScriptFieldDataType::VECTOR3},
         {"System.Numerics.Vector4", ScriptFieldDataType::VECTOR4},
     };
-
 
     static void messageCallBack(std::string_view mess, Coral::MessageLevel level) noexcept {
 
@@ -62,15 +63,6 @@ namespace Creepy {
         ENGINE_LOG_ERROR("Unhandled Exception: {}!!!", message);
     }
 
-    struct ObjectHold{
-        Coral::ManagedObject* instance{nullptr};
-
-        ObjectHold(Coral::ManagedObject* obj) : instance{obj}{
-
-        }
-    };
-
-
     struct ScriptEngineData {
 
         Coral::HostSettings HostSetting;
@@ -85,17 +77,19 @@ namespace Creepy {
         std::unordered_map<std::string, Coral::Type*> EntityClasses;
 
         std::unordered_map<UUID, Coral::ManagedObject> EntityInstances;
+        
+        // Store Data For Edit Mode
+        std::unordered_map<UUID, ScriptEngine::FieldMap> EntityScriptFieldData;
 
         Scene* SceneContext{nullptr};
     };
 
     static ScriptEngineData* s_scriptEngineData{nullptr};
 
-
     void ScriptEngine::Init() noexcept {
 
         s_scriptEngineData = new ScriptEngineData;
-
+        
         initCoral();
 
         // LoadCoreAssembly(std::filesystem::current_path() / "ScriptCore.dll");
@@ -107,6 +101,7 @@ namespace Creepy {
 
         ScriptGlue::RegisterFunctions();
         ScriptGlue::RegisterComponents();
+
     }
 
     void ScriptEngine::ShutDown() noexcept {
@@ -157,7 +152,7 @@ namespace Creepy {
         s_scriptEngineData->EntityClasses.clear();
 
         s_scriptEngineData->AppManagedAssembly = s_scriptEngineData->AppAssemblyContext.LoadAssembly(filePath.string());
-
+        
         // Get base class from core assembly
         Coral::Type& entityType = s_scriptEngineData->CoreManagedAssembly.GetType("Creepy.Entity");
         
@@ -165,15 +160,27 @@ namespace Creepy {
         for(auto& type : s_scriptEngineData->AppManagedAssembly.GetTypes()){
             
             if(type->IsSubclassOf(entityType)){
-                ENGINE_LOG_WARNING("Name: {}", (std::string)type->GetFullName());
-                s_scriptEngineData->EntityClasses[static_cast<std::string>(type->GetFullName())] = type;
 
-                auto fields = type->GetFields();
+                auto className = static_cast<std::string>(type->GetFullName());
 
-                for(auto& f : fields){
-                    // auto t = ConvertStringToFieldType((std::string)f.GetType().GetFullName());
-                    // ENGINE_LOG_WARNING("Field: {} {} {}", std::to_underlying(f.GetAccessibility()), ConvertFieldTypeToString(t), (std::string)f.GetName());
-                    ENGINE_LOG_WARNING("Field: {} {} {}", std::to_underlying(f.GetAccessibility()), (std::string)f.GetType().GetFullName(), (std::string)f.GetName());
+                s_scriptEngineData->EntityClasses[className] = type;
+                
+                //TODO: Create Temp Instance And Copy It Data To Script Buffer
+            
+                for(auto&& field : type->GetFields()){
+                    
+                    auto dataName = static_cast<std::string>(field.GetName());
+
+                    const auto dataType = Utils::ConvertStringToFieldType(static_cast<std::string>(field.GetType().GetFullName()));
+                    
+                    ENGINE_LOG_WARNING("Field: {} {} {}", className, (std::string)field.GetType().GetFullName(), (std::string)field.GetName());
+
+                    ENGINE_LOG_WARNING("Total Att: {}", field.GetAttributes().size());
+                    
+                    for(auto& att : field.GetAttributes()){
+                        ENGINE_LOG_WARNING("Some Attt: {}", (std::string)att.GetType().GetFullName());
+                    }
+
                 }
 
             }
@@ -200,13 +207,17 @@ namespace Creepy {
 
     Coral::Type* ScriptEngine::GetEntityClass(const std::string& className) noexcept {
         if(!s_scriptEngineData->EntityClasses.contains(className)) {
-            ENGINE_LOG_ERROR("Class {} doesn't exit in map");
+            return nullptr;
         }
-        return s_scriptEngineData->EntityClasses[className];
+        return s_scriptEngineData->EntityClasses.at(className);
     }
 
-    std::unordered_map<std::string_view, ScriptFieldDataType>& ScriptEngine::GetScriptFieldData() noexcept {
-        return s_scriptFieldDataMap;
+    std::unordered_map<std::string_view, ScriptFieldDataType>& ScriptEngine::GetScriptFieldDataType() noexcept {
+        return s_scriptFieldDataTypeMap;
+    }
+
+    std::unordered_map<UUID, ScriptEngine::FieldMap>& ScriptEngine::GetScriptFieldData() noexcept {
+        return s_scriptEngineData->EntityScriptFieldData;
     }
 
     void ScriptEngine::OnRunTimeStart(Scene* scene) noexcept {
@@ -224,19 +235,43 @@ namespace Creepy {
         auto& scriptComponent = entity.GetComponent<ScriptComponent>();
 
         if(ScriptEngine::IsClassExits(scriptComponent.ScriptName)){
-            uint64_t uuid = entity.GetUUID().GetID();
+            UUID uuid = entity.GetUUID();
+            uint64_t id = uuid.GetID();
 
-            s_scriptEngineData->EntityInstances.emplace(std::make_pair(entity.GetUUID(), s_scriptEngineData->EntityClasses[scriptComponent.ScriptName]->CreateInstance(std::move(uuid))));
+            s_scriptEngineData->EntityInstances.emplace(std::make_pair(uuid, s_scriptEngineData->EntityClasses[scriptComponent.ScriptName]->CreateInstance(std::move(id))));
 
-            s_scriptEngineData->EntityInstances[entity.GetUUID()].InvokeMethod("OnCreate");
 
+            // Copy Raw Data From Editor Buffer To Entity Before Call OnCreate
+            if(s_scriptEngineData->EntityScriptFieldData.contains(uuid)){
+                
+                for(auto&& field : s_scriptEngineData->EntityClasses.at(scriptComponent.ScriptName)->GetFields()) {
+                    auto&& fieldName = static_cast<std::string>(field.GetName());
+                    if(fieldName == "UUID"){
+                        continue;
+                    }
+
+                    if(s_scriptEngineData->EntityScriptFieldData.at(uuid).contains(fieldName)){
+
+                        auto&& fieldMap = s_scriptEngineData->EntityScriptFieldData.at(uuid).at(fieldName);
+
+                        s_scriptEngineData->EntityInstances.at(uuid).SetFieldValueRaw(fieldName, (void*)(fieldMap.GetValueRaw()));
+                        
+                    }
+                    
+                }
+
+
+            }
+
+            s_scriptEngineData->EntityInstances.at(entity.GetUUID()).InvokeMethod("OnCreate");
+            
         }
 
     }
 
     void ScriptEngine::OnUpdateEntity(Entity& entity, float timeStep) noexcept {
 
-        s_scriptEngineData->EntityInstances[entity.GetUUID()].InvokeMethod("OnUpdate", std::move(timeStep));
+        s_scriptEngineData->EntityInstances.at(entity.GetUUID()).InvokeMethod("OnUpdate", std::move(timeStep));
 
     }
 
@@ -245,13 +280,12 @@ namespace Creepy {
     }
     
     // BUG: Make editor mode can get entity
-    Coral::ManagedObject* ScriptEngine::GetEntityInstance(UUID uuid) noexcept {
+    Coral::ManagedObject ScriptEngine::GetEntityInstance(UUID uuid) noexcept {
 
         if(!s_scriptEngineData->EntityInstances.contains(uuid)){
-            // ENGINE_LOG_ERROR("Entity Instance not exits");
-            return nullptr;
+            ENGINE_LOG_ERROR("Entity Instance not exits");
         }
 
-        return &s_scriptEngineData->EntityInstances[uuid];
+        return s_scriptEngineData->EntityInstances.at(uuid);
     }
 }

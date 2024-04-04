@@ -21,7 +21,7 @@ namespace Creepy {
         IDComponent() noexcept = default;
 
         IDComponent(UUID uuid) noexcept : ID{uuid} {
-
+            
         }
     };
     struct TagComponent{
