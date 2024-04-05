@@ -20,7 +20,7 @@ namespace Creepy {
             Entity CreateEntity(const std::string& tag = std::string{"Entity"}) noexcept;
             Entity CreateEntity(UUID uuid, const std::string& tag = std::string{"Entity"}) noexcept;
 
-            Entity GetEntity(UUID uuid) noexcept;
+            [[nodiscard]] Entity GetEntity(UUID uuid) noexcept;
 
             void DestroyEntity(Entity& entity) noexcept;
 
@@ -47,7 +47,7 @@ namespace Creepy {
                 return m_registry.view<Comps...>();
             }
 
-            static Ref<Scene> Copy(const Ref<Scene>& scene) noexcept;
+            [[nodiscard]] static Ref<Scene> Copy(const Ref<Scene>& scene) noexcept;
 
         private:
             template <typename T>

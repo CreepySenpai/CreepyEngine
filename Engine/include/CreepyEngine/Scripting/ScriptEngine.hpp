@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cstring>
 #include <cstddef>
+#include <glm/glm.hpp>
 
 
 // Forward declare
@@ -43,21 +44,21 @@ namespace Creepy{
             
             static void LoadAppAssembly(const std::filesystem::path& filePath) noexcept;
 
-            static Coral::ManagedAssembly& GetLoadedCoreAssembly() noexcept;
+            [[nodiscard]] static Coral::ManagedAssembly& GetLoadedCoreAssembly() noexcept;
 
-            static Coral::ManagedAssembly& GetLoaderAppAssembly() noexcept;
+            [[nodiscard]] static Coral::ManagedAssembly& GetLoaderAppAssembly() noexcept;
 
             static bool IsClassExits(const std::string& fullClassName) noexcept;
 
             static bool IsDataTypeExits(std::string_view dataTypeName) noexcept;
 
-            static std::unordered_map<std::string, Coral::Type*>& GetEntityClasses() noexcept;
+            [[nodiscard]] static std::unordered_map<std::string, Coral::Type*>& GetEntityClasses() noexcept;
 
-            static Coral::Type* GetEntityClass(const std::string& className) noexcept;
+            [[nodiscard]] static Coral::Type* GetEntityClass(const std::string& className) noexcept;
 
-            static std::unordered_map<std::string_view, ScriptFieldDataType>& GetScriptFieldDataType() noexcept;
+            [[nodiscard]] static std::unordered_map<std::string_view, ScriptFieldDataType>& GetScriptFieldDataType() noexcept;
 
-            static std::unordered_map<UUID, FieldMap>& GetScriptFieldData() noexcept;
+            [[nodiscard]] static std::unordered_map<UUID, FieldMap>& GetScriptFieldData() noexcept;
 
             static void OnRunTimeStart(Scene* scene) noexcept;
 
@@ -67,9 +68,9 @@ namespace Creepy{
 
             static void OnUpdateEntity(Entity& entity, float timeStep) noexcept;
 
-            static Scene* GetSceneContext() noexcept;
+            [[nodiscard]] static Scene* GetSceneContext() noexcept;
 
-            static Coral::ManagedObject GetEntityInstance(UUID uuid) noexcept;
+            [[nodiscard]] static Coral::ManagedObject GetEntityInstance(UUID uuid) noexcept;
 
             static void CreateEntityFastInstanceToCopyData(UUID uuid, Coral::Type* type) noexcept;
 
@@ -80,32 +81,38 @@ namespace Creepy{
 
     };
 
+    template<typename T, typename ... U>
+    concept IsAnyOf = (std::same_as<T, U> || ...);
+
+    template <typename T>
+    concept RequireTypes = IsAnyOf<std::remove_cvref_t<T>, bool, char, uint8_t, short, uint16_t, int, 
+        uint32_t, long, uint64_t, float, double, glm::vec2, glm::vec3, glm::vec4>;
+
     class ScriptField
     {
         public:
 
-            ScriptField() noexcept {
-                std::ranges::fill(m_buffer, 0);
-            }
-            ScriptField(ScriptFieldDataType dataType) noexcept : DataType{dataType} {
+            constexpr ScriptField() noexcept {
                 std::ranges::fill(m_buffer, 0);
             }
 
-            template <typename T>
-            requires(sizeof(T) <= 16)
-            T GetValue() noexcept
+            constexpr ScriptField(ScriptFieldDataType dataType) noexcept : DataType{dataType} {
+                std::ranges::fill(m_buffer, 0);
+            }
+
+            template <RequireTypes T>
+            [[nodiscard]] constexpr T GetValue() noexcept
             {
                 return *reinterpret_cast<T*>(m_buffer);
             }
 
-            template <typename T>
-            requires(sizeof(T) <= 16)
-            void SetValue(T value) noexcept
+            template <RequireTypes T>
+            constexpr void SetValue(T value) noexcept
             {
                 std::memcpy(m_buffer, &value, sizeof(T));
             }
 
-            uint8_t* GetValueRaw() noexcept {
+            [[nodiscard]] constexpr uint8_t* GetValueRaw() noexcept {
                 return m_buffer;
             }
 
