@@ -9,8 +9,11 @@ namespace Creepy;
 public class Player : Entity {
     private float Speed = 1.0f;
     public float Age = 54.0f;
+
+    public Oni on;
     public override void OnCreate(){
         Console.WriteLine($"Create Player {UUID}");
+        on = new();
     }
 
     public override void OnUpdate(float timeStep){

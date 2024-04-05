@@ -49,6 +49,8 @@ namespace Creepy{
 
             static bool IsClassExits(const std::string& fullClassName) noexcept;
 
+            static bool IsDataTypeExits(std::string_view dataTypeName) noexcept;
+
             static std::unordered_map<std::string, Coral::Type*>& GetEntityClasses() noexcept;
 
             static Coral::Type* GetEntityClass(const std::string& className) noexcept;
@@ -68,6 +70,8 @@ namespace Creepy{
             static Scene* GetSceneContext() noexcept;
 
             static Coral::ManagedObject GetEntityInstance(UUID uuid) noexcept;
+
+            static void CreateEntityFastInstanceToCopyData(UUID uuid, Coral::Type* type) noexcept;
 
         private:
             static void initCoral() noexcept;
@@ -101,7 +105,7 @@ namespace Creepy{
                 std::memcpy(m_buffer, &value, sizeof(T));
             }
 
-            const uint8_t* GetValueRaw() noexcept {
+            uint8_t* GetValueRaw() noexcept {
                 return m_buffer;
             }
 

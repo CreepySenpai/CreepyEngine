@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <cstring>
 
 #include <CreepyEngine/Core/Core.hpp>
 #include <CreepyEngine/Core/UUID.hpp>
@@ -175,12 +174,6 @@ namespace Creepy {
                     
                     ENGINE_LOG_WARNING("Field: {} {} {}", className, (std::string)field.GetType().GetFullName(), (std::string)field.GetName());
 
-                    ENGINE_LOG_WARNING("Total Att: {}", field.GetAttributes().size());
-                    
-                    for(auto& att : field.GetAttributes()){
-                        ENGINE_LOG_WARNING("Some Attt: {}", (std::string)att.GetType().GetFullName());
-                    }
-
                 }
 
             }
@@ -199,6 +192,10 @@ namespace Creepy {
 
     bool ScriptEngine::IsClassExits(const std::string& fullClassName) noexcept {
         return s_scriptEngineData->EntityClasses.contains(fullClassName);
+    }
+
+    bool ScriptEngine::IsDataTypeExits(std::string_view dataTypeName) noexcept {
+        return s_scriptFieldDataTypeMap.contains(dataTypeName);
     }
 
     std::unordered_map<std::string, Coral::Type*>& ScriptEngine::GetEntityClasses() noexcept {
@@ -255,7 +252,7 @@ namespace Creepy {
                         auto&& fieldMap = s_scriptEngineData->EntityScriptFieldData.at(uuid).at(fieldName);
 
                         s_scriptEngineData->EntityInstances.at(uuid).SetFieldValueRaw(fieldName, (void*)(fieldMap.GetValueRaw()));
-                        
+
                     }
                     
                 }
@@ -279,7 +276,7 @@ namespace Creepy {
         return s_scriptEngineData->SceneContext;
     }
     
-    // BUG: Make editor mode can get entity
+
     Coral::ManagedObject ScriptEngine::GetEntityInstance(UUID uuid) noexcept {
 
         if(!s_scriptEngineData->EntityInstances.contains(uuid)){
@@ -287,5 +284,35 @@ namespace Creepy {
         }
 
         return s_scriptEngineData->EntityInstances.at(uuid);
+    }
+
+    void ScriptEngine::CreateEntityFastInstanceToCopyData(UUID uuid, Coral::Type* type) noexcept {
+
+        auto entityInstanceTemp = type->CreateInstance();
+
+        auto&& fieldMap = s_scriptEngineData->EntityScriptFieldData;
+
+        for(auto&& field : type->GetFields())
+        {
+            auto&& fieldName = static_cast<std::string>(field.GetName());
+
+            if (fieldName == "UUID")
+            {
+                continue;
+            }
+
+            auto&& fieldDataName = static_cast<std::string>(field.GetType().GetFullName());
+
+            if (ScriptEngine::IsDataTypeExits(fieldDataName))
+            {
+                auto &&fieldDataType = Utils::ConvertStringToFieldType(fieldDataName);
+                
+                fieldMap[uuid].emplace(std::make_pair(fieldName, fieldDataType));
+
+                entityInstanceTemp.GetFieldValueRaw(fieldName, fieldMap.at(uuid).at(fieldName).GetValueRaw());
+            }
+        }
+
+        entityInstanceTemp.Destroy();
     }
 }

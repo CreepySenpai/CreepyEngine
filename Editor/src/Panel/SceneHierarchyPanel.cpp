@@ -481,18 +481,9 @@ namespace Creepy {
                 auto&& uuid = entity.GetUUID();
 
                 if(!scriptFieldData.contains(uuid)){
+
+                    ScriptEngine::CreateEntityFastInstanceToCopyData(uuid, classType);
                     
-                    for(auto&& field : classType->GetFields()){
-                        auto&& fieldName = static_cast<std::string>(field.GetName());
-                        if(fieldName == "UUID") {
-                            continue;
-                        }
-                        auto&& fieldDataName = static_cast<std::string>(field.GetType().GetFullName());
-                        auto&& fieldDataType = Utils::ConvertStringToFieldType(fieldDataName);
-
-                        scriptFieldData[uuid].emplace(std::make_pair(fieldName, fieldDataType));
-                    }
-
                 }
 
                 // For Sure
