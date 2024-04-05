@@ -1,4 +1,6 @@
 #include <CreepyEngine/Core/Application.hpp>
+#include <CreepyEngine/Core/TimeStep.hpp>
+#include <CreepyEngine/Events/ApplicationEvent.hpp>
 #include <CreepyEngine/Renderer/Renderer.hpp>
 #include <CreepyEngine/Scripting/ScriptEngine.hpp>
 #include <GLFW/glfw3.h>

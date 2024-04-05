@@ -65,7 +65,7 @@ namespace Creepy {
 
         RenderCommand::SetClearColor({182.0f / 255.0f, 200.0f / 255.0f, 231.0f / 255.0f, 1.0f});
         RenderCommand::Clear();
-        Renderer2D::ResetStatistics();
+        Renderer::ResetStatistics();
         
         // Clear Color Attachment
         m_frameBuffer->ClearColorBufferAttachment(1, -1);
@@ -290,7 +290,7 @@ namespace Creepy {
 
         ImGui::Begin("Statics");
 
-        auto stats = Creepy::Renderer2D::GetStatistics();
+        auto stats = Creepy::Renderer::GetStatistics();
 
         std::string hoveredName ="None";
         if(m_hoverEntity.IsExits()){
@@ -417,10 +417,10 @@ namespace Creepy {
             if(!camera.IsExits()){
                 return;
             }
-            Renderer2D::BeginScene(camera.GetComponent<CameraComponent>().Camera, camera.GetComponent<TransformComponent>().GetTransform());
+            Renderer::BeginScene(camera.GetComponent<CameraComponent>().Camera, camera.GetComponent<TransformComponent>().GetTransform());
         }
         else {
-            Renderer2D::BeginScene(m_editorCamera);
+            Renderer::BeginScene(m_editorCamera);
         }
         
         if(m_showPhysicCollider){
@@ -431,7 +431,7 @@ namespace Creepy {
 
                 glm::mat4 transform = glm::translate(glm::mat4{1.0f}, debugPosition) * glm::scale(glm::mat4{1.0f}, debugScale);
 
-                Renderer2D::DrawCircle(transform, glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, 0.1f);
+                Renderer::DrawCircle(transform, glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, 0.1f);
             });
 
             m_activeScene->GetAllEntitiesType<TransformComponent, BoxCollider2DComponent>().each([editorDepth = m_editorCamera.GetPosition().z](auto entityID, TransformComponent& transformComponent, BoxCollider2DComponent& boxC2DComp){
@@ -442,17 +442,17 @@ namespace Creepy {
                     * glm::rotate(glm::mat4{1.0f}, transformComponent.Rotation.z, glm::vec3{0.0f, 0.0f, 1.0f})
                     * glm::scale(glm::mat4{1.0f}, debugScale);
 
-                Renderer2D::DrawLineRect(transform, {0.0f, 1.0f, 0.0f, 1.0f});
+                Renderer::DrawLineRect(transform, {0.0f, 1.0f, 0.0f, 1.0f});
             });
         }
 
         if(Entity& selectedEntity = m_hierarchyPanel.GetSelectedEntity(); selectedEntity.IsExits()){
 
-            Renderer2D::DrawLineRect(selectedEntity.GetComponent<TransformComponent>().GetTransform(), {1.0f, 0.0f, 0.0f, 1.0f});
+            Renderer::DrawLineRect(selectedEntity.GetComponent<TransformComponent>().GetTransform(), {1.0f, 0.0f, 0.0f, 1.0f});
 
         }
 
-        Renderer2D::EndScene();
+        Renderer::EndScene();
     }
 
     void EditorLayer::onScenePlay() noexcept {

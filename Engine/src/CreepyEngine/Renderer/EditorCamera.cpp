@@ -1,5 +1,8 @@
 #include <CreepyEngine/Renderer/EditorCamera.hpp>
 #include <CreepyEngine/Core/Input.hpp>
+#include <CreepyEngine/Core/TimeStep.hpp>
+#include <CreepyEngine/Events/Event.hpp>
+#include <CreepyEngine/Events/MouseEvent.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 

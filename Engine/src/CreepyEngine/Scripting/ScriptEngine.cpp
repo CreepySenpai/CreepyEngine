@@ -164,7 +164,7 @@ namespace Creepy {
 
                 s_scriptEngineData->EntityClasses[className] = type;
                 
-                //TODO: Create Temp Instance And Copy It Data To Script Buffer
+                //TODO: Remove
             
                 for(auto&& field : type->GetFields()){
                     
@@ -174,7 +174,13 @@ namespace Creepy {
                     
                     ENGINE_LOG_WARNING("Field: {} {} {}", className, (std::string)field.GetType().GetFullName(), (std::string)field.GetName());
 
+                    for(auto&& attbs : field.GetAttributes()){
+                        ENGINE_LOG_WARNING("FieldName: {} Attb: {}", (std::string)field.GetName(), (std::string)attbs.GetType().GetFullName());
+                        
+                    }
                 }
+
+                // End
 
             }
         }
@@ -302,8 +308,16 @@ namespace Creepy {
             }
 
             auto&& fieldDataName = static_cast<std::string>(field.GetType().GetFullName());
+            auto&& accessibility = field.GetAccessibility();
+            
+            bool hasShowField{false};
+            for(auto&& attribs : field.GetAttributes()){
+                if(static_cast<std::string>(attribs.GetType().GetFullName()) == "Creepy.ShowField"){
+                    hasShowField = true;
+                }
+            }
 
-            if (ScriptEngine::IsDataTypeExits(fieldDataName))
+            if (ScriptEngine::IsDataTypeExits(fieldDataName) && (accessibility == Coral::TypeAccessibility::Public || hasShowField))
             {
                 auto &&fieldDataType = Utils::ConvertStringToFieldType(fieldDataName);
                 

@@ -1,15 +1,14 @@
 #pragma once
-
-#include <CreepyEngine/Core/TimeStep.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 #include <CreepyEngine/Core/UUID.hpp>
-#include <CreepyEngine/Renderer/EditorCamera.hpp>
 #include <entt/entt.hpp>
 
 class b2World;
 
 namespace Creepy {
-
     class Entity;
+    class TimeStep;
+    class EditorCamera;
 
     class Scene
     {

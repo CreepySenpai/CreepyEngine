@@ -1,5 +1,7 @@
 #include <CreepyEngine/Scene/Scene.hpp>
-#include <CreepyEngine/Renderer/Renderer2D.hpp>
+#include <CreepyEngine/Core/TimeStep.hpp>
+#include <CreepyEngine/Renderer/EditorCamera.hpp>
+#include <CreepyEngine/Renderer/Renderer.hpp>
 #include <CreepyEngine/Scene/Entity.hpp>
 #include <CreepyEngine/Scene/ScriptableEntity.hpp>
 #include <CreepyEngine/Scene/Components.hpp>
@@ -152,23 +154,23 @@ namespace Creepy {
 
             if(mainCamera){
 
-                Renderer2D::BeginScene(*mainCamera, transformMatrix);
+                Renderer::BeginScene(*mainCamera, transformMatrix);
 
                 {
                     m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
 
-                        Renderer2D::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
+                        Renderer::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
 
                     });
                 }
 
                 {
                     m_registry.view<TransformComponent, CircleSpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, CircleSpriteComponent& circle){
-                        Renderer2D::DrawCircle(transformComponent, circle, static_cast<uint32_t>(entityID));
+                        Renderer::DrawCircle(transformComponent, circle, static_cast<uint32_t>(entityID));
                     });
                 }
 
-                Renderer2D::EndScene();
+                Renderer::EndScene();
             }
         }
 
@@ -354,12 +356,12 @@ namespace Creepy {
 
     void Scene::renderScene(EditorCamera& editorCamera) noexcept {
 
-        Renderer2D::BeginScene(editorCamera);
+        Renderer::BeginScene(editorCamera);
 
         {
             m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
 
-                Renderer2D::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
+                Renderer::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
             
             });
 
@@ -367,12 +369,12 @@ namespace Creepy {
 
         {
             m_registry.view<TransformComponent, CircleSpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, CircleSpriteComponent& circle){
-                Renderer2D::DrawCircle(transformComponent, circle, static_cast<uint32_t>(entityID));
+                Renderer::DrawCircle(transformComponent, circle, static_cast<uint32_t>(entityID));
             });
         }
 
 
-        Renderer2D::EndScene();
+        Renderer::EndScene();
     }
 
     template <typename Component>

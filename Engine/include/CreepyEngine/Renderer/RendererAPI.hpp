@@ -3,10 +3,11 @@
 #include <memory>
 #include <glm/glm.hpp>
 #include <CreepyEngine/Core/Core.hpp>
-#include "VertexArray.hpp"
 
 namespace Creepy
 {
+    class VertexArray;
+
     class RendererAPI
     {
         public:

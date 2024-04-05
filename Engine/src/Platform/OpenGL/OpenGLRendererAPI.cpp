@@ -1,4 +1,5 @@
 #include <Platform/OpenGL/OpenGLRendererAPI.hpp>
+#include <CreepyEngine/Renderer/VertexArray.hpp>
 #include <glad/glad.h>
 
 namespace Creepy {

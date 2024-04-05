@@ -4,13 +4,15 @@
 #include <filesystem>
 #include "Window.hpp"
 #include "LayerStack.hpp"
-#include "TimeStep.hpp"
-#include <CreepyEngine/Events/ApplicationEvent.hpp>
 #include <CreepyEngine/Debug/ImGuiLayer.hpp>
 
 
 namespace Creepy
 {
+    class Event;
+    class WindowCloseEvent;
+    class WindowResizeEvent;
+    
     class Application
     {
         public:

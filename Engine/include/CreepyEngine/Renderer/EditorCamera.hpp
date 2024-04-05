@@ -1,12 +1,14 @@
 #pragma once
 
-#include <CreepyEngine/Core/TimeStep.hpp>
-#include <CreepyEngine/Events/Event.hpp>
-#include <CreepyEngine/Events/MouseEvent.hpp>
 #include "Camera.hpp"
 #include <glm/glm.hpp>
 
 namespace Creepy {
+
+    class TimeStep;
+    class Event;
+    class MouseScrolledEvent;
+
 
     class EditorCamera : public Camera
     {
