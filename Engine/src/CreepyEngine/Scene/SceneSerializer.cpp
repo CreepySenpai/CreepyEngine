@@ -1,6 +1,8 @@
 #include <CreepyEngine/Scene/SceneSerializer.hpp>
 #include <CreepyEngine/Scene/Components.hpp>
 #include <CreepyEngine/Scene/Entity.hpp>
+#include <CreepyEngine/Scripting/ScriptEngine.hpp>
+#include <CreepyEngine/Utils/ScriptEngineUtils.hpp>
 #include <yaml-cpp/yaml_ex.hpp>
 
 namespace Creepy
@@ -68,6 +70,137 @@ namespace Creepy
             writer << YAML::BeginMap;
 
             writer << YAML::Key << "ScriptName" << YAML::Value << entity.GetComponent<ScriptComponent>().ScriptName;
+
+            {
+                auto& fieldData = ScriptEngine::GetScriptFieldData();
+
+                if(fieldData.contains(entity.GetUUID())){
+                    
+                    writer << YAML::Key << "ScriptFields" << YAML::Value;
+
+                    writer << YAML::BeginSeq;
+
+                    // Format
+
+                    //    - Name: 
+                    //      Type:
+                    //      Data:
+                    for(auto& [fieldName, fieldValue] : fieldData.at(entity.GetUUID())){
+                        writer << YAML::BeginMap;
+                        
+                        writer << YAML::Key << "Name" << YAML::Value << fieldName;
+
+                        writer << YAML::Key << "Type" << YAML::Value << Utils::ConvertFieldTypeToString(fieldValue.DataType);
+                        
+                        writer << YAML::Key << "Data";
+
+                        switch(fieldValue.DataType){
+                            case ScriptFieldDataType::BOOL: {
+                                writer << YAML::Value << fieldValue.GetValue<bool>();
+                                break;
+                            }
+                            case ScriptFieldDataType::BYTE: {
+                                writer << YAML::Value << fieldValue.GetValue<uint8_t>();
+                                break;
+                            }
+                            case ScriptFieldDataType::SBYTE:
+                            case ScriptFieldDataType::CHAR: {
+                                writer << YAML::Value << fieldValue.GetValue<char>();
+                                break;
+                            }
+
+                            case ScriptFieldDataType::SHORT: {
+                                writer << YAML::Value << fieldValue.GetValue<short>();
+                                break;
+                            }
+
+                            case ScriptFieldDataType::USHORT: {
+                                writer << YAML::Value << fieldValue.GetValue<uint16_t>();
+                                break;
+                            }
+
+                            case ScriptFieldDataType::INT: {
+                                writer << YAML::Value << fieldValue.GetValue<int>();
+                                break;
+                            }
+
+                            case ScriptFieldDataType::UINT: {
+                                writer << YAML::Value << fieldValue.GetValue<uint32_t>();
+                                break;
+                            }
+
+                            // TODO: Change or remove
+                            case ScriptFieldDataType::NINT: {
+                                writer << YAML::Value << fieldValue.GetValue<uint32_t>();
+                                break;
+                            }
+
+                            case ScriptFieldDataType::LONG: {
+                                writer << YAML::Value << fieldValue.GetValue<long>();
+                                break;
+                            }
+
+                            case ScriptFieldDataType::ULONG: {
+                                writer << YAML::Value << fieldValue.GetValue<uint64_t>();
+                                break;
+                            }
+                            
+                            case ScriptFieldDataType::FLOAT: {
+                                writer << YAML::Value << fieldValue.GetValue<float>();
+                                break;
+                            }
+
+                            case ScriptFieldDataType::DOUBLE: {
+                                writer << YAML::Value << fieldValue.GetValue<double>();
+                                break;
+                            }
+                            
+                            // TODO: Change to float128_t
+                            case ScriptFieldDataType::DECIMAL: {
+                                writer << YAML::Value << fieldValue.GetValue<double>();
+                                break;
+                            }
+
+                            // TODO: Change to native string
+                            case ScriptFieldDataType::STRING: {
+                                writer << YAML::Value << fieldValue.GetValue<char>();
+                                break;
+                            }
+                            
+                            // Store UUID to another entity
+                            case ScriptFieldDataType::ENTITY: {
+                                writer << YAML::Value << fieldValue.GetValue<uint64_t>();
+                                break;
+                            }
+
+                            case ScriptFieldDataType::VECTOR2: {
+                                writer << YAML::Value << fieldValue.GetValue<glm::vec2>();
+                                break;
+                            }
+
+                            case ScriptFieldDataType::VECTOR3: {
+                                writer << YAML::Value << fieldValue.GetValue<glm::vec3>();
+                                break;
+                            }
+
+                            case ScriptFieldDataType::VECTOR4: {
+                                writer << YAML::Value << fieldValue.GetValue<glm::vec4>();
+                                break;
+                            }
+
+                            default:{
+                                writer << YAML::Value << "Invalid";
+                            }
+                        }
+                        
+
+                        writer << YAML::EndMap;
+                    }
+
+                    writer << YAML::EndSeq;
+                }
+                
+            }
 
             writer << YAML::EndMap;
         }
@@ -259,6 +392,101 @@ namespace Creepy
                 if(scriptNode){
                     auto& script = deserializeEntity.AddComponent<ScriptComponent>();
                     script.ScriptName = scriptNode["ScriptName"].as<std::string>();
+
+                    auto&& fields = scriptNode["ScriptFields"];
+
+                    if(fields){
+
+                        auto& fieldMap = ScriptEngine::GetScriptFieldData();
+                        auto& uuid = deserializeEntity.GetUUID();
+
+                        for(auto&& field : fields){
+                            auto&& fieldName = field["Name"].as<std::string>();
+                            auto&& fieldTypeName = field["Type"].as<std::string>();
+                            
+                            auto&& fieldType = Utils::ConvertStringToFieldType(fieldTypeName);
+
+                            fieldMap[uuid][fieldName].DataType = fieldType;
+
+                            auto&& fieldAt = fieldMap.at(uuid).at(fieldName);
+                            switch(fieldType){
+                                case ScriptFieldDataType::BOOL:{
+                                    fieldAt.SetValue<bool>(field["Data"].as<bool>());
+                                    break;
+                                }
+                                case ScriptFieldDataType::BYTE:{
+                                    fieldAt.SetValue<uint8_t>(field["Data"].as<uint8_t>());
+                                    break;
+                                }
+                                // case ScriptFieldDataType::SBYTE:{
+                                //    break; 
+                                // }
+                                case ScriptFieldDataType::CHAR:{
+                                    fieldAt.SetValue<char>(field["Data"].as<char>());
+                                    break; 
+                                }
+                                case ScriptFieldDataType::SHORT:{
+                                    fieldAt.SetValue<short>(field["Data"].as<short>());
+                                    break;
+                                }
+                                case ScriptFieldDataType::USHORT:{
+                                    fieldAt.SetValue<uint16_t>(field["Data"].as<uint16_t>());
+                                    break;
+                                }
+                                case ScriptFieldDataType::INT:{
+                                    fieldAt.SetValue<int>(field["Data"].as<int>());
+                                    break;
+                                }
+                                case ScriptFieldDataType::UINT:{
+                                    fieldAt.SetValue<uint32_t>(field["Data"].as<uint32_t>());
+                                    break;
+                                }
+                                // case ScriptFieldDataType::NINT:{
+                                //    break; 
+                                // }
+                                case ScriptFieldDataType::LONG:{
+                                    fieldAt.SetValue<long>(field["Data"].as<long>());
+                                    break;
+                                }
+                                case ScriptFieldDataType::ULONG:{
+                                    fieldAt.SetValue<uint64_t>(field["Data"].as<uint64_t>());
+                                    break;
+                                }
+                                case ScriptFieldDataType::FLOAT:{
+                                    fieldAt.SetValue<float>(field["Data"].as<float>());
+                                    break;
+                                }
+                                case ScriptFieldDataType::DOUBLE:{
+                                    fieldAt.SetValue<double>(field["Data"].as<double>());
+                                    break;
+                                }
+                                // TODO: float128_t
+                                case ScriptFieldDataType::DECIMAL:{
+                                    fieldAt.SetValue<double>(field["Data"].as<double>());
+                                    break;
+                                }
+                                // case ScriptFieldDataType::STRING:{
+                                //    break; 
+                                // }
+                                case ScriptFieldDataType::ENTITY:{
+                                    fieldAt.SetValue<uint64_t>(field["Data"].as<uint64_t>());
+                                    break;
+                                }
+                                case ScriptFieldDataType::VECTOR2:{
+                                    fieldAt.SetValue<glm::vec2>(field["Data"].as<glm::vec2>());
+                                    break;
+                                }
+                                case ScriptFieldDataType::VECTOR3:{
+                                    fieldAt.SetValue<glm::vec3>(field["Data"].as<glm::vec3>());
+                                    break;
+                                }
+                                case ScriptFieldDataType::VECTOR4:{
+                                    fieldAt.SetValue<glm::vec4>(field["Data"].as<glm::vec4>());
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 auto&& spriteNode = entity["SpriteComponent"];

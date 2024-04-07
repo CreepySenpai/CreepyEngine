@@ -312,6 +312,7 @@ namespace Creepy {
         delete[] s_renderer2dStorage.Rect.RectVertexBufferBase;
         delete[] s_renderer2dStorage.Circle.CircleVertexBufferBase;
         delete[] s_renderer2dStorage.Lines.LineVertexBufferBase;
+        delete[] s_renderer3dStorage.Cube.CubeVertexBufferBase;
 
         s_renderer2dStorage.Rect.RectVertexArray.reset();
         s_renderer2dStorage.Rect.RectVertexBuffer.reset();
@@ -324,6 +325,10 @@ namespace Creepy {
         s_renderer2dStorage.Lines.LineVertexArray.reset();
         s_renderer2dStorage.Lines.LineVertexBuffer.reset();
         s_renderer2dStorage.Lines.LineShader.reset();
+
+        s_renderer3dStorage.Cube.CubeVertexArray.reset();
+        s_renderer3dStorage.Cube.CubeVertexBuffer.reset();
+        s_renderer3dStorage.Cube.CubeShader.reset();
 
         s_renderer2dStorage.WhiteTexture.reset();
     }

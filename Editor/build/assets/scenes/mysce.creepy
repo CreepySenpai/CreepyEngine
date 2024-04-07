@@ -1,23 +1,30 @@
 Scene: Untitled
 Entities:
-  - Entity: 17935776272727115146
+  - Entity: 16522597701852707736
     TagComponent:
-      Tag: Cam
+      Tag: Scp
     TransformComponent:
-      Position: [0, 0, 12.5]
+      Position: [-1.10000002, 0, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
-    CameraComponent:
-      Camera:
-        ProjectionType: 1
-        OrthographicSize: 10
-        OrthographicNear: -1
-        OrthographicFar: 1
-        PerspectiveFOV: 65
-        PerspectiveNear: 0.00100000005
-        PerspectiveFar: 1000
-      Primary: true
-      FixedAspectRatio: false
+    ScriptComponent:
+      ScriptName: Creepy.Player
+      ScriptFields:
+        - Name: c
+          Type: float
+          Data: 3
+        - Name: a
+          Type: float
+          Data: 3
+        - Name: Age
+          Type: float
+          Data: 54
+        - Name: Speed
+          Type: float
+          Data: 1
+    SpriteComponent:
+      Color: [1, 1, 1, 1]
+      TilingFactor: 1
   - Entity: 4836076579716963242
     TagComponent:
       Tag: Empty Entity
@@ -38,15 +45,21 @@ Entities:
       Friction: 1
       Restitution: 0
       RestitutionThreshold: 0.5
-  - Entity: 16522597701852707736
+  - Entity: 17935776272727115146
     TagComponent:
-      Tag: Scp
+      Tag: Cam
     TransformComponent:
-      Position: [-1.10000002, 0, 0]
+      Position: [0, 0, 12.5]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
-    ScriptComponent:
-      ScriptName: Creepy.Player
-    SpriteComponent:
-      Color: [1, 1, 1, 1]
-      TilingFactor: 1
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+        PerspectiveFOV: 65
+        PerspectiveNear: 0.00100000005
+        PerspectiveFar: 1000
+      Primary: true
+      FixedAspectRatio: false

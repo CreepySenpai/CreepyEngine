@@ -170,7 +170,7 @@ namespace Creepy {
                     
                     auto dataName = static_cast<std::string>(field.GetName());
 
-                    const auto dataType = Utils::ConvertStringToFieldType(static_cast<std::string>(field.GetType().GetFullName()));
+                    const auto dataType = Utils::ConvertScriptStringToFieldType(static_cast<std::string>(field.GetType().GetFullName()));
                     
                     ENGINE_LOG_WARNING("Field: {} {} {}", className, (std::string)field.GetType().GetFullName(), (std::string)field.GetName());
 
@@ -301,7 +301,7 @@ namespace Creepy {
         for(auto&& field : type->GetFields())
         {
             auto&& fieldName = static_cast<std::string>(field.GetName());
-
+            
             if (fieldName == "UUID")
             {
                 continue;
@@ -319,7 +319,7 @@ namespace Creepy {
 
             if (ScriptEngine::IsDataTypeExits(fieldDataName) && (accessibility == Coral::TypeAccessibility::Public || hasShowField))
             {
-                auto &&fieldDataType = Utils::ConvertStringToFieldType(fieldDataName);
+                auto &&fieldDataType = Utils::ConvertScriptStringToFieldType(fieldDataName);
                 
                 fieldMap[uuid].emplace(std::make_pair(fieldName, fieldDataType));
 

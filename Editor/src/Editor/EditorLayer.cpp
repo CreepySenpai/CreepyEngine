@@ -318,7 +318,7 @@ namespace Creepy {
     }
 
     void EditorLayer::OnEvent(Event &event) noexcept {
-        if(m_viewPortFocused){
+        if(m_viewPortFocused && m_viewPortHovered){
             m_editorCamera.OnEvent(event);   
         }
 
