@@ -3,12 +3,5 @@
 
 
 namespace Creepy {
-
-    void Mesh::setUpMesh() noexcept {
-        m_vertexArray = VertexArray::Create();
-
-        m_vertexArray->Bind();
-        // m_vertexArray->GetVertexBuffers()
-    }
-
+    
 }

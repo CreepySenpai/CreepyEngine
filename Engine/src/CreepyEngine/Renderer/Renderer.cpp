@@ -10,6 +10,8 @@
 #include <CreepyEngine/Renderer/Shader.hpp>
 #include <CreepyEngine/Renderer/RenderCommand.hpp>
 #include <CreepyEngine/Renderer/UniformBuffer.hpp>
+#include <CreepyEngine/Renderer/Model.hpp>
+#include <CreepyEngine/Utils/ModelImporterUtils.hpp>
 
 #include <Platform/OpenGL/OpenGLShader.hpp>
 
@@ -43,7 +45,7 @@ namespace Creepy {
         int EntityID{-1};
     };
 
-    struct CubeVertex{
+    struct ModelVertex{
         glm::vec3 Position;
         glm::vec4 Color;
         glm::vec3 Normal;
@@ -112,22 +114,22 @@ namespace Creepy {
 
     struct Renderer3DStorage {
         // TODO: Increase Max Cube
-        const uint32_t MaxCubes{1000u};
-        const uint32_t MaxCubesVertex{MaxCubes * 8};
-        const uint32_t MaxCubesIndex{MaxCubes * 36};
+        const uint32_t MaxModels{1000u};
 
-        struct CubeData{
-            Ref<VertexArray> CubeVertexArray{nullptr};
-            Ref<VertexBuffer> CubeVertexBuffer{nullptr};
-            Ref<Shader> CubeShader{nullptr};
-            CubeVertex* CubeVertexBufferBase{nullptr};
-            CubeVertex* CubeVertexBufferPointer{nullptr};
+        struct CubeData {
 
-            glm::vec4 CubeVertexPosition[8];
+            const uint32_t MaxCubesVertices{1000u * 100};
+            const uint32_t MaxCubesIndices{1000u * 36};
+
+            uint32_t ModelsCount{0};
+            ModelVertex* CubeVertexBufferBase;
+            ModelVertex* CubeVertexBufferPointer;
+            Ref<VertexArray> CubeVertexArray;
+            Ref<VertexBuffer> CubeVertexBuffer;
+            Ref<Shader> CubeShader;
         };
 
         CubeData Cube;
-
     };
 
     static RendererCoreStorage s_rendererCoreStorage;
@@ -145,11 +147,12 @@ namespace Creepy {
     }
 
     void initRect() noexcept {
+        auto&& Rect = s_renderer2dStorage.Rect;
         ENGINE_LOG_WARNING("Gona Create Vertex Arrray");
-        s_renderer2dStorage.Rect.RectVertexArray = Creepy::VertexArray::Create();
+        Rect.RectVertexArray = Creepy::VertexArray::Create();
 
         ENGINE_LOG_WARNING("Gona Create Vertex Buffer");
-        s_renderer2dStorage.Rect.RectVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(RectVertex));
+        Rect.RectVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(RectVertex));
 
         Creepy::BufferLayout rectVertexBufferLayout{
             {Creepy::ShaderDataType::Float3, "a_position"},
@@ -160,12 +163,12 @@ namespace Creepy {
             {Creepy::ShaderDataType::Int, "a_entityID"},
         };
 
-        s_renderer2dStorage.Rect.RectVertexBuffer->SetLayout(rectVertexBufferLayout);
+        Rect.RectVertexBuffer->SetLayout(rectVertexBufferLayout);
 
         // We need add buffer after it add layout, if not it will empty
-        s_renderer2dStorage.Rect.RectVertexArray->AddVertexBuffer(s_renderer2dStorage.Rect.RectVertexBuffer);
+        Rect.RectVertexArray->AddVertexBuffer(Rect.RectVertexBuffer);
 
-        s_renderer2dStorage.Rect.RectVertexBufferBase = new RectVertex[s_renderer2dStorage.MaxRectVertex];
+        Rect.RectVertexBufferBase = new RectVertex[s_renderer2dStorage.MaxRectVertex];
 
         // Because alloc too much index on stack may cause stack overflow so we alloc on heap
 
@@ -188,7 +191,7 @@ namespace Creepy {
         ENGINE_LOG_WARNING("Gona Create Index");
         auto indexBuffer = Creepy::IndexBuffer::Create(rectIndex, s_renderer2dStorage.MaxRectIndex);
 
-        s_renderer2dStorage.Rect.RectVertexArray->SetIndexBuffer(indexBuffer);
+        Rect.RectVertexArray->SetIndexBuffer(indexBuffer);
 
         delete[] rectIndex;
         rectIndex = nullptr;
@@ -196,9 +199,11 @@ namespace Creepy {
 
     void initCircle() noexcept {
 
-        s_renderer2dStorage.Circle.CircleVertexArray = VertexArray::Create();
+        auto&& Circle = s_renderer2dStorage.Circle;
 
-        s_renderer2dStorage.Circle.CircleVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(CircleVertex));
+        Circle.CircleVertexArray = VertexArray::Create();
+
+        Circle.CircleVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(CircleVertex));
 
         Creepy::BufferLayout circleVertexBufferLayout{
             {Creepy::ShaderDataType::Float3, "a_position"},
@@ -209,39 +214,39 @@ namespace Creepy {
             {Creepy::ShaderDataType::Int, "a_entityID"},
         };
 
-        s_renderer2dStorage.Circle.CircleVertexBuffer->SetLayout(circleVertexBufferLayout);
+        Circle.CircleVertexBuffer->SetLayout(circleVertexBufferLayout);
 
         // We need add buffer after it add layout, if not it will empty
-        s_renderer2dStorage.Circle.CircleVertexArray->AddVertexBuffer(s_renderer2dStorage.Circle.CircleVertexBuffer);
+        Circle.CircleVertexArray->AddVertexBuffer(Circle.CircleVertexBuffer);
 
-        uint32_t* rectIndex = new uint32_t[s_renderer2dStorage.MaxRectIndex];
+        uint32_t* circleIndex = new uint32_t[s_renderer2dStorage.MaxRectIndex];
 
         uint32_t offset{0};
 
         for (uint32_t i{}; i < s_renderer2dStorage.MaxRectIndex; i += 6)
         {
 
-            rectIndex[i + 0] = offset + 0;
-            rectIndex[i + 1] = offset + 1;
-            rectIndex[i + 2] = offset + 2;
+            circleIndex[i + 0] = offset + 0;
+            circleIndex[i + 1] = offset + 1;
+            circleIndex[i + 2] = offset + 2;
 
-            rectIndex[i + 3] = offset + 2;
-            rectIndex[i + 4] = offset + 3;
-            rectIndex[i + 5] = offset + 0;
+            circleIndex[i + 3] = offset + 2;
+            circleIndex[i + 4] = offset + 3;
+            circleIndex[i + 5] = offset + 0;
 
             offset += 4;
         }
 
         ENGINE_LOG_WARNING("Gona Create Index");
 
-        auto indexBuffer = Creepy::IndexBuffer::Create(rectIndex, s_renderer2dStorage.MaxRectIndex);
+        auto circleIndexBuffer = Creepy::IndexBuffer::Create(circleIndex, s_renderer2dStorage.MaxRectIndex);
 
-        s_renderer2dStorage.Circle.CircleVertexArray->SetIndexBuffer(indexBuffer); // rectIndex
+        Circle.CircleVertexArray->SetIndexBuffer(circleIndexBuffer); // rectIndex
 
-        s_renderer2dStorage.Circle.CircleVertexBufferBase = new CircleVertex[s_renderer2dStorage.MaxRectVertex];
+        Circle.CircleVertexBufferBase = new CircleVertex[s_renderer2dStorage.MaxRectVertex];
 
-        delete[] rectIndex;
-        rectIndex = nullptr;
+        delete[] circleIndex;
+        circleIndex = nullptr;
     }
 
     void initLines() noexcept {
@@ -292,11 +297,89 @@ namespace Creepy {
     }
 
     void initCube() noexcept {
+
+        // auto&& Cube = s_renderer3dStorage.Cube;
+        // Cube.CubeVertexArray = VertexArray::Create();
+        // Cube.CubeVertexBuffer = VertexBuffer::Create(Cube.MaxCubesVertices * sizeof(ModelVertex));
+
+        // BufferLayout cubeBufferLayout{
+        //     {ShaderDataType::Float3, "a_position"},
+        //     {ShaderDataType::Float4, "a_color"},
+        //     {ShaderDataType::Float3, "a_normal"},
+        //     {ShaderDataType::Float2, "a_textureCoord"},
+        //     {ShaderDataType::Int, "a_entityID"},
+        // };
+
+        // Cube.CubeVertexBuffer->SetLayout(cubeBufferLayout);
+
+        // Cube.CubeVertexArray->AddVertexBuffer(Cube.CubeVertexBuffer);
+
+        // Cube.CubeVertexBufferBase = new ModelVertex[s_renderer3dStorage.MaxModels];
         
+        ENGINE_LOG_WARNING("Gonna Load Cube");
+        Model cubeModel = Utils::ModelImporter::LoadModel("./assets/models/cube/scene.gltf");
+
+        ENGINE_LOG_WARNING("Load Cube Model: {} - {} - {}", cubeModel.TotalMeshes(), cubeModel.TotalVertices(), cubeModel.TotalIndices());
+
+        // auto& cubeMesh = cubeModel.GetMeshAt(0);
+        // auto& cubeMeshIndices = cubeMesh.GetIndices();
+
+        // uint32_t* cubeIndices = new uint32_t[Cube.MaxCubesIndices];
+
+        // uint32_t offset{0};
+
+        // for(uint32_t i{}; i < Cube.MaxCubesIndices; i++){
+
+        //     cubeIndices[i + 0] = offset + cubeMeshIndices.at(0);
+        //     cubeIndices[i + 1] = offset + cubeMeshIndices.at(1);
+        //     cubeIndices[i + 2] = offset + cubeMeshIndices.at(2);
+        //     cubeIndices[i + 3] = offset + cubeMeshIndices.at(3);
+        //     cubeIndices[i + 4] = offset + cubeMeshIndices.at(4);
+        //     cubeIndices[i + 5] = offset + cubeMeshIndices.at(5);
+        //     cubeIndices[i + 6] = offset + cubeMeshIndices.at(6);
+        //     cubeIndices[i + 7] = offset + cubeMeshIndices.at(7);
+        //     cubeIndices[i + 8] = offset + cubeMeshIndices.at(8);
+        //     cubeIndices[i + 9] = offset + cubeMeshIndices.at(9);
+        //     cubeIndices[i + 10] = offset + cubeMeshIndices.at(10);
+        //     cubeIndices[i + 11] = offset + cubeMeshIndices.at(11);
+        //     cubeIndices[i + 12] = offset + cubeMeshIndices.at(12);
+        //     cubeIndices[i + 13] = offset + cubeMeshIndices.at(13);
+        //     cubeIndices[i + 14] = offset + cubeMeshIndices.at(14);
+        //     cubeIndices[i + 15] = offset + cubeMeshIndices.at(15);
+        //     cubeIndices[i + 16] = offset + cubeMeshIndices.at(16);
+        //     cubeIndices[i + 17] = offset + cubeMeshIndices.at(17);
+        //     cubeIndices[i + 18] = offset + cubeMeshIndices.at(18);
+        //     cubeIndices[i + 19] = offset + cubeMeshIndices.at(19);
+        //     cubeIndices[i + 20] = offset + cubeMeshIndices.at(20);
+        //     cubeIndices[i + 21] = offset + cubeMeshIndices.at(21);
+        //     cubeIndices[i + 22] = offset + cubeMeshIndices.at(22);
+        //     cubeIndices[i + 23] = offset + cubeMeshIndices.at(23);
+        //     cubeIndices[i + 24] = offset + cubeMeshIndices.at(24);
+        //     cubeIndices[i + 25] = offset + cubeMeshIndices.at(25);
+        //     cubeIndices[i + 26] = offset + cubeMeshIndices.at(26);
+        //     cubeIndices[i + 27] = offset + cubeMeshIndices.at(27);
+        //     cubeIndices[i + 28] = offset + cubeMeshIndices.at(28);
+        //     cubeIndices[i + 29] = offset + cubeMeshIndices.at(29);
+        //     cubeIndices[i + 30] = offset + cubeMeshIndices.at(30);
+        //     cubeIndices[i + 31] = offset + cubeMeshIndices.at(31);
+        //     cubeIndices[i + 32] = offset + cubeMeshIndices.at(32);
+        //     cubeIndices[i + 33] = offset + cubeMeshIndices.at(33);
+        //     cubeIndices[i + 34] = offset + cubeMeshIndices.at(34);
+        //     cubeIndices[i + 35] = offset + cubeMeshIndices.at(35);
+
+        //     offset += 36;
+        // }
+
+        // auto cubeIndexBuffer = IndexBuffer::Create(cubeIndices, Cube.MaxCubesIndices);
+
+        // Cube.CubeVertexArray->SetIndexBuffer(cubeIndexBuffer);
+
+        // delete[] cubeIndices;
+        // cubeIndices = nullptr;
     }
 
     void initStorage3D() noexcept {
-
+        initCube();
     }
 
     void Renderer::Init() noexcept {
@@ -314,7 +397,7 @@ namespace Creepy {
         delete[] s_renderer2dStorage.Rect.RectVertexBufferBase;
         delete[] s_renderer2dStorage.Circle.CircleVertexBufferBase;
         delete[] s_renderer2dStorage.Lines.LineVertexBufferBase;
-        delete[] s_renderer3dStorage.Cube.CubeVertexBufferBase;
+        
 
         s_renderer2dStorage.Rect.RectVertexArray.reset();
         s_renderer2dStorage.Rect.RectVertexBuffer.reset();
@@ -327,10 +410,6 @@ namespace Creepy {
         s_renderer2dStorage.Lines.LineVertexArray.reset();
         s_renderer2dStorage.Lines.LineVertexBuffer.reset();
         s_renderer2dStorage.Lines.LineShader.reset();
-
-        s_renderer3dStorage.Cube.CubeVertexArray.reset();
-        s_renderer3dStorage.Cube.CubeVertexBuffer.reset();
-        s_renderer3dStorage.Cube.CubeShader.reset();
 
         s_renderer2dStorage.WhiteTexture.reset();
     }

@@ -9,25 +9,40 @@ namespace Creepy{
     struct Vertex{
         glm::vec3 Position;
         glm::vec4 Color;
+        glm::vec3 Normal;
         glm::vec2 TextureCoord;
     };
 
-    class VertexArray;
+    struct MeshInfo{
+        uint32_t Vertices;
+        uint32_t Indices;
+    };
 
     class Mesh
     {
         public:
             constexpr Mesh() noexcept = default;
-            constexpr Mesh(const std::vector<Vertex>& vertex, const std::vector<uint32_t>& indices) noexcept 
-                : m_vertex{vertex}, m_indices{indices} {}
+            constexpr Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) noexcept 
+                : m_vertices{vertices}, m_indices{indices} {}
+
+            constexpr const std::vector<Vertex>& GetVertices() const noexcept {
+                return m_vertices;
+            }
+
+            constexpr const std::vector<uint32_t>& GetIndices() const noexcept {
+                return m_indices;
+            }
+
+            constexpr size_t GetTotalVertices() const noexcept {
+                return m_vertices.size();
+            }
+
+            constexpr size_t GetTotalIndices() const noexcept {
+                return m_indices.size();
+            }
 
         private:
-
-            void setUpMesh() noexcept;
-        private:
-            std::vector<Vertex> m_vertex;
+            std::vector<Vertex> m_vertices;
             std::vector<uint32_t> m_indices;
-
-            Ref<VertexArray> m_vertexArray;
     };
 }
