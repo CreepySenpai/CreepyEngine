@@ -71,6 +71,22 @@ namespace Creepy {
         return {};
     }
 
+    Entity Scene::GetEntity(std::string_view entityName) noexcept {
+
+        auto views = m_registry.view<TagComponent>();
+
+        for(auto&& entityID : views){
+
+            Entity entity{entityID, this};
+            
+            if(entity.GetName() == entityName){
+                return entity;
+            }
+        }
+
+        return {};
+    }
+
     void Scene::DestroyEntity(Entity& entity) noexcept {
         APP_LOG_WARNING("Destroy ID: {}", static_cast<uint32_t>(entity));
         m_entityMap.erase(entity.GetUUID());
@@ -208,6 +224,11 @@ namespace Creepy {
 
 
     void Scene::OnViewPortResize(uint32_t width, uint32_t height) noexcept {
+
+        if(m_viewPortWidth == width && m_viewPortHeight == height) {
+            return;
+        }
+
         m_viewPortWidth = width;
         m_viewPortHeight = height;
 

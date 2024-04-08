@@ -109,7 +109,8 @@ namespace Creepy{
             template <RequireTypes T>
             constexpr void SetValue(T value) noexcept
             {
-                std::memcpy(m_buffer, &value, sizeof(T));
+                // std::memcpy(m_buffer, &value, sizeof(T));
+                new (&m_buffer[0]) T(value);
             }
 
             [[nodiscard]] constexpr uint8_t* GetValueRaw() noexcept {

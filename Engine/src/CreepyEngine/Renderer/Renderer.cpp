@@ -66,8 +66,8 @@ namespace Creepy {
 
     struct Renderer2DStorage {
         const uint32_t MaxRects{10000u};
-        const uint32_t MaxVertex{MaxRects * 4};
-        const uint32_t MaxIndex{MaxRects * 6};
+        const uint32_t MaxRectVertex{MaxRects * 4};
+        const uint32_t MaxRectIndex{MaxRects * 6};
         static const uint32_t MaxTextureSlots{32};     //TODO: Change Texture SLot To Asset Manager
 
         struct RectData{
@@ -111,9 +111,9 @@ namespace Creepy {
     };
 
     struct Renderer3DStorage {
-
-        const uint32_t MaxCubes{10000u};
-        const uint32_t MaxCubesVertex{MaxCubes * 24};
+        // TODO: Increase Max Cube
+        const uint32_t MaxCubes{1000u};
+        const uint32_t MaxCubesVertex{MaxCubes * 8};
         const uint32_t MaxCubesIndex{MaxCubes * 36};
 
         struct CubeData{
@@ -122,6 +122,8 @@ namespace Creepy {
             Ref<Shader> CubeShader{nullptr};
             CubeVertex* CubeVertexBufferBase{nullptr};
             CubeVertex* CubeVertexBufferPointer{nullptr};
+
+            glm::vec4 CubeVertexPosition[8];
         };
 
         CubeData Cube;
@@ -147,7 +149,7 @@ namespace Creepy {
         s_renderer2dStorage.Rect.RectVertexArray = Creepy::VertexArray::Create();
 
         ENGINE_LOG_WARNING("Gona Create Vertex Buffer");
-        s_renderer2dStorage.Rect.RectVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxVertex * sizeof(RectVertex));
+        s_renderer2dStorage.Rect.RectVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(RectVertex));
 
         Creepy::BufferLayout rectVertexBufferLayout{
             {Creepy::ShaderDataType::Float3, "a_position"},
@@ -163,14 +165,14 @@ namespace Creepy {
         // We need add buffer after it add layout, if not it will empty
         s_renderer2dStorage.Rect.RectVertexArray->AddVertexBuffer(s_renderer2dStorage.Rect.RectVertexBuffer);
 
-        s_renderer2dStorage.Rect.RectVertexBufferBase = new RectVertex[s_renderer2dStorage.MaxVertex];
+        s_renderer2dStorage.Rect.RectVertexBufferBase = new RectVertex[s_renderer2dStorage.MaxRectVertex];
 
         // Because alloc too much index on stack may cause stack overflow so we alloc on heap
 
-        uint32_t* rectIndex = new uint32_t[s_renderer2dStorage.MaxIndex];
+        uint32_t* rectIndex = new uint32_t[s_renderer2dStorage.MaxRectIndex];
 
         uint32_t offset{0};
-        for (uint32_t i{}; i < s_renderer2dStorage.MaxIndex; i += 6)
+        for (uint32_t i{}; i < s_renderer2dStorage.MaxRectIndex; i += 6)
         {
             rectIndex[i + 0] = offset + 0;
             rectIndex[i + 1] = offset + 1;
@@ -184,7 +186,7 @@ namespace Creepy {
         }
 
         ENGINE_LOG_WARNING("Gona Create Index");
-        auto indexBuffer = Creepy::IndexBuffer::Create(rectIndex, s_renderer2dStorage.MaxIndex);
+        auto indexBuffer = Creepy::IndexBuffer::Create(rectIndex, s_renderer2dStorage.MaxRectIndex);
 
         s_renderer2dStorage.Rect.RectVertexArray->SetIndexBuffer(indexBuffer);
 
@@ -196,7 +198,7 @@ namespace Creepy {
 
         s_renderer2dStorage.Circle.CircleVertexArray = VertexArray::Create();
 
-        s_renderer2dStorage.Circle.CircleVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxVertex * sizeof(CircleVertex));
+        s_renderer2dStorage.Circle.CircleVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(CircleVertex));
 
         Creepy::BufferLayout circleVertexBufferLayout{
             {Creepy::ShaderDataType::Float3, "a_position"},
@@ -212,11 +214,11 @@ namespace Creepy {
         // We need add buffer after it add layout, if not it will empty
         s_renderer2dStorage.Circle.CircleVertexArray->AddVertexBuffer(s_renderer2dStorage.Circle.CircleVertexBuffer);
 
-        uint32_t* rectIndex = new uint32_t[s_renderer2dStorage.MaxIndex];
+        uint32_t* rectIndex = new uint32_t[s_renderer2dStorage.MaxRectIndex];
 
         uint32_t offset{0};
 
-        for (uint32_t i{}; i < s_renderer2dStorage.MaxIndex; i += 6)
+        for (uint32_t i{}; i < s_renderer2dStorage.MaxRectIndex; i += 6)
         {
 
             rectIndex[i + 0] = offset + 0;
@@ -232,11 +234,11 @@ namespace Creepy {
 
         ENGINE_LOG_WARNING("Gona Create Index");
 
-        auto indexBuffer = Creepy::IndexBuffer::Create(rectIndex, s_renderer2dStorage.MaxIndex);
+        auto indexBuffer = Creepy::IndexBuffer::Create(rectIndex, s_renderer2dStorage.MaxRectIndex);
 
         s_renderer2dStorage.Circle.CircleVertexArray->SetIndexBuffer(indexBuffer); // rectIndex
 
-        s_renderer2dStorage.Circle.CircleVertexBufferBase = new CircleVertex[s_renderer2dStorage.MaxVertex];
+        s_renderer2dStorage.Circle.CircleVertexBufferBase = new CircleVertex[s_renderer2dStorage.MaxRectVertex];
 
         delete[] rectIndex;
         rectIndex = nullptr;
@@ -246,7 +248,7 @@ namespace Creepy {
 
         s_renderer2dStorage.Lines.LineVertexArray = VertexArray::Create();
 
-        s_renderer2dStorage.Lines.LineVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxVertex * sizeof(LineVertex));
+        s_renderer2dStorage.Lines.LineVertexBuffer = VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(LineVertex));
 
         Creepy::BufferLayout lineVertexBufferLayout{
             {Creepy::ShaderDataType::Float3, "a_position"},
@@ -259,7 +261,7 @@ namespace Creepy {
         // We need add buffer after it add layout, if not it will empty
         s_renderer2dStorage.Lines.LineVertexArray->AddVertexBuffer(s_renderer2dStorage.Lines.LineVertexBuffer);
 
-        s_renderer2dStorage.Lines.LineVertexBufferBase = new LineVertex[s_renderer2dStorage.MaxVertex];
+        s_renderer2dStorage.Lines.LineVertexBufferBase = new LineVertex[s_renderer2dStorage.MaxRectVertex];
     }
 
     void initStorage2D() noexcept {
@@ -290,7 +292,7 @@ namespace Creepy {
     }
 
     void initCube() noexcept {
-        // s_renderer3dStorage.
+        
     }
 
     void initStorage3D() noexcept {
@@ -445,7 +447,7 @@ namespace Creepy {
     void Renderer::DrawRect(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color) noexcept {
 
         // For sure if we draw too much rect > limit, we need to reset it and then start new scene to draw fit rect
-        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxRectIndex){
             flushAndReset();
         }
 
@@ -470,7 +472,7 @@ namespace Creepy {
     void Renderer::DrawRect(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, const glm::vec4& tilingColor) noexcept {
 
         // For sure if we draw too much rect > limit, we need to reset it and then start new scene to draw fit rect
-        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxRectIndex){
             flushAndReset();
         }
 
@@ -517,7 +519,7 @@ namespace Creepy {
     void Renderer::DrawRect(const glm::vec3& position, const glm::vec2& size, const Ref<SubTexture2D>& subTexture, const glm::vec4& tilingColor) noexcept {
 
         // For sure if we draw too much rect > limit, we need to reset it and then start new scene to draw fit rect
-        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxRectIndex){
             flushAndReset();
         }
 
@@ -559,7 +561,7 @@ namespace Creepy {
 
     void Renderer::DrawRect(const glm::mat4& transform, const glm::vec4& color, float tilingFactor, int entityID) noexcept {
 
-        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxRectIndex){
             flushAndReset();
         }
 
@@ -576,7 +578,7 @@ namespace Creepy {
     }
 
     void Renderer::DrawRect(const glm::mat4& transform, const Ref<Texture2D>& texture, const glm::vec4& tilingColor, float tilingFactor, int entityID) noexcept {
-        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxIndex){
+        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxRectIndex){
             flushAndReset();
         }
 
@@ -622,7 +624,7 @@ namespace Creepy {
     }
 
     void Renderer::DrawCircle(TransformComponent& transform, CircleSpriteComponent& circle, int entityID) noexcept {
-        if(s_renderer2dStorage.Circle.CircleIndexCount >= s_renderer2dStorage.MaxIndex){
+        if(s_renderer2dStorage.Circle.CircleIndexCount >= s_renderer2dStorage.MaxRectIndex){
             flushAndReset();
         }
 
@@ -643,7 +645,7 @@ namespace Creepy {
     }
 
     void Renderer::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickNess, float fade, int entityID) noexcept {
-        if(s_renderer2dStorage.Circle.CircleIndexCount >= s_renderer2dStorage.MaxIndex){
+        if(s_renderer2dStorage.Circle.CircleIndexCount >= s_renderer2dStorage.MaxRectIndex){
             flushAndReset();
         }
 

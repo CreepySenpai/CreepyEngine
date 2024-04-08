@@ -1,8 +1,9 @@
 using System;
 using System.Numerics;
 using Creepy.NativeDataType;
+using Creepy;
 
-namespace Creepy;
+namespace Creepy.Runtime;
 
 
 public class Entity
@@ -14,14 +15,14 @@ public class Entity
         UUID = 0;
     }
 
-    public virtual void OnCreate(){}
-
-    public virtual void OnUpdate(float timeStep){}
-
     protected internal Entity(ulong uuid)
     {
         UUID = uuid;
     }
+
+    public virtual void OnCreate(){}
+
+    public virtual void OnUpdate(float timeStep){}
 
     public Vector3 Position
     {
@@ -41,6 +42,10 @@ public class Entity
         }
     }
 
+    public bool IsExits(){
+        return UUID != 0;
+    }
+
     public bool HasComponent<T>() where T : Component, new() {
         Type componentType = typeof(T);
         unsafe {
@@ -58,5 +63,26 @@ public class Entity
 
         return component;
     }
-    
+
+    public Entity GetEntityByName(string entityName){
+
+        unsafe {
+            NativeString nativeName = entityName;
+            ulong entityID = InternalCalls.Entity_GetEntityByName(nativeName);
+
+            if(entityID == 0){
+                return null;
+            }
+
+            return new Entity(entityID);
+        }
+
+    }
+
+    public T As<T>() where T : Entity {
+        unsafe {
+            var instance = InternalCalls.Entity_GetInstance(UUID);
+            return instance.Get() as T;
+        }
+    }
 }

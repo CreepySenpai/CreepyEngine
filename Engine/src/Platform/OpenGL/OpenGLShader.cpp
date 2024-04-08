@@ -272,6 +272,8 @@ namespace Creepy {
         return result;
     }
 
+    // TODO: Rewrite Shader Compile When Use Vulkan
+
     void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources) noexcept {
         m_rendererID = glCreateProgram();
 

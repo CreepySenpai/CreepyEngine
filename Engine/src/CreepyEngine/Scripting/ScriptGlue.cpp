@@ -33,6 +33,26 @@ namespace Creepy {
         return s_entityHasComponentFuncs[static_cast<std::string>(componentName)](entity);
     }
 
+    static uint64_t Entity_GetEntityByName(Coral::String entityNativeName) {
+
+        auto&& entityName = static_cast<std::string>(entityNativeName);
+
+        auto scene = ScriptEngine::GetSceneContext();
+        
+        auto entity = scene->GetEntity(entityName);
+
+        if(entity.IsExits()){
+            return entity.GetUUID().GetID();
+        }
+        return 0;
+    }
+
+    // TODO: Check Entity Has Script Component
+    static Coral::ManagedObject Entity_GetInstance(uint64_t id){
+        UUID uuid{id};
+        return ScriptEngine::GetEntityInstance(uuid);
+    }
+
     static void TransformComponent_GetPosition(uint64_t uuid , glm::vec3* outPosition){
         auto scene = ScriptEngine::GetSceneContext();
 
@@ -83,6 +103,8 @@ namespace Creepy {
         // // Interal Call
         ENGINE_ADD_INTERNAL_CALL(Input_IsKeyPressed);
         ENGINE_ADD_INTERNAL_CALL(Entity_HasComponent);
+        ENGINE_ADD_INTERNAL_CALL(Entity_GetEntityByName);
+        ENGINE_ADD_INTERNAL_CALL(Entity_GetInstance);
         ENGINE_ADD_INTERNAL_CALL(TransformComponent_GetPosition);
         ENGINE_ADD_INTERNAL_CALL(TransformComponent_SetPosition);
         ENGINE_ADD_INTERNAL_CALL(TransformComponent_GetRotation);
@@ -94,7 +116,6 @@ namespace Creepy {
     }
 
     // TODO: Use reflection to get name, use variadic template
-    // String Pattern: N6Creepy11IDComponentE
     template <typename T>
     static void RegisterComponent() noexcept {
 

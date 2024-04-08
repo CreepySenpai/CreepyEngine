@@ -47,6 +47,8 @@ namespace Creepy {
     }
 
     void EditorLayer::OnUpdate(TimeStep timeStep) noexcept {
+
+        m_activeScene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
         
         // Resize
         if(FrameBufferSpecification spec = m_frameBuffer->GetSpecification();
@@ -57,8 +59,7 @@ namespace Creepy {
             m_frameBuffer->Resize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
 
             m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
-
-            m_activeScene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
+            
         }
 
         m_frameBuffer->Bind();
@@ -705,8 +706,6 @@ namespace Creepy {
 
         m_hierarchyPanel.SetScene(m_activeScene);
 
-        m_activeScene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
-
         m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
         
         m_editorScenePath.clear();
@@ -744,7 +743,6 @@ namespace Creepy {
 
                 m_hierarchyPanel.SetScene(m_activeScene);
 
-                m_activeScene->OnViewPortResize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
                 m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
                 
                 m_editorScenePath = filePath;

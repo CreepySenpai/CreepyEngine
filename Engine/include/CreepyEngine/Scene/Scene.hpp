@@ -21,6 +21,8 @@ namespace Creepy {
 
             [[nodiscard]] Entity GetEntity(UUID uuid) noexcept;
 
+            [[nodiscard]] Entity GetEntity(std::string_view entityName) noexcept;
+
             void DestroyEntity(Entity& entity) noexcept;
 
             void OnUpdateEditor(TimeStep timeStep, EditorCamera& camera) noexcept;

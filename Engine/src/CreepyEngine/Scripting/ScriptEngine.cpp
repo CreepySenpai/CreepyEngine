@@ -153,7 +153,7 @@ namespace Creepy {
         s_scriptEngineData->AppManagedAssembly = s_scriptEngineData->AppAssemblyContext.LoadAssembly(filePath.string());
         
         // Get base class from core assembly
-        Coral::Type& entityType = s_scriptEngineData->CoreManagedAssembly.GetType("Creepy.Entity");
+        Coral::Type& entityType = s_scriptEngineData->CoreManagedAssembly.GetType("Creepy.Runtime.Entity");
         
         // Get deriver class from app assembly
         for(auto& type : s_scriptEngineData->AppManagedAssembly.GetTypes()){
@@ -285,11 +285,12 @@ namespace Creepy {
 
     Coral::ManagedObject ScriptEngine::GetEntityInstance(UUID uuid) noexcept {
 
-        if(!s_scriptEngineData->EntityInstances.contains(uuid)){
-            ENGINE_LOG_ERROR("Entity Instance not exits");
+        if(s_scriptEngineData->EntityInstances.contains(uuid)){
+            return s_scriptEngineData->EntityInstances.at(uuid);
         }
 
-        return s_scriptEngineData->EntityInstances.at(uuid);
+        ENGINE_LOG_ERROR("Entity Instance not exits");
+        return {};  // Null Handle
     }
 
     void ScriptEngine::CreateEntityFastInstanceToCopyData(UUID uuid, Coral::Type* type) noexcept {
@@ -310,14 +311,14 @@ namespace Creepy {
             auto&& fieldDataName = static_cast<std::string>(field.GetType().GetFullName());
             auto&& accessibility = field.GetAccessibility();
             
-            bool hasShowField{false};
-            for(auto&& attribs : field.GetAttributes()){
-                if(static_cast<std::string>(attribs.GetType().GetFullName()) == "Creepy.ShowField"){
-                    hasShowField = true;
+            bool hasSerializer{false};
+            for(auto&& attribute : field.GetAttributes()){
+                if(static_cast<std::string>(attribute.GetType().GetFullName()) == "Creepy.Attributes.Serializer"){
+                    hasSerializer = true;
                 }
             }
 
-            if (ScriptEngine::IsDataTypeExits(fieldDataName) && (accessibility == Coral::TypeAccessibility::Public || hasShowField))
+            if (ScriptEngine::IsDataTypeExits(fieldDataName) && (accessibility == Coral::TypeAccessibility::Public || hasSerializer))
             {
                 auto &&fieldDataType = Utils::ConvertScriptStringToFieldType(fieldDataName);
                 
