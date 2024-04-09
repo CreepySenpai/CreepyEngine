@@ -153,4 +153,13 @@ namespace Creepy {
         float Restitution{0.0f};
         float RestitutionThreshold{0.5f};
     };
+
+    struct MeshComponent{
+        enum class MeshType : uint32_t {
+            NONE = 0, CUBE, SPHERE
+        };
+
+        MeshType Type{MeshType::NONE};
+        
+    };
 }

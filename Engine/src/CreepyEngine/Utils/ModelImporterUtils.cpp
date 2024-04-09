@@ -1,5 +1,5 @@
-#include <CreepyEngine/Core/Core.hpp>
 #include <CreepyEngine/Utils/ModelImporterUtils.hpp>
+#include <CreepyEngine/Renderer/Model.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -24,6 +24,7 @@ namespace Creepy::Utils {
             vertex.Position.x = mesh->mVertices[i].x;
             vertex.Position.y = mesh->mVertices[i].y;
             vertex.Position.z = mesh->mVertices[i].z;
+            vertex.Position.w = 1.0f;               // for transform
 
             vertex.Normal.x = mesh->mNormals[i].x;
             vertex.Normal.y = mesh->mNormals[i].y;
@@ -39,7 +40,7 @@ namespace Creepy::Utils {
                 vertex.TextureCoord.y = 0.0f;
             }
 
-            vertices.push_back(vertex);
+            vertices.emplace_back(vertex);
 
         }
 
@@ -47,7 +48,7 @@ namespace Creepy::Utils {
             aiFace face = mesh->mFaces[i];
             for(uint32_t j{}; j < face.mNumIndices; j++){
 
-                indices.push_back(face.mIndices[j]);
+                indices.emplace_back(face.mIndices[j]);
 
             }
         }
@@ -69,9 +70,10 @@ namespace Creepy::Utils {
         for(uint32_t i{}; i < node->mNumChildren; i++){
             ProcessNode(node->mChildren[i], modelScene, totalMesh);
         }
+
     }
-    
-    Creepy::Model ModelImporter::LoadModel(const std::filesystem::path& filePath) noexcept {
+
+    std::vector<Ref<Creepy::Mesh>> ModelImporter::LoadMesh(const std::filesystem::path& filePath) noexcept {
 
         if(!std::filesystem::exists(filePath)){
             ENGINE_LOG_ERROR("Model Path Dont Exits: {}", filePath.string());
@@ -86,14 +88,18 @@ namespace Creepy::Utils {
         }
 
         ENGINE_LOG_WARNING("Has Model: {}", filePath.string());
-        
+
         std::vector<Ref<Mesh>> totalMesh;
 
         ProcessNode(modelScene->mRootNode, modelScene, totalMesh);
 
         s_modelImporterStorage.Importer.FreeScene();
 
-        return {totalMesh};
+        return totalMesh;
+    }
+    
+    Creepy::Model ModelImporter::LoadModel(const std::filesystem::path& filePath) noexcept {
+        return {LoadMesh(filePath)};
     }
 
 }

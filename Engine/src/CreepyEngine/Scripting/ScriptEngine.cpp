@@ -13,6 +13,7 @@
 #include <Coral/GC.hpp>
 #include <Coral/Array.hpp>
 #include <Coral/Attribute.hpp>
+#include <FileWatcher/FileWatcher.hpp>
 
 
 namespace Creepy {
@@ -83,6 +84,8 @@ namespace Creepy {
         Scene* SceneContext{nullptr};
 
         std::filesystem::path CoreAssemblyPath, AppAssemblyPath;
+
+        Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
     };
 
     static ScriptEngineData* s_scriptEngineData{nullptr};
@@ -148,6 +151,10 @@ namespace Creepy {
 
     }
 
+    static void OnAppAssemblyFileSystemEvent(const std::string& filePath, const filewatch::Event eventType) noexcept {
+        ENGINE_LOG_WARNING("File Change Event: {} - {}", filePath, std::to_underlying(eventType));
+    }
+
     void ScriptEngine::LoadAppAssembly(const std::filesystem::path& filePath) noexcept {
         s_scriptEngineData->AppAssemblyPath = filePath;
 
@@ -180,6 +187,11 @@ namespace Creepy {
 
             }
         }
+
+        s_scriptEngineData->AppAssemblyFileWatcher = std::make_unique<filewatch::FileWatch<std::string>>(
+            filePath.string(),
+            OnAppAssemblyFileSystemEvent
+        );
 
     }
 

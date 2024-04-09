@@ -21,6 +21,10 @@ namespace Creepy
                 s_rendererAPI->DrawLines(vertexArray, vertexCount);
             }
 
+            constexpr static void DrawInstances() noexcept {
+                s_rendererAPI->DrawInstances();
+            }
+
             constexpr static void SetClearColor(const glm::vec4& color) noexcept {
                 s_rendererAPI->SetClearColor(color);
             }

@@ -145,4 +145,18 @@ namespace Creepy {
         m_layerStack.PopOverlay(overlay);
         overlay->OnDetach();
     }
+
+    void Application::SubmitToMainThread(const std::function<void()>& func) noexcept {
+        std::scoped_lock lock{m_mainThreadMutex};
+        m_mainThreadQueue.emplace_back(func);
+    }
+
+    void Application::executeMainThreadQueue() noexcept {
+        
+        for(auto& func : m_mainThreadQueue){
+            func();
+        }
+
+        m_mainThreadQueue.clear();
+    }
 }

@@ -144,6 +144,7 @@ namespace Creepy {
         RegisterComponent<RigidBody2DComponent>();
         RegisterComponent<BoxCollider2DComponent>();
         RegisterComponent<CircleCollider2DComponent>();
+        RegisterComponent<MeshComponent>();
 
         ENGINE_LOG_WARNING("Component Regis: {}", s_entityHasComponentFuncs.size());
     }

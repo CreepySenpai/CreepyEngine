@@ -8,6 +8,7 @@
 #include <cstring>
 #include <cstddef>
 #include <glm/glm.hpp>
+#include <CreepyEngine/Utils/ConceptUtils.hpp>
 
 
 // Forward declare
@@ -83,11 +84,8 @@ namespace Creepy{
 
     };
 
-    template<typename T, typename ... U>
-    concept IsAnyOf = (std::same_as<T, U> || ...);
-
     template <typename T>
-    concept RequireTypes = IsAnyOf<std::remove_cvref_t<T>, bool, char, uint8_t, short, uint16_t, int, 
+    concept RequireTypes = Utils::IsAnyOf<std::remove_cvref_t<T>, bool, char, uint8_t, short, uint16_t, int, 
         uint32_t, long, uint64_t, float, double, glm::vec2, glm::vec3, glm::vec4>;
 
     class ScriptField

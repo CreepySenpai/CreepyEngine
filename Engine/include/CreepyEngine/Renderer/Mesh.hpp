@@ -2,12 +2,13 @@
 
 #include <CreepyEngine/Core/Core.hpp>
 #include <vector>
+#include <span>
 #include <glm/glm.hpp>
 
 namespace Creepy{
     
     struct Vertex{
-        glm::vec3 Position;
+        glm::vec4 Position;
         glm::vec4 Color;
         glm::vec3 Normal;
         glm::vec2 TextureCoord;
@@ -25,11 +26,11 @@ namespace Creepy{
             constexpr Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) noexcept 
                 : m_vertices{vertices}, m_indices{indices} {}
 
-            constexpr const std::vector<Vertex>& GetVertices() const noexcept {
+            constexpr std::span<Vertex> GetVertices() noexcept {
                 return m_vertices;
             }
 
-            constexpr const std::vector<uint32_t>& GetIndices() const noexcept {
+            constexpr std::span<uint32_t> GetIndices() noexcept {
                 return m_indices;
             }
 

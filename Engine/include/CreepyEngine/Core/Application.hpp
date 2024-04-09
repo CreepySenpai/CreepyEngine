@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <filesystem>
+#include <mutex>
 #include "Window.hpp"
 #include "LayerStack.hpp"
 #include <CreepyEngine/Debug/ImGuiLayer.hpp>
@@ -43,6 +44,8 @@ namespace Creepy
                 return m_applicationDirectory;
             }
 
+            void SubmitToMainThread(const std::function<void()>& func) noexcept;
+
             static inline Application& GetInstance() noexcept {
                 return *instance;
             }
@@ -50,6 +53,8 @@ namespace Creepy
         private:
             bool OnWindowClose(WindowCloseEvent& event) noexcept;
             bool OnWindowResize(WindowResizeEvent& event) noexcept;
+
+            void executeMainThreadQueue() noexcept;
 
 
             Scope<Window> m_window;
@@ -59,6 +64,8 @@ namespace Creepy
             bool m_isRunning{true};
             bool m_minimized{false};
             std::filesystem::path m_applicationDirectory;
+            std::mutex m_mainThreadMutex;
+            std::vector<std::function<void()>> m_mainThreadQueue;
         private:
 
             // No memory leak because point to this obj

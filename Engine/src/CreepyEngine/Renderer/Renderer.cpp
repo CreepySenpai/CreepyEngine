@@ -51,6 +51,7 @@ namespace Creepy {
         glm::vec4 Color;
         glm::vec3 Normal;
         glm::vec2 TextureCoord;
+        float TextureIndex;
 
         int EntityID{-1};
     };
@@ -128,7 +129,7 @@ namespace Creepy {
             Ref<VertexArray> CubeVertexArray;
             Ref<VertexBuffer> CubeVertexBuffer;
             Ref<Shader> CubeShader;
-            glm::vec4 CubeVertexPosition[24];
+            Ref<Mesh> CubeMesh;
         };
 
         CubeData Cube;
@@ -323,69 +324,67 @@ namespace Creepy {
         Cube.CubeVertexBufferBase = new ModelVertex[s_renderer3dStorage.MaxModels];
         
         ENGINE_LOG_WARNING("Gonna Load Cube");
-        Model cubeModel = Utils::ModelImporter::LoadModel("./assets/models/cube/scene.gltf");
 
-        ENGINE_LOG_WARNING("Load Cube Model: {} - {} - {}", cubeModel.TotalMeshes(), cubeModel.TotalVertices(), cubeModel.TotalIndices());
+        Cube.CubeMesh = Utils::ModelImporter::LoadMesh("./assets/models/cube/scene.gltf").at(0);
 
-        auto& cubeMesh = cubeModel.GetMeshAt(0);
-        auto& cubeMeshIndices = cubeMesh.GetIndices();
-        auto& cubeMeshVertices = cubeMesh.GetVertices();
+        ENGINE_LOG_WARNING("Load Cube Model: {} - {}", Cube.CubeMesh->GetTotalVertices(), Cube.CubeMesh->GetTotalIndices());
 
-        for(int i{}; auto& v : cubeMeshVertices){
-            Cube.CubeVertexPosition[i].x = cubeMeshVertices.at(i).Position.x;
-            Cube.CubeVertexPosition[i].y = cubeMeshVertices.at(i).Position.y;
-            Cube.CubeVertexPosition[i].z = cubeMeshVertices.at(i).Position.z;
-            Cube.CubeVertexPosition[i].w = 1.0f;
-            ++i;
+        ENGINE_LOG_WARNING("Normal: ");
+
+        for(auto&& v : Cube.CubeMesh->GetVertices()){
+            ENGINE_LOG_WARNING("{} - {} - {}", v.Normal.x, v.Normal.y, v.Normal.z);
         }
 
-        ENGINE_LOG_WARNING("Vertex: ");
-        for(auto& vertex : Cube.CubeVertexPosition){
-            ENGINE_LOG_WARNING("{} - {} - {} - {}", vertex.x, vertex.y, vertex.z, vertex.w);
+        ENGINE_LOG_WARNING("Texture Coord: ");
+
+        for(auto&& v : Cube.CubeMesh->GetVertices()){
+            ENGINE_LOG_WARNING("{} - {}", v.TextureCoord.x, v.TextureCoord.y);
         }
 
         uint32_t* cubeIndices = new uint32_t[Cube.MaxCubesIndices];
 
         uint32_t offset{0};
 
-        for(uint32_t i{}; i < Cube.MaxCubesIndices; i += 36){
+        const auto&& cubeMeshIndices = Cube.CubeMesh->GetIndices();
 
-            cubeIndices[i + 0] = offset + cubeMeshIndices.at(0);
-            cubeIndices[i + 1] = offset + cubeMeshIndices.at(1);
-            cubeIndices[i + 2] = offset + cubeMeshIndices.at(2);
-            cubeIndices[i + 3] = offset + cubeMeshIndices.at(3);
-            cubeIndices[i + 4] = offset + cubeMeshIndices.at(4);
-            cubeIndices[i + 5] = offset + cubeMeshIndices.at(5);
-            cubeIndices[i + 6] = offset + cubeMeshIndices.at(6);
-            cubeIndices[i + 7] = offset + cubeMeshIndices.at(7);
-            cubeIndices[i + 8] = offset + cubeMeshIndices.at(8);
-            cubeIndices[i + 9] = offset + cubeMeshIndices.at(9);
-            cubeIndices[i + 10] = offset + cubeMeshIndices.at(10);
-            cubeIndices[i + 11] = offset + cubeMeshIndices.at(11);
-            cubeIndices[i + 12] = offset + cubeMeshIndices.at(12);
-            cubeIndices[i + 13] = offset + cubeMeshIndices.at(13);
-            cubeIndices[i + 14] = offset + cubeMeshIndices.at(14);
-            cubeIndices[i + 15] = offset + cubeMeshIndices.at(15);
-            cubeIndices[i + 16] = offset + cubeMeshIndices.at(16);
-            cubeIndices[i + 17] = offset + cubeMeshIndices.at(17);
-            cubeIndices[i + 18] = offset + cubeMeshIndices.at(18);
-            cubeIndices[i + 19] = offset + cubeMeshIndices.at(19);
-            cubeIndices[i + 20] = offset + cubeMeshIndices.at(20);
-            cubeIndices[i + 21] = offset + cubeMeshIndices.at(21);
-            cubeIndices[i + 22] = offset + cubeMeshIndices.at(22);
-            cubeIndices[i + 23] = offset + cubeMeshIndices.at(23);
-            cubeIndices[i + 24] = offset + cubeMeshIndices.at(24);
-            cubeIndices[i + 25] = offset + cubeMeshIndices.at(25);
-            cubeIndices[i + 26] = offset + cubeMeshIndices.at(26);
-            cubeIndices[i + 27] = offset + cubeMeshIndices.at(27);
-            cubeIndices[i + 28] = offset + cubeMeshIndices.at(28);
-            cubeIndices[i + 29] = offset + cubeMeshIndices.at(29);
-            cubeIndices[i + 30] = offset + cubeMeshIndices.at(30);
-            cubeIndices[i + 31] = offset + cubeMeshIndices.at(31);
-            cubeIndices[i + 32] = offset + cubeMeshIndices.at(32);
-            cubeIndices[i + 33] = offset + cubeMeshIndices.at(33);
-            cubeIndices[i + 34] = offset + cubeMeshIndices.at(34);
-            cubeIndices[i + 35] = offset + cubeMeshIndices.at(35);
+        for(uint32_t i{}; i < Cube.MaxCubesIndices; i += 36){
+            // TODO: Use std::span::at()
+            cubeIndices[i + 0] = offset + cubeMeshIndices[0];
+            cubeIndices[i + 1] = offset + cubeMeshIndices[1];
+            cubeIndices[i + 2] = offset + cubeMeshIndices[2];
+            cubeIndices[i + 3] = offset + cubeMeshIndices[3];
+            cubeIndices[i + 4] = offset + cubeMeshIndices[4];
+            cubeIndices[i + 5] = offset + cubeMeshIndices[5];
+            cubeIndices[i + 6] = offset + cubeMeshIndices[6];
+            cubeIndices[i + 7] = offset + cubeMeshIndices[7];
+            cubeIndices[i + 8] = offset + cubeMeshIndices[8];
+            cubeIndices[i + 9] = offset + cubeMeshIndices[9];
+            cubeIndices[i + 10] = offset + cubeMeshIndices[10];
+            cubeIndices[i + 11] = offset + cubeMeshIndices[11];
+            cubeIndices[i + 12] = offset + cubeMeshIndices[12];
+            cubeIndices[i + 13] = offset + cubeMeshIndices[13];
+            cubeIndices[i + 14] = offset + cubeMeshIndices[14];
+            cubeIndices[i + 15] = offset + cubeMeshIndices[15];
+            cubeIndices[i + 16] = offset + cubeMeshIndices[16];
+            cubeIndices[i + 17] = offset + cubeMeshIndices[17];
+            cubeIndices[i + 18] = offset + cubeMeshIndices[18];
+            cubeIndices[i + 19] = offset + cubeMeshIndices[19];
+            cubeIndices[i + 20] = offset + cubeMeshIndices[20];
+            cubeIndices[i + 21] = offset + cubeMeshIndices[21];
+            cubeIndices[i + 22] = offset + cubeMeshIndices[22];
+            cubeIndices[i + 23] = offset + cubeMeshIndices[23];
+            cubeIndices[i + 24] = offset + cubeMeshIndices[24];
+            cubeIndices[i + 25] = offset + cubeMeshIndices[25];
+            cubeIndices[i + 26] = offset + cubeMeshIndices[26];
+            cubeIndices[i + 27] = offset + cubeMeshIndices[27];
+            cubeIndices[i + 28] = offset + cubeMeshIndices[28];
+            cubeIndices[i + 29] = offset + cubeMeshIndices[29];
+            cubeIndices[i + 30] = offset + cubeMeshIndices[30];
+            cubeIndices[i + 31] = offset + cubeMeshIndices[31];
+            cubeIndices[i + 32] = offset + cubeMeshIndices[32];
+            cubeIndices[i + 33] = offset + cubeMeshIndices[33];
+            cubeIndices[i + 34] = offset + cubeMeshIndices[34];
+            cubeIndices[i + 35] = offset + cubeMeshIndices[35];
 
             offset += 36;
         }
@@ -568,6 +567,12 @@ namespace Creepy {
         }
     }
 
+    void Renderer::check3DBatchNeedReset() noexcept {
+        if(s_renderer3dStorage.Cube.CubeIndexCount >= s_renderer3dStorage.MaxModels){
+            flushAndReset3DBatch();
+        }
+    }
+
     void Renderer::checkTextureNeedReset(float& textureIndex, const Ref<Texture2D>& texture) noexcept {
 
         for(uint32_t i{1}; i < s_renderer2dStorage.TextureSlotIndex; i++){
@@ -594,23 +599,45 @@ namespace Creepy {
     }
 
     void Renderer::setRectProperty(const glm::mat4& transform, const glm::vec4& color, const std::array<glm::vec2, 4>& textureCoords, float textureIndex, float tilingFactor, int entityID) noexcept {
-        
+        auto&& Rect = s_renderer2dStorage.Rect;
+
         for(size_t i{0}; i < 4; i++){
             
-            s_renderer2dStorage.Rect.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[i];
-            s_renderer2dStorage.Rect.RectVertexBufferPointer->Color = color;
-            s_renderer2dStorage.Rect.RectVertexBufferPointer->TextureCoord = textureCoords.at(i);
-            s_renderer2dStorage.Rect.RectVertexBufferPointer->TextureIndex = textureIndex;
-            s_renderer2dStorage.Rect.RectVertexBufferPointer->TilingFactor = tilingFactor;
-            s_renderer2dStorage.Rect.RectVertexBufferPointer->EntityID = entityID;
+            Rect.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[i];
+            Rect.RectVertexBufferPointer->Color = color;
+            Rect.RectVertexBufferPointer->TextureCoord = textureCoords.at(i);
+            Rect.RectVertexBufferPointer->TextureIndex = textureIndex;
+            Rect.RectVertexBufferPointer->TilingFactor = tilingFactor;
+            Rect.RectVertexBufferPointer->EntityID = entityID;
 
-            s_renderer2dStorage.Rect.RectVertexBufferPointer++;
+            Rect.RectVertexBufferPointer++;
         }
 
-        s_renderer2dStorage.Rect.RectIndexCount += 6;
+        Rect.RectIndexCount += 6;
 
 
         ++s_rendererCoreStorage.Stats.RectCount;
+    }
+
+    void Renderer::setCubeProperty(const glm::mat4& transform, const glm::vec4& color, float textureIndex, int entityID) noexcept {
+        
+        auto&& Cube = s_renderer3dStorage.Cube;
+
+        for(uint32_t i{}; i < 24; i++){
+            
+            Cube.CubeVertexBufferPointer->Position = transform * Cube.CubeMesh->GetVertices()[i].Position;
+            Cube.CubeVertexBufferPointer->Color = color;
+            Cube.CubeVertexBufferPointer->Normal = Cube.CubeMesh->GetVertices()[i].Normal;
+            Cube.CubeVertexBufferPointer->TextureCoord = Cube.CubeMesh->GetVertices()[i].TextureCoord;
+            Cube.CubeVertexBufferPointer->TextureIndex = textureIndex;
+            Cube.CubeVertexBufferPointer->EntityID = entityID;
+
+            Cube.CubeVertexBufferPointer++;
+
+        }
+
+        Cube.CubeIndexCount += 36;
+
     }
 
     void Renderer::DrawRect(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color) noexcept {
@@ -810,7 +837,9 @@ namespace Creepy {
     // MARK: 3D Draw
 
     void Renderer::DrawCube(const glm::mat4& transform, const glm::vec4& color, int entityID) noexcept {
+        constexpr float textureIndex{0.0f};
         
+        setCubeProperty(transform, color, textureIndex);
     }
 
 

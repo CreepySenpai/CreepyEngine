@@ -1,5 +1,6 @@
 #pragma once
 
+#include <span>
 #include <CreepyEngine/Core/Core.hpp>
 #include "RendererAPI.hpp"
 #include <glm/glm.hpp>
@@ -84,11 +85,17 @@ namespace Creepy {
 
         private:
             static void setRectProperty(const glm::mat4& transform, const glm::vec4& color, const std::array<glm::vec2, 4>& textureCoords, float textureIndex, float tilingFactor = 1.0f, int entityID = -1) noexcept;
+
+            // TODO: Add Texture Coord When Use SubTexture
+            // static void setCubeProperty(const glm::mat4& transform, const glm::vec4& color, std::span<glm::vec3> textureCoords, float textureIndex, int entityID = -1) noexcept;
+            static void setCubeProperty(const glm::mat4& transform, const glm::vec4& color, float textureIndex, int entityID = -1) noexcept;
+
             static void start2DBatch() noexcept;
             static void start3DBatch() noexcept;
             static void flushAndReset2DBatch() noexcept;
             static void flushAndReset3DBatch() noexcept;
             static void check2DBatchNeedReset() noexcept;
+            static void check3DBatchNeedReset() noexcept;
             static void checkTextureNeedReset(float& textureIndex, const Ref<Texture2D>& texture) noexcept;
     };
     

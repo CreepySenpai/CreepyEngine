@@ -18,6 +18,8 @@ namespace Creepy
 
             void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount = 0) noexcept override;
 
+            void DrawInstances() noexcept override;
+
             void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept override;
 
             void SetLineThickness(float thickness) noexcept override;

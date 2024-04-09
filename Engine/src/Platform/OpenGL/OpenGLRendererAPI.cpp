@@ -32,6 +32,11 @@ namespace Creepy {
         
         vertexArray->Bind();
         glDrawArrays(GL_LINES, 0, vertexCount);
+
+    }
+
+    void OpenGLRendererAPI::DrawInstances() noexcept {
+        
     }
 
     void OpenGLRendererAPI::SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept {

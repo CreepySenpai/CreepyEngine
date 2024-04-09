@@ -477,7 +477,7 @@ namespace Creepy {
         // Copy Component except IDComponent, TagComponent
 
         CopyAllComponents<TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent,
-         ScriptComponent, RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent>::CopyComponents(srcRegistry, destRegistry, enttMap);
+         ScriptComponent, RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent>::CopyComponents(srcRegistry, destRegistry, enttMap);
 
         return newScene;
     }
@@ -487,7 +487,7 @@ namespace Creepy {
         Entity newEntity = CreateEntity(entity.GetName());
 
         CopyAllComponents<TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent
-        , ScriptComponent, RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent>::CopyComponentIfExits(entity, newEntity);
+        , ScriptComponent, RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent>::CopyComponentIfExits(entity, newEntity);
 
     }
 }

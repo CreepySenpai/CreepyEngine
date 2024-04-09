@@ -3,45 +3,51 @@
 
 #include "Scene.hpp"
 #include "Components.hpp"
+#include <CreepyEngine/Utils/ConceptUtils.hpp>
 #include <entt/entt.hpp>
 
+
 namespace Creepy {
+
+    template <typename T>
+    concept ValidComponents = Utils::IsAnyOf<std::remove_cvref_t<T>, IDComponent, TagComponent, TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent
+        , ScriptComponent, RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent>;
 
     class Entity
     {
         public:
             Entity() noexcept;
 
-            template <typename T>
+            template <ValidComponents T>
             constexpr std::remove_cvref_t<T>& AddComponent(auto&&... args) noexcept {
                 auto& component = m_scene->m_registry.emplace<std::remove_cvref_t<T>>(m_entityHandle, std::forward<decltype(args)>(args)...);
                 m_scene->OnComponentAdded<std::remove_cvref_t<T>>(*this, component);
                 return component;
             }
 
-            template <typename T>
+            template <ValidComponents T>
             constexpr std::remove_cvref_t<T>& AddOrReplaceComponent(auto&&... args) noexcept {
                 auto& component = m_scene->m_registry.emplace_or_replace<std::remove_cvref_t<T>>(m_entityHandle, std::forward<decltype(args)>(args)...);
                 m_scene->OnComponentAdded<std::remove_cvref_t<T>>(*this, component);
                 return component;
             }
 
-            template <typename T>
+            template <ValidComponents T>
             [[nodiscard]] constexpr std::remove_cvref_t<T>& GetComponent() noexcept {
                 return m_scene->m_registry.get<std::remove_cvref_t<T>>(m_entityHandle);
             }
 
-            template <typename T>
+            template <ValidComponents T>
             [[nodiscard]] constexpr bool HasComponent() noexcept {
                 return m_scene->m_registry.all_of<std::remove_cvref_t<T>>(m_entityHandle);
             }
 
-            template <typename... T>
+            template <ValidComponents... T>
             [[nodiscard]] constexpr bool HasComponents() noexcept {
                 return m_scene->m_registry.all_of<std::remove_cvref_t<T>...>(m_entityHandle);
             }
 
-            template <typename T>
+            template <ValidComponents T>
             constexpr void RemoveComponent() noexcept {
                 m_scene->m_registry.remove<std::remove_cvref_t<T>>(m_entityHandle);
             }
