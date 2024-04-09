@@ -1,4 +1,5 @@
 #include <Editor/EditorLayer.hpp>
+#include <CreepyEngine/Scripting/ScriptEngine.hpp>
 #include <imgui/ImGuizmo.h>
 
 namespace Creepy {
@@ -224,6 +225,12 @@ namespace Creepy {
                             Application::GetInstance().GetImGuiLayer().SetTheme();
                         }
                     }
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Reload Script", NULL, false)){
+                    ScriptEngine::ReloadAssembly();
                 }
 
                 ImGui::Separator();

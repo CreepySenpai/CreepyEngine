@@ -131,6 +131,8 @@ namespace Creepy {
     }
 
     void ScriptGlue::RegisterComponents() noexcept {
+        s_entityHasComponentFuncs.clear();
+        
         RegisterComponent<IDComponent>();
         RegisterComponent<TagComponent>();
         RegisterComponent<TransformComponent>();
@@ -142,6 +144,8 @@ namespace Creepy {
         RegisterComponent<RigidBody2DComponent>();
         RegisterComponent<BoxCollider2DComponent>();
         RegisterComponent<CircleCollider2DComponent>();
+
+        ENGINE_LOG_WARNING("Component Regis: {}", s_entityHasComponentFuncs.size());
     }
 
 }

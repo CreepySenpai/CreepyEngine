@@ -81,6 +81,8 @@ namespace Creepy {
         std::unordered_map<UUID, ScriptEngine::FieldMap> EntityScriptFieldData;
 
         Scene* SceneContext{nullptr};
+
+        std::filesystem::path CoreAssemblyPath, AppAssemblyPath;
     };
 
     static ScriptEngineData* s_scriptEngineData{nullptr};
@@ -141,15 +143,16 @@ namespace Creepy {
 
     // TODO: May be core have some class inherit from entity
     void ScriptEngine::LoadCoreAssembly(const std::filesystem::path& filePath) noexcept {
-
+        s_scriptEngineData->CoreAssemblyPath = filePath;
         s_scriptEngineData->CoreManagedAssembly = s_scriptEngineData->CoreAssemblyContext.LoadAssembly(filePath.string());
 
     }
 
     void ScriptEngine::LoadAppAssembly(const std::filesystem::path& filePath) noexcept {
+        s_scriptEngineData->AppAssemblyPath = filePath;
 
         s_scriptEngineData->EntityClasses.clear();
-
+        
         s_scriptEngineData->AppManagedAssembly = s_scriptEngineData->AppAssemblyContext.LoadAssembly(filePath.string());
         
         // Get base class from core assembly
@@ -164,27 +167,38 @@ namespace Creepy {
 
                 s_scriptEngineData->EntityClasses[className] = type;
                 
-                //TODO: Remove
-            
                 for(auto&& field : type->GetFields()){
-                    
+
                     auto dataName = static_cast<std::string>(field.GetName());
 
                     const auto dataType = Utils::ConvertScriptStringToFieldType(static_cast<std::string>(field.GetType().GetFullName()));
-                    
-                    ENGINE_LOG_WARNING("Field: {} {} {}", className, (std::string)field.GetType().GetFullName(), (std::string)field.GetName());
 
                     for(auto&& attbs : field.GetAttributes()){
                         ENGINE_LOG_WARNING("FieldName: {} Attb: {}", (std::string)field.GetName(), (std::string)attbs.GetType().GetFullName());
-                        
                     }
                 }
-
-                // End
 
             }
         }
 
+    }
+
+    // Only For App Assembly
+    void ScriptEngine::ReloadAssembly() noexcept {
+
+        Coral::GC::Collect();
+
+        s_scriptEngineData->HostInstance.UnloadAssemblyLoadContext(s_scriptEngineData->CoreAssemblyContext);
+        s_scriptEngineData->HostInstance.UnloadAssemblyLoadContext(s_scriptEngineData->AppAssemblyContext);
+        
+        s_scriptEngineData->CoreAssemblyContext = s_scriptEngineData->HostInstance.CreateAssemblyLoadContext("CoreAssemblyContext");
+        s_scriptEngineData->AppAssemblyContext = s_scriptEngineData->HostInstance.CreateAssemblyLoadContext("AppAssemblyContext");
+
+        LoadCoreAssembly(s_scriptEngineData->CoreAssemblyPath);
+        LoadAppAssembly(s_scriptEngineData->AppAssemblyPath);
+
+        ScriptGlue::RegisterFunctions();
+        ScriptGlue::RegisterComponents();
     }
     
 

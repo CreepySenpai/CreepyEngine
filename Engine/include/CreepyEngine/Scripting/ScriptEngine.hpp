@@ -44,6 +44,8 @@ namespace Creepy{
             
             static void LoadAppAssembly(const std::filesystem::path& filePath) noexcept;
 
+            static void ReloadAssembly() noexcept;
+
             [[nodiscard]] static Coral::ManagedAssembly& GetLoadedCoreAssembly() noexcept;
 
             [[nodiscard]] static Coral::ManagedAssembly& GetLoaderAppAssembly() noexcept;
