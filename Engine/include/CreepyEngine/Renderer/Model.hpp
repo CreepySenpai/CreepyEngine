@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <cstdint>
+#include <CreepyEngine/Core/Core.hpp>
 #include "Mesh.hpp"
 
 namespace Creepy {
@@ -14,11 +15,7 @@ namespace Creepy {
 
             constexpr Model() noexcept = default;
             
-            Model(const std::vector<Mesh>& meshes) noexcept;
-
-            constexpr const std::vector<MeshInfo>& GetMeshesInfo() const noexcept {
-                return m_meshesInfo;
-            }
+            Model(const std::vector<Ref<Mesh>>& meshes) noexcept;
 
             Mesh& GetMeshAt(uint32_t index) noexcept;
 
@@ -28,11 +25,14 @@ namespace Creepy {
 
             uint32_t TotalIndices() const noexcept;
 
+            void ReleaseMesh() noexcept;
+
             static Model Create(const std::filesystem::path& filePath) noexcept;
 
         private:
-            std::vector<MeshInfo> m_meshesInfo;
-            std::vector<Mesh> m_meshes;
+            std::vector<Ref<Mesh>> m_meshes;
+            uint32_t m_totalVertices{};
+            uint32_t m_totalIndices{};
     };
 
 }

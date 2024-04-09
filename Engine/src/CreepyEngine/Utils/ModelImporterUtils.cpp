@@ -55,14 +55,13 @@ namespace Creepy::Utils {
         return {vertices, indices};
     }
 
-    void ProcessNode(aiNode* node, const aiScene* modelScene, std::vector<Mesh>& totalMesh) noexcept {
+    void ProcessNode(aiNode* node, const aiScene* modelScene, std::vector<Ref<Mesh>>& totalMesh) noexcept {
         
         for(uint32_t i{}; i < node->mNumMeshes; i++){
             
             auto subMesh = modelScene->mMeshes[node->mMeshes[i]];
-            
-            totalMesh.push_back(ProcessMesh(subMesh, modelScene));
-            
+
+            totalMesh.emplace_back(std::make_shared<Mesh>(ProcessMesh(subMesh, modelScene)));
         }
 
 
@@ -88,7 +87,7 @@ namespace Creepy::Utils {
 
         ENGINE_LOG_WARNING("Has Model: {}", filePath.string());
         
-        std::vector<Mesh> totalMesh;
+        std::vector<Ref<Mesh>> totalMesh;
 
         ProcessNode(modelScene->mRootNode, modelScene, totalMesh);
 

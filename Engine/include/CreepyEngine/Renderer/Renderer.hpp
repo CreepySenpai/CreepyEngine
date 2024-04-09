@@ -35,7 +35,8 @@ namespace Creepy {
             static void BeginScene(const EditorCamera& camera) noexcept;
             
             static void EndScene() noexcept;
-            static void Flush() noexcept;
+            static void Flush2DBatch() noexcept;
+            static void Flush3DBatch() noexcept;
 
             static void DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) noexcept;
             static void DrawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color) noexcept;
@@ -61,6 +62,10 @@ namespace Creepy {
 
             static void DrawLineRect(const glm::mat4& transform, const glm::vec4& color, int entityID = -1) noexcept;
 
+            // 3D
+
+            static void DrawCube(const glm::mat4& transform, const glm::vec4& color, int entityID = -1) noexcept;
+
             struct Statistics{
                 uint32_t DrawCalls{0};
                 uint32_t RectCount{0};
@@ -79,8 +84,12 @@ namespace Creepy {
 
         private:
             static void setRectProperty(const glm::mat4& transform, const glm::vec4& color, const std::array<glm::vec2, 4>& textureCoords, float textureIndex, float tilingFactor = 1.0f, int entityID = -1) noexcept;
-            static void startBatch() noexcept;
-            static void flushAndReset() noexcept;
+            static void start2DBatch() noexcept;
+            static void start3DBatch() noexcept;
+            static void flushAndReset2DBatch() noexcept;
+            static void flushAndReset3DBatch() noexcept;
+            static void check2DBatchNeedReset() noexcept;
+            static void checkTextureNeedReset(float& textureIndex, const Ref<Texture2D>& texture) noexcept;
     };
     
 }
