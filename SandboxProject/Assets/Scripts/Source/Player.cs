@@ -12,6 +12,11 @@ public class Player : Entity {
     [Serializer]
     private float Speed = 1.0f;
     public float Age = 54.0f;
+    public float Anhh = 1000f;
+
+    public float Anhh2 = 1000f;
+    public float Anhh3 = 1000f;
+    public float Anhh4 = 1000f;
 
     private Camera cam = null;
     

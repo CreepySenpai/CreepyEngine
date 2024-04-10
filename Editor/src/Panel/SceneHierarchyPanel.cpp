@@ -373,6 +373,8 @@ namespace Creepy {
             DisplayAddComponent<RigidBody2DComponent>(entity, "RigidBody2D");
             DisplayAddComponent<BoxCollider2DComponent>(entity, "BoxCollider2D");
             DisplayAddComponent<CircleCollider2DComponent>(entity, "CircleCollider2DComponent");
+            DisplayAddComponent<MeshComponent>(entity, "MeshComponent");
+            
 
             ImGui::EndPopup();
         }
@@ -497,6 +499,7 @@ namespace Creepy {
                         }
 
                         if(scriptFieldData.at(uuid).contains(fieldName)){
+
                             auto&& fieldMap = scriptFieldData.at(uuid).at(fieldName);
 
                             auto&& type = fieldMap.DataType;
@@ -528,6 +531,11 @@ namespace Creepy {
 
                             }
 
+                        } 
+
+                        // Solution For Save And Load Script Field Not Save In File But Have Change
+                        else {
+                            ScriptEngine::CreateEntityFastInstanceToCopyData(uuid, classType);
                         }
 
                     }
@@ -626,6 +634,31 @@ namespace Creepy {
             ImGui::DragFloat("Restitution", &circleCollider2DComponent.Restitution, 0.1f, 0.0f);
             ImGui::DragFloat("RestitutionThreshold", &circleCollider2DComponent.RestitutionThreshold, 0.1f, 0.0f);
 
+        });
+
+        MyDrawComponent<MeshComponent>::DrawComponent("Mesh", entity, [](MeshComponent& meshComponent){
+            const char* meshType[] = {"None", "Cube"};
+            const char* currentMesh = meshType[std::to_underlying(meshComponent.Type)];
+
+            if(ImGui::BeginCombo("Mesh Type", currentMesh)){
+                for(uint32_t i{0}; auto& mesh : meshType){
+
+                    bool isSelected = currentMesh == meshType[i];   // Pointer Compare
+
+                    if(ImGui::Selectable(meshType[i], isSelected)){
+                        currentMesh = meshType[i];
+                        meshComponent.Type = static_cast<MeshComponent::MeshType>(i);
+                    }
+
+                    if(isSelected){
+                        ImGui::SetItemDefaultFocus();
+                    }
+
+                    ++i;
+                }
+
+                ImGui::EndCombo();
+            }
         });
 
     }

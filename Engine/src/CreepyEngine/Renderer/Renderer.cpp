@@ -120,7 +120,7 @@ namespace Creepy {
 
         struct CubeData {
 
-            const uint32_t MaxCubesVertices{1000u * 24};
+            const uint32_t MaxCubesVertices{1000u * 36};
             const uint32_t MaxCubesIndices{1000u * 36};
 
             uint32_t CubeIndexCount{0};
@@ -322,14 +322,16 @@ namespace Creepy {
         Cube.CubeVertexArray->AddVertexBuffer(Cube.CubeVertexBuffer);
 
         Cube.CubeVertexBufferBase = new ModelVertex[s_renderer3dStorage.MaxModels];
-        
-        ENGINE_LOG_WARNING("Gonna Load Cube");
 
-        Cube.CubeMesh = Utils::ModelImporter::LoadMesh("./assets/models/cube/scene.gltf").at(0);
+        Cube.CubeMesh = Utils::ModelImporter::LoadMesh("./assets/models/cube/Cube.gltf").at(0);
 
         ENGINE_LOG_WARNING("Load Cube Model: {} - {}", Cube.CubeMesh->GetTotalVertices(), Cube.CubeMesh->GetTotalIndices());
 
         ENGINE_LOG_WARNING("Normal: ");
+
+        for(auto&& v : Cube.CubeMesh->GetVertices()){
+            ENGINE_LOG_WARNING("{} - {} - {}", v.Position.x, v.Position.y, v.Position.z);
+        }
 
         for(auto&& v : Cube.CubeMesh->GetVertices()){
             ENGINE_LOG_WARNING("{} - {} - {}", v.Normal.x, v.Normal.y, v.Normal.z);
@@ -349,42 +351,47 @@ namespace Creepy {
 
         for(uint32_t i{}; i < Cube.MaxCubesIndices; i += 36){
             // TODO: Use std::span::at()
-            cubeIndices[i + 0] = offset + cubeMeshIndices[0];
-            cubeIndices[i + 1] = offset + cubeMeshIndices[1];
-            cubeIndices[i + 2] = offset + cubeMeshIndices[2];
-            cubeIndices[i + 3] = offset + cubeMeshIndices[3];
-            cubeIndices[i + 4] = offset + cubeMeshIndices[4];
-            cubeIndices[i + 5] = offset + cubeMeshIndices[5];
-            cubeIndices[i + 6] = offset + cubeMeshIndices[6];
-            cubeIndices[i + 7] = offset + cubeMeshIndices[7];
-            cubeIndices[i + 8] = offset + cubeMeshIndices[8];
-            cubeIndices[i + 9] = offset + cubeMeshIndices[9];
-            cubeIndices[i + 10] = offset + cubeMeshIndices[10];
-            cubeIndices[i + 11] = offset + cubeMeshIndices[11];
-            cubeIndices[i + 12] = offset + cubeMeshIndices[12];
-            cubeIndices[i + 13] = offset + cubeMeshIndices[13];
-            cubeIndices[i + 14] = offset + cubeMeshIndices[14];
-            cubeIndices[i + 15] = offset + cubeMeshIndices[15];
-            cubeIndices[i + 16] = offset + cubeMeshIndices[16];
-            cubeIndices[i + 17] = offset + cubeMeshIndices[17];
-            cubeIndices[i + 18] = offset + cubeMeshIndices[18];
-            cubeIndices[i + 19] = offset + cubeMeshIndices[19];
-            cubeIndices[i + 20] = offset + cubeMeshIndices[20];
-            cubeIndices[i + 21] = offset + cubeMeshIndices[21];
-            cubeIndices[i + 22] = offset + cubeMeshIndices[22];
-            cubeIndices[i + 23] = offset + cubeMeshIndices[23];
-            cubeIndices[i + 24] = offset + cubeMeshIndices[24];
-            cubeIndices[i + 25] = offset + cubeMeshIndices[25];
-            cubeIndices[i + 26] = offset + cubeMeshIndices[26];
-            cubeIndices[i + 27] = offset + cubeMeshIndices[27];
-            cubeIndices[i + 28] = offset + cubeMeshIndices[28];
-            cubeIndices[i + 29] = offset + cubeMeshIndices[29];
-            cubeIndices[i + 30] = offset + cubeMeshIndices[30];
-            cubeIndices[i + 31] = offset + cubeMeshIndices[31];
-            cubeIndices[i + 32] = offset + cubeMeshIndices[32];
-            cubeIndices[i + 33] = offset + cubeMeshIndices[33];
-            cubeIndices[i + 34] = offset + cubeMeshIndices[34];
-            cubeIndices[i + 35] = offset + cubeMeshIndices[35];
+
+            for(uint32_t j{}; j < 36; j++){
+                cubeIndices[i + j] = offset + cubeMeshIndices[j];
+            }
+
+            // cubeIndices[i + 0] = offset + cubeMeshIndices[0];
+            // cubeIndices[i + 1] = offset + cubeMeshIndices[1];
+            // cubeIndices[i + 2] = offset + cubeMeshIndices[2];
+            // cubeIndices[i + 3] = offset + cubeMeshIndices[3];
+            // cubeIndices[i + 4] = offset + cubeMeshIndices[4];
+            // cubeIndices[i + 5] = offset + cubeMeshIndices[5];
+            // cubeIndices[i + 6] = offset + cubeMeshIndices[6];
+            // cubeIndices[i + 7] = offset + cubeMeshIndices[7];
+            // cubeIndices[i + 8] = offset + cubeMeshIndices[8];
+            // cubeIndices[i + 9] = offset + cubeMeshIndices[9];
+            // cubeIndices[i + 10] = offset + cubeMeshIndices[10];
+            // cubeIndices[i + 11] = offset + cubeMeshIndices[11];
+            // cubeIndices[i + 12] = offset + cubeMeshIndices[12];
+            // cubeIndices[i + 13] = offset + cubeMeshIndices[13];
+            // cubeIndices[i + 14] = offset + cubeMeshIndices[14];
+            // cubeIndices[i + 15] = offset + cubeMeshIndices[15];
+            // cubeIndices[i + 16] = offset + cubeMeshIndices[16];
+            // cubeIndices[i + 17] = offset + cubeMeshIndices[17];
+            // cubeIndices[i + 18] = offset + cubeMeshIndices[18];
+            // cubeIndices[i + 19] = offset + cubeMeshIndices[19];
+            // cubeIndices[i + 20] = offset + cubeMeshIndices[20];
+            // cubeIndices[i + 21] = offset + cubeMeshIndices[21];
+            // cubeIndices[i + 22] = offset + cubeMeshIndices[22];
+            // cubeIndices[i + 23] = offset + cubeMeshIndices[23];
+            // cubeIndices[i + 24] = offset + cubeMeshIndices[24];
+            // cubeIndices[i + 25] = offset + cubeMeshIndices[25];
+            // cubeIndices[i + 26] = offset + cubeMeshIndices[26];
+            // cubeIndices[i + 27] = offset + cubeMeshIndices[27];
+            // cubeIndices[i + 28] = offset + cubeMeshIndices[28];
+            // cubeIndices[i + 29] = offset + cubeMeshIndices[29];
+            // cubeIndices[i + 30] = offset + cubeMeshIndices[30];
+            // cubeIndices[i + 31] = offset + cubeMeshIndices[31];
+            // cubeIndices[i + 32] = offset + cubeMeshIndices[32];
+            // cubeIndices[i + 33] = offset + cubeMeshIndices[33];
+            // cubeIndices[i + 34] = offset + cubeMeshIndices[34];
+            // cubeIndices[i + 35] = offset + cubeMeshIndices[35];
 
             offset += 36;
         }
@@ -623,7 +630,7 @@ namespace Creepy {
         
         auto&& Cube = s_renderer3dStorage.Cube;
 
-        for(uint32_t i{}; i < 24; i++){
+        for(uint32_t i{}; i < 36; i++){
             
             Cube.CubeVertexBufferPointer->Position = transform * Cube.CubeMesh->GetVertices()[i].Position;
             Cube.CubeVertexBufferPointer->Color = color;
@@ -839,7 +846,7 @@ namespace Creepy {
     void Renderer::DrawCube(const glm::mat4& transform, const glm::vec4& color, int entityID) noexcept {
         constexpr float textureIndex{0.0f};
         
-        setCubeProperty(transform, color, textureIndex);
+        setCubeProperty(transform, color, textureIndex, entityID);
     }
 
 

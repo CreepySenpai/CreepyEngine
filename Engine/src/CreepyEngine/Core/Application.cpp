@@ -55,6 +55,8 @@ namespace Creepy {
             // Save current time
             m_lastFrameTime = time;
 
+            this->executeMainThreadQueue();
+
             // Save CPU render when we minimize window
             if(!m_minimized) {
 
@@ -153,10 +155,17 @@ namespace Creepy {
 
     void Application::executeMainThreadQueue() noexcept {
         
-        for(auto& func : m_mainThreadQueue){
+        std::vector<std::function<void()>> copyQueue;
+        {
+            std::scoped_lock lock{m_mainThreadMutex};
+            copyQueue.reserve(m_mainThreadQueue.size());
+            copyQueue = m_mainThreadQueue;
+            m_mainThreadQueue.clear();
+        }
+
+        for(auto& func : copyQueue){
             func();
         }
 
-        m_mainThreadQueue.clear();
     }
 }

@@ -2,6 +2,7 @@
 
 #include <CreepyEngine/Core/Core.hpp>
 #include <CreepyEngine/Core/UUID.hpp>
+#include <CreepyEngine/Core/Application.hpp>
 #include <CreepyEngine/Scripting/ScriptEngine.hpp>
 #include <CreepyEngine/Scripting/ScriptGlue.hpp>
 #include <CreepyEngine/Utils/ScriptEngineUtils.hpp>
@@ -86,6 +87,7 @@ namespace Creepy {
         std::filesystem::path CoreAssemblyPath, AppAssemblyPath;
 
         Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
+        bool AppAssemblyReloadPending{false};
     };
 
     static ScriptEngineData* s_scriptEngineData{nullptr};
@@ -151,8 +153,23 @@ namespace Creepy {
 
     }
 
+
+
     static void OnAppAssemblyFileSystemEvent(const std::string& filePath, const filewatch::Event eventType) noexcept {
-        ENGINE_LOG_WARNING("File Change Event: {} - {}", filePath, std::to_underlying(eventType));
+
+        if(eventType == filewatch::Event::modified && !s_scriptEngineData->AppAssemblyReloadPending){
+            s_scriptEngineData->AppAssemblyReloadPending = true;
+
+            Application::GetInstance().SubmitToMainThread([](){
+
+                ENGINE_LOG_WARNING("File Change Event");
+                s_scriptEngineData->AppAssemblyFileWatcher.reset();
+                ScriptEngine::ReloadAssembly();
+
+            });
+            
+        }
+        
     }
 
     void ScriptEngine::LoadAppAssembly(const std::filesystem::path& filePath) noexcept {
@@ -211,6 +228,8 @@ namespace Creepy {
 
         ScriptGlue::RegisterFunctions();
         ScriptGlue::RegisterComponents();
+
+        s_scriptEngineData->AppAssemblyReloadPending = false;
     }
     
 
@@ -348,7 +367,7 @@ namespace Creepy {
             {
                 auto &&fieldDataType = Utils::ConvertScriptStringToFieldType(fieldDataName);
                 
-                fieldMap[uuid].emplace(std::make_pair(fieldName, fieldDataType));
+                fieldMap[uuid].try_emplace(fieldName, fieldDataType);
 
                 entityInstanceTemp.GetFieldValueRaw(fieldName, fieldMap.at(uuid).at(fieldName).GetValueRaw());
             }

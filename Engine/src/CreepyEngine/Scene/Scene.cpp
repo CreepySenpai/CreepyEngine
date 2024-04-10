@@ -394,6 +394,17 @@ namespace Creepy {
             });
         }
 
+        {
+            m_registry.view<TransformComponent, MeshComponent>().each([](auto entityID, TransformComponent& transformComponent, MeshComponent& meshComponent){
+                switch(meshComponent.Type){
+                    case MeshComponent::MeshType::CUBE: {
+                        Renderer::DrawCube(transformComponent.GetTransform(), {160.0f / 255.0f, 163.0f / 255.0f, 168.0f / 255.0f, 1.0f}, static_cast<int>(entityID));
+                        break;
+                    }
+                }
+            });
+        }
+
 
         Renderer::EndScene();
     }
