@@ -29,6 +29,10 @@ namespace Creepy {
 
         m_simulationIcon = Texture2D::Create("./assets/icons/simulation_icon.png");
 
+        m_pauseIcon = Texture2D::Create("./assets/icons/pause_icon.png");
+
+        m_steppingIcon = Texture2D::Create("./assets/icons/step-icon.png");
+
         m_editorCamera = EditorCamera{45.0f, 1.0f, 0.01f, 1000.0f};
         
 
@@ -513,6 +517,15 @@ namespace Creepy {
 
     }
 
+    void EditorLayer::onScenePause() noexcept {
+        if(m_sceneState == SceneState::EDIT){
+            return;
+        }
+
+        m_activeScene->SetPause(true);
+
+    }
+
     void EditorLayer::onDuplicateEntity() noexcept {
         if(m_sceneState != SceneState::EDIT){
             return;
@@ -534,15 +547,20 @@ namespace Creepy {
 
         ImGui::Begin("##toolBar", nullptr, 
             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-        
+
+        const float iconSize{ImGui::GetWindowHeight() - 2.0f}; // Padding
+
+        ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x * 0.5f) - (iconSize * 0.5f));
+
+        bool hasPlayButton = m_sceneState == SceneState::EDIT || m_sceneState == SceneState::PLAY;
+        bool hasSimulationButton = m_sceneState == SceneState::EDIT || m_sceneState == SceneState::SIMULATION;
+        bool hasPauseButton = m_sceneState != SceneState::EDIT;
+
+        if(hasPlayButton)
         {
+            
             auto iconID = reinterpret_cast<ImTextureID>(m_sceneState == SceneState::EDIT 
                     || m_sceneState == SceneState::SIMULATION ? m_playIcon->GetRendererID() : m_stopIcon->GetRendererID());
-
-            const float iconSize{ImGui::GetWindowHeight() - 2.0f};  // Padding
-
-            // Center Icon
-            ImGui::SetCursorPosX((ImGui::GetContentRegionMax().x * 0.5f) - (iconSize * 0.5f));
 
             if(ImGui::ImageButton(iconID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0)){
 
@@ -554,23 +572,55 @@ namespace Creepy {
             
             }
         }
+        
 
-        ImGui::SameLine();
-
+        if(hasSimulationButton)
         {
-            auto iconID = reinterpret_cast<ImTextureID>(m_sceneState == SceneState::EDIT 
-                    || m_sceneState == SceneState::PLAY ? m_simulationIcon->GetRendererID() : m_stopIcon->GetRendererID());
+            
+            if(hasPlayButton){
+                ImGui::SameLine();
+            }
 
-            const float iconSize{ImGui::GetWindowHeight() - 2.0f};  // Padding
+            auto iconID = reinterpret_cast<ImTextureID>(m_sceneState == SceneState::EDIT || m_sceneState == SceneState::PLAY ? m_simulationIcon->GetRendererID() : m_stopIcon->GetRendererID());
+            
+            if (ImGui::ImageButton(iconID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0))
+            {
 
-            if(ImGui::ImageButton(iconID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0)){
-
-                if(m_sceneState == SceneState::EDIT || m_sceneState == SceneState::PLAY){
+                if (m_sceneState == SceneState::EDIT || m_sceneState == SceneState::PLAY)
+                {
                     this->onSimulationPlay();
-                } else if(m_sceneState == SceneState::SIMULATION){
+                }
+                else if (m_sceneState == SceneState::SIMULATION)
+                {
                     this->onSceneStop();
                 }
+            }
+
+        }
+
+        if(hasPauseButton){
+
+            ImGui::SameLine();
             
+            {
+                auto iconID = reinterpret_cast<ImTextureID>(m_pauseIcon->GetRendererID());
+
+                bool isPause = m_activeScene->IsScenePause();
+
+                if(ImGui::ImageButton(iconID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0)){
+                    m_activeScene->SetPause(!isPause);
+                }
+
+                isPause = m_activeScene->IsScenePause();
+
+                if(isPause){
+                    ImGui::SameLine();
+                    auto stepID = reinterpret_cast<ImTextureID>(m_steppingIcon->GetRendererID());
+                    if(ImGui::ImageButton(stepID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0)){
+                        ENGINE_LOG_WARNING("Call Step");
+                        m_activeScene->Step(10);
+                    }
+                }
             }
         }
 

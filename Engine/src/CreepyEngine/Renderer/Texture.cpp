@@ -32,7 +32,7 @@ namespace Creepy {
 
     Ref<Texture2D> Texture2D::Create(const std::filesystem::path& filePath) noexcept {
         if(!std::filesystem::exists(filePath)){
-            ENGINE_LOG_WARNING("Assets {} don't exits", filePath.string());
+            ENGINE_LOG_ERROR("Assets {} don't exits", filePath.string());
             return nullptr;
         }
         

@@ -36,7 +36,9 @@ namespace Creepy {
             void onOverlayRender() noexcept;
             void onScenePlay() noexcept;
             void onSceneStop() noexcept;
+            void onScenePause() noexcept;
             void onSimulationPlay() noexcept;
+            
 
             void onDuplicateEntity() noexcept;
 
@@ -64,6 +66,8 @@ namespace Creepy {
             Ref<Texture2D> m_playIcon;
             Ref<Texture2D> m_stopIcon;
             Ref<Texture2D> m_simulationIcon;
+            Ref<Texture2D> m_pauseIcon;
+            Ref<Texture2D> m_steppingIcon;
             Ref<Scene> m_activeScene;
             Ref<Scene> m_editorScene;
             EditorCamera m_editorCamera;
@@ -78,6 +82,7 @@ namespace Creepy {
             bool m_viewPortFocused;
             bool m_viewPortHovered;
             bool m_showPhysicCollider{true};
+            
 
             SceneState m_sceneState{SceneState::EDIT};
             

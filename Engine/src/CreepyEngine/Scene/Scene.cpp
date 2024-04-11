@@ -100,55 +100,57 @@ namespace Creepy {
 
     void Scene::OnUpdateRunTime(TimeStep timeStep) noexcept {
 
-        // Native Script
-        {
-            m_registry.view<NativeScriptComponent>().each([timeStep, this](auto entity, NativeScriptComponent& nativeComponent){
-                // TODO: Move to scene play
-                if(!nativeComponent.Instance){
-                    nativeComponent.Instance = nativeComponent.CreateScript();
-                    nativeComponent.Instance->m_entity = {entity, this};
-                    ENGINE_LOG_WARNING("Create Native Instance!");
+        if(!m_isScenePause || m_stepFrame-- > 0){
+                // Native Script
+            {
+                m_registry.view<NativeScriptComponent>().each([timeStep, this](auto entity, NativeScriptComponent& nativeComponent){
+                    // TODO: Move to scene play
+                    if(!nativeComponent.Instance){
+                        nativeComponent.Instance = nativeComponent.CreateScript();
+                        nativeComponent.Instance->m_entity = {entity, this};
+                        ENGINE_LOG_WARNING("Create Native Instance!");
 
-                    nativeComponent.Instance->OnCreate();
-                }
+                        nativeComponent.Instance->OnCreate();
+                    }
 
-                nativeComponent.Instance->OnUpdate(timeStep);
+                    nativeComponent.Instance->OnUpdate(timeStep);
 
-            });
-        }
-
-        // Script
-        {   
-            auto&& scriptEntity = m_registry.view<ScriptComponent>();
-
-            for(auto&& entityID : scriptEntity){
-                Entity entity{entityID, this};
-                ScriptEngine::OnUpdateEntity(entity, timeStep.GetSeconds());
+                });
             }
-        }
 
-        // Physic
+            // Script
+            {   
+                auto&& scriptEntity = m_registry.view<ScriptComponent>();
 
-        {
-            constexpr const int32_t velocityIteration = 8;
-            constexpr const int32_t positionIteration = 3;
+                for(auto&& entityID : scriptEntity){
+                    Entity entity{entityID, this};
+                    ScriptEngine::OnUpdateEntity(entity, timeStep.GetSeconds());
+                }
+            }
 
-            m_physicWorld->Step(timeStep.GetSeconds(), velocityIteration, positionIteration);
+            // Physic
 
-            auto&& view = m_registry.view<RigidBody2DComponent>();
+            {
+                constexpr const int32_t velocityIteration = 8;
+                constexpr const int32_t positionIteration = 3;
 
-            for(auto&& entityID : view){
-                Entity entity{entityID, this};
-                auto& transform = entity.GetComponent<TransformComponent>();
-                auto& rigid2D = entity.GetComponent<RigidBody2DComponent>();
+                m_physicWorld->Step(timeStep.GetSeconds(), velocityIteration, positionIteration);
 
-                auto body = reinterpret_cast<b2Body*>(rigid2D.RuntimeBody);
-                auto&& position = body->GetPosition();
-                
-                transform.Position.x = position.x;
-                transform.Position.y = position.y;
+                auto&& view = m_registry.view<RigidBody2DComponent>();
 
-                transform.Rotation.z = body->GetAngle();
+                for(auto&& entityID : view){
+                    Entity entity{entityID, this};
+                    auto& transform = entity.GetComponent<TransformComponent>();
+                    auto& rigid2D = entity.GetComponent<RigidBody2DComponent>();
+
+                    auto body = reinterpret_cast<b2Body*>(rigid2D.RuntimeBody);
+                    auto&& position = body->GetPosition();
+                    
+                    transform.Position.x = position.x;
+                    transform.Position.y = position.y;
+
+                    transform.Rotation.z = body->GetAngle();
+                }
             }
         }
 
@@ -194,7 +196,7 @@ namespace Creepy {
 
     void Scene::OnUpdateSimulation(TimeStep timeStep, EditorCamera& camera) noexcept {
         // Physic
-
+        if(!m_isScenePause || m_stepFrame-- > 0)
         {
             constexpr const int32_t velocityIteration{8};
             constexpr const int32_t positionIteration{3};
@@ -217,6 +219,7 @@ namespace Creepy {
                 transform.Rotation.z = body->GetAngle();
             }
         }
+        
 
         // Render
         this->renderScene(camera);
@@ -293,6 +296,14 @@ namespace Creepy {
 
     bool Scene::IsScenePlay() const noexcept {
         return m_isScenePlay;
+    }
+
+    bool Scene::IsScenePause() const noexcept {
+        return m_isScenePause;
+    }
+
+    void Scene::Step(int frame) noexcept {
+        m_stepFrame = frame;
     }
 
     void Scene::onPhysic2DStart() noexcept {

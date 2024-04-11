@@ -156,7 +156,7 @@ namespace Creepy {
 
     struct MeshComponent{
         enum class MeshType : uint32_t {
-            NONE = 0, CUBE, SPHERE
+            NONE = 0, CUBE, SPHERE, CAPSULE, CYLINDER, PLANE
         };
 
         MeshType Type{MeshType::NONE};

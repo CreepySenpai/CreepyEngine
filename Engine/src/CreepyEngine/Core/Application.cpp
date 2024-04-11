@@ -158,9 +158,7 @@ namespace Creepy {
         std::vector<std::function<void()>> copyQueue;
         {
             std::scoped_lock lock{m_mainThreadMutex};
-            copyQueue.reserve(m_mainThreadQueue.size());
-            copyQueue = m_mainThreadQueue;
-            m_mainThreadQueue.clear();
+            copyQueue.swap(m_mainThreadQueue);
         }
 
         for(auto& func : copyQueue){

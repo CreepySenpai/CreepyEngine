@@ -42,6 +42,13 @@ namespace Creepy {
             void DuplicateEntity(Entity& entity) noexcept;
 
             bool IsScenePlay() const noexcept;
+            bool IsScenePause() const noexcept;
+
+            constexpr void SetPause(bool pause) noexcept {
+                m_isScenePause = pause;
+            }
+
+            void Step(int frame) noexcept;
 
             template <typename... Comps>
             [[nodiscard]] decltype(auto) GetAllEntitiesType() noexcept{
@@ -73,6 +80,8 @@ namespace Creepy {
             std::unordered_map<UUID, entt::entity> m_entityMap;
 
             bool m_isScenePlay{false};
+            bool m_isScenePause{false};
+            int m_stepFrame{0};
 
             friend class Entity;
             friend class SceneHierarchyPanel;

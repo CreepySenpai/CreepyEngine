@@ -637,7 +637,8 @@ namespace Creepy {
         });
 
         MyDrawComponent<MeshComponent>::DrawComponent("Mesh", entity, [](MeshComponent& meshComponent){
-            const char* meshType[] = {"None", "Cube"};
+            
+            const char* meshType[] = {"None", "Cube", "Sphere", "Capsule", "Cylinder", "Plane"};
             const char* currentMesh = meshType[std::to_underlying(meshComponent.Type)];
 
             if(ImGui::BeginCombo("Mesh Type", currentMesh)){
