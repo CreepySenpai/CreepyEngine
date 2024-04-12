@@ -29,6 +29,7 @@ public class Player : Entity {
         float sp = Speed;
         pos.X += sp * timeStep;
         Position = pos;
+        
 
         var en = GetEntityByName("Camera");
 

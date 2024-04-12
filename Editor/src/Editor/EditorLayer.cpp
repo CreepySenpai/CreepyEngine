@@ -275,7 +275,7 @@ namespace Creepy {
         }
         
 
-        auto id = m_frameBuffer->GetColorAttachmentID();
+        auto id = (uint64_t)m_frameBuffer->GetColorAttachmentID();
         ImGui::Image(reinterpret_cast<ImTextureID>(id), ImVec2{m_viewPortSize.x, m_viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
         
         if(ImGui::BeginDragDropTarget()){
@@ -460,8 +460,20 @@ namespace Creepy {
 
         if(Entity& selectedEntity = m_hierarchyPanel.GetSelectedEntity(); selectedEntity.IsExits()){
 
-            Renderer::DrawLineRect(selectedEntity.GetComponent<TransformComponent>().GetTransform(), {1.0f, 0.0f, 0.0f, 1.0f});
+            if(selectedEntity.HasComponent<MeshComponent>()){
+                auto& meshComponent = selectedEntity.GetComponent<MeshComponent>();
+                
+                switch(meshComponent.Type){
+                    case MeshComponent::MeshType::CUBE: {
+                        Renderer::DrawLineCube(selectedEntity.GetComponent<TransformComponent>().GetTransform(), {1.0f, 0.0f, 0.0f, 1.0f});
+                        break;
+                    }
+                }
+            }
 
+            else {
+                Renderer::DrawLineRect(selectedEntity.GetComponent<TransformComponent>().GetTransform(), {1.0f, 0.0f, 0.0f, 1.0f});
+            }
         }
 
         Renderer::EndScene();
@@ -560,7 +572,7 @@ namespace Creepy {
         {
             
             auto iconID = reinterpret_cast<ImTextureID>(m_sceneState == SceneState::EDIT 
-                    || m_sceneState == SceneState::SIMULATION ? m_playIcon->GetRendererID() : m_stopIcon->GetRendererID());
+                    || m_sceneState == SceneState::SIMULATION ? (uint64_t)m_playIcon->GetRendererID() : (uint64_t)m_stopIcon->GetRendererID());
 
             if(ImGui::ImageButton(iconID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0)){
 
@@ -581,7 +593,7 @@ namespace Creepy {
                 ImGui::SameLine();
             }
 
-            auto iconID = reinterpret_cast<ImTextureID>(m_sceneState == SceneState::EDIT || m_sceneState == SceneState::PLAY ? m_simulationIcon->GetRendererID() : m_stopIcon->GetRendererID());
+            auto iconID = reinterpret_cast<ImTextureID>(m_sceneState == SceneState::EDIT || m_sceneState == SceneState::PLAY ? (uint64_t)m_simulationIcon->GetRendererID() : (uint64_t)m_stopIcon->GetRendererID());
             
             if (ImGui::ImageButton(iconID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0))
             {
@@ -603,7 +615,7 @@ namespace Creepy {
             ImGui::SameLine();
             
             {
-                auto iconID = reinterpret_cast<ImTextureID>(m_pauseIcon->GetRendererID());
+                auto iconID = reinterpret_cast<ImTextureID>((uint64_t)m_pauseIcon->GetRendererID());
 
                 bool isPause = m_activeScene->IsScenePause();
 
@@ -615,7 +627,7 @@ namespace Creepy {
 
                 if(isPause){
                     ImGui::SameLine();
-                    auto stepID = reinterpret_cast<ImTextureID>(m_steppingIcon->GetRendererID());
+                    auto stepID = reinterpret_cast<ImTextureID>((uint64_t)m_steppingIcon->GetRendererID());
                     if(ImGui::ImageButton(stepID, {iconSize, iconSize}, {0, 0}, {1, 1}, 0)){
                         ENGINE_LOG_WARNING("Call Step");
                         m_activeScene->Step(10);

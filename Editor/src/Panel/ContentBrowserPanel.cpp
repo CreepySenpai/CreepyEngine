@@ -53,7 +53,7 @@ namespace Creepy {
             
             ImGui::PushStyleColor(ImGuiCol_Button, {0, 0, 0, 0});
             
-            ImGui::ImageButton(reinterpret_cast<ImTextureID>(icon->GetRendererID()), {thumbnailSize, thumbnailSize}, {0, 1}, {1, 0});
+            ImGui::ImageButton(reinterpret_cast<ImTextureID>((uint64_t)icon->GetRendererID()), {thumbnailSize, thumbnailSize}, {0, 1}, {1, 0});
 
             if(ImGui::BeginDragDropSource()){
 

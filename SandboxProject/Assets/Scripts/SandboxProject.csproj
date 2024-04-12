@@ -5,6 +5,7 @@
       <HintPath>..\..\..\ScriptCore\bin\Release\net8.0\ScriptCore.dll</HintPath>
     </Reference>
     <ProjectReference Include="..\..\..\ScriptCore\ScriptCore.csproj" />
+
   </ItemGroup>
 
   <PropertyGroup>
@@ -12,6 +13,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>False</Optimize> -->
   </PropertyGroup>
 
 </Project>

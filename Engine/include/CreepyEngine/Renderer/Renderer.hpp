@@ -67,6 +67,8 @@ namespace Creepy {
 
             static void DrawCube(const glm::mat4& transform, const glm::vec4& color, int entityID = -1) noexcept;
 
+            static void DrawLineCube(const glm::mat4& transform, const glm::vec4& color, int entityID = -1) noexcept;
+
             struct Statistics{
                 uint32_t DrawCalls{0};
                 uint32_t RectCount{0};

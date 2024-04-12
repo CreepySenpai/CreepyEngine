@@ -798,6 +798,33 @@ namespace Creepy {
         setCubeProperty(transform, color, textureIndex, entityID);
     }
 
+    void Renderer::DrawLineCube(const glm::mat4& transform, const glm::vec4& color, int entityID) noexcept {
+        glm::vec3 lineVertex[8];
+        auto&& vertices = s_renderer3dStorage.Cube.CubeMesh->GetVertices();
+
+        lineVertex[0] = transform * vertices[0].Position;
+        lineVertex[1] = transform * vertices[1].Position;
+        lineVertex[2] = transform * vertices[2].Position;
+        lineVertex[3] = transform * vertices[3].Position;
+        lineVertex[4] = transform * vertices[4].Position;
+        lineVertex[5] = transform * vertices[5].Position;
+        lineVertex[6] = transform * vertices[10].Position;
+        lineVertex[7] = transform * vertices[28].Position;
+        
+        DrawLine(lineVertex[0], lineVertex[2], color, entityID);
+        DrawLine(lineVertex[0], lineVertex[4], color, entityID);
+        DrawLine(lineVertex[0], lineVertex[6], color, entityID);
+        DrawLine(lineVertex[1], lineVertex[2], color, entityID);
+        DrawLine(lineVertex[1], lineVertex[3], color, entityID);
+        DrawLine(lineVertex[1], lineVertex[6], color, entityID);
+        DrawLine(lineVertex[2], lineVertex[5], color, entityID);
+        DrawLine(lineVertex[3], lineVertex[5], color, entityID);
+        DrawLine(lineVertex[3], lineVertex[7], color, entityID);
+        DrawLine(lineVertex[4], lineVertex[5], color, entityID);
+        DrawLine(lineVertex[4], lineVertex[7], color, entityID);
+        DrawLine(lineVertex[6], lineVertex[7], color, entityID);
+    }
+
 
     void Renderer::ResetStatistics() noexcept {
         s_rendererCoreStorage.Stats.DrawCalls = 0;
