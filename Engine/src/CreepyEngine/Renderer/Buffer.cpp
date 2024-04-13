@@ -5,7 +5,7 @@
 
 namespace Creepy
 {
-    Ref<VertexBuffer> VertexBuffer::Create(float* vertex, uint32_t size) noexcept {
+    Ref<VertexBuffer> VertexBuffer::Create(const void* data, uint32_t size) noexcept {
 
         switch (Renderer::GetRenderAPI())
         {
@@ -14,7 +14,7 @@ namespace Creepy
                 return nullptr;
             }
             case RendererAPI::API::OPENGL: {
-                return std::make_shared<OpenGLVertexBuffer>(vertex, size);
+                return std::make_shared<OpenGLVertexBuffer>(data, size);
             }
             case RendererAPI::API::VULKAN : {
                 ENGINE_LOG_ERROR("Not support vulkan!");

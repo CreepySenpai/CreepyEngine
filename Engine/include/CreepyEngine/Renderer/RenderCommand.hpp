@@ -21,8 +21,8 @@ namespace Creepy
                 s_rendererAPI->DrawLines(vertexArray, vertexCount);
             }
 
-            constexpr static void DrawInstances() noexcept {
-                s_rendererAPI->DrawInstances();
+            constexpr static void DrawInstances(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0, uint32_t instanceCount = 0) noexcept {
+                s_rendererAPI->DrawInstances(vertexArray, indexCount, instanceCount);
             }
 
             constexpr static void SetClearColor(const glm::vec4& color) noexcept {

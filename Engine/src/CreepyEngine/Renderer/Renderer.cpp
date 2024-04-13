@@ -1,4 +1,5 @@
 #include <numeric>
+#include <type_traits>
 
 #include <CreepyEngine/Renderer/Renderer.hpp>
 #include <CreepyEngine/Renderer/Camera.hpp>
@@ -12,6 +13,7 @@
 #include <CreepyEngine/Renderer/UniformBuffer.hpp>
 #include <CreepyEngine/Renderer/Model.hpp>
 #include <CreepyEngine/Utils/ModelImporterUtils.hpp>
+#include <CreepyEngine/Utils/ConceptUtils.hpp>
 
 #include <Platform/OpenGL/OpenGLShader.hpp>
 
@@ -47,13 +49,17 @@ namespace Creepy {
     };
 
     struct ModelVertex{
-        glm::vec3 Position;
-        glm::vec4 Color;
-        glm::vec3 Normal;
-        glm::vec2 TextureCoord;
-        float TextureIndex;
-
+        glm::mat4 Transform{};
+        glm::vec4 Color{};
+        float TextureIndex{};
         int EntityID{-1};
+
+        ModelVertex() noexcept = default;
+
+        ModelVertex(const glm::mat4& transform, const glm::vec4& color, float textureIndex, int entityID) noexcept 
+            : Transform{transform}, Color{color}, TextureIndex{textureIndex}, EntityID{entityID} {
+        }
+
     };
 
     struct RendererCoreStorage{
@@ -68,44 +74,44 @@ namespace Creepy {
         Ref<UniformBuffer> UniformBuffer;
     };
 
+    template <typename T>
+    concept ValidBatch2D = Utils::IsAnyOf<std::remove_cvref_t<T>, RectVertex, CircleVertex, LineVertex>;
+
+    template <typename T>
+    concept ValidBatch3D = Utils::IsAnyOf<std::remove_cvref_t<T>, ModelVertex>;
+
+    template <ValidBatch2D T>
+    struct BatchData2D{
+        Ref<Creepy::VertexArray> VertexArray{nullptr};
+        Ref<Creepy::VertexBuffer> VertexBuffer{nullptr};
+        Ref<Creepy::Shader> Shader{nullptr};
+        uint32_t IndexCount{0};
+        T* VertexBufferBase{nullptr};
+        T* VertexBufferPointer{nullptr};
+    };
+
+    struct InstanceData3D{
+        Ref<Creepy::VertexArray> VertexArray{nullptr};
+        Ref<Creepy::VertexBuffer> VertexBuffer{nullptr};
+        Ref<Creepy::VertexBuffer> InstanceBuffer{nullptr};
+        Ref<Creepy::Shader> Shader{nullptr};
+        Ref<Creepy::Mesh> Mesh{nullptr};
+        uint32_t InstanceCount{0};
+        std::vector<ModelVertex> InstanceData;
+    };
+
+
     struct Renderer2DStorage {
         const uint32_t MaxRects{10000u};
         const uint32_t MaxRectVertex{MaxRects * 4};
         const uint32_t MaxRectIndex{MaxRects * 6};
         static const uint32_t MaxTextureSlots{32};     //TODO: Change Texture SLot To Asset Manager
 
-        struct RectData{
-            Ref<VertexArray> RectVertexArray;
-            Ref<VertexBuffer> RectVertexBuffer;
-            Ref<Shader> RectShader;
-            uint32_t RectIndexCount{0};     // use to keep track how many rect we need to draw
-            RectVertex* RectVertexBufferBase{nullptr};
-            RectVertex* RectVertexBufferPointer{nullptr};
-        };
+        BatchData2D<RectVertex> Rect;
+        
+        BatchData2D<CircleVertex> Circle;
 
-        RectData Rect;
-
-        struct CircleData {
-            Ref<VertexArray> CircleVertexArray;
-            Ref<VertexBuffer> CircleVertexBuffer;
-            Ref<Shader> CircleShader;
-            uint32_t CircleIndexCount{0};
-            CircleVertex* CircleVertexBufferBase{nullptr};
-            CircleVertex* CircleVertexBufferPointer{nullptr};
-        };
-
-        CircleData Circle;
-
-        struct LinesData {
-            Ref<VertexArray> LineVertexArray;
-            Ref<VertexBuffer> LineVertexBuffer;
-            Ref<Shader> LineShader;
-            uint32_t LineVertexCount{0};
-            LineVertex* LineVertexBufferBase{nullptr};
-            LineVertex* LineVertexBufferPointer{nullptr};
-        };
-
-        LinesData Lines;
+        BatchData2D<LineVertex> Lines;
 
         std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
         uint32_t TextureSlotIndex{1};   // 0: white texture
@@ -116,23 +122,15 @@ namespace Creepy {
 
     struct Renderer3DStorage {
         // TODO: Increase Max Cube
-        const uint32_t MaxModels{1000u};
+        const uint32_t MaxModels{10000u};
 
-        struct CubeData {
+        InstanceData3D Cube;
 
-            const uint32_t MaxCubesVertices{1000u * 36};
-            const uint32_t MaxCubesIndices{1000u * 36};
+        InstanceData3D Cylinder;
 
-            uint32_t CubeIndexCount{0};
-            ModelVertex* CubeVertexBufferBase;
-            ModelVertex* CubeVertexBufferPointer;
-            Ref<VertexArray> CubeVertexArray;
-            Ref<VertexBuffer> CubeVertexBuffer;
-            Ref<Shader> CubeShader;
-            Ref<Mesh> CubeMesh;
-        };
+        InstanceData3D Cone;
 
-        CubeData Cube;
+        InstanceData3D Torus;
     };
 
     static RendererCoreStorage s_rendererCoreStorage;
@@ -153,10 +151,10 @@ namespace Creepy {
     void initRect() noexcept {
         auto&& Rect = s_renderer2dStorage.Rect;
         ENGINE_LOG_WARNING("Gona Create Vertex Arrray");
-        Rect.RectVertexArray = Creepy::VertexArray::Create();
+        Rect.VertexArray = Creepy::VertexArray::Create();
 
         ENGINE_LOG_WARNING("Gona Create Vertex Buffer");
-        Rect.RectVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(RectVertex));
+        Rect.VertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(RectVertex));
 
         Creepy::BufferLayout rectVertexBufferLayout{
             {Creepy::ShaderDataType::Float3, "a_position"},
@@ -167,12 +165,12 @@ namespace Creepy {
             {Creepy::ShaderDataType::Int, "a_entityID"},
         };
 
-        Rect.RectVertexBuffer->SetLayout(rectVertexBufferLayout);
+        Rect.VertexBuffer->SetLayout(rectVertexBufferLayout);
 
         // We need add buffer after it add layout, if not it will empty
-        Rect.RectVertexArray->AddVertexBuffer(Rect.RectVertexBuffer);
+        Rect.VertexArray->AddVertexBuffer(Rect.VertexBuffer);
 
-        Rect.RectVertexBufferBase = new RectVertex[s_renderer2dStorage.MaxRectVertex];
+        Rect.VertexBufferBase = new RectVertex[s_renderer2dStorage.MaxRectVertex];
 
         // Because alloc too much index on stack may cause stack overflow so we alloc on heap
 
@@ -195,7 +193,7 @@ namespace Creepy {
         ENGINE_LOG_WARNING("Gona Create Index");
         auto indexBuffer = Creepy::IndexBuffer::Create(rectIndex, s_renderer2dStorage.MaxRectIndex);
 
-        Rect.RectVertexArray->SetIndexBuffer(indexBuffer);
+        Rect.VertexArray->SetIndexBuffer(indexBuffer);
 
         delete[] rectIndex;
         rectIndex = nullptr;
@@ -205,9 +203,9 @@ namespace Creepy {
 
         auto&& Circle = s_renderer2dStorage.Circle;
 
-        Circle.CircleVertexArray = VertexArray::Create();
+        Circle.VertexArray = VertexArray::Create();
 
-        Circle.CircleVertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(CircleVertex));
+        Circle.VertexBuffer = Creepy::VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(CircleVertex));
 
         Creepy::BufferLayout circleVertexBufferLayout{
             {Creepy::ShaderDataType::Float3, "a_position"},
@@ -218,10 +216,10 @@ namespace Creepy {
             {Creepy::ShaderDataType::Int, "a_entityID"},
         };
 
-        Circle.CircleVertexBuffer->SetLayout(circleVertexBufferLayout);
+        Circle.VertexBuffer->SetLayout(circleVertexBufferLayout);
 
         // We need add buffer after it add layout, if not it will empty
-        Circle.CircleVertexArray->AddVertexBuffer(Circle.CircleVertexBuffer);
+        Circle.VertexArray->AddVertexBuffer(Circle.VertexBuffer);
 
         uint32_t* circleIndex = new uint32_t[s_renderer2dStorage.MaxRectIndex];
 
@@ -245,9 +243,9 @@ namespace Creepy {
 
         auto circleIndexBuffer = Creepy::IndexBuffer::Create(circleIndex, s_renderer2dStorage.MaxRectIndex);
 
-        Circle.CircleVertexArray->SetIndexBuffer(circleIndexBuffer); // rectIndex
+        Circle.VertexArray->SetIndexBuffer(circleIndexBuffer); // rectIndex
 
-        Circle.CircleVertexBufferBase = new CircleVertex[s_renderer2dStorage.MaxRectVertex];
+        Circle.VertexBufferBase = new CircleVertex[s_renderer2dStorage.MaxRectVertex];
 
         delete[] circleIndex;
         circleIndex = nullptr;
@@ -255,9 +253,9 @@ namespace Creepy {
 
     void initLines() noexcept {
 
-        s_renderer2dStorage.Lines.LineVertexArray = VertexArray::Create();
+        s_renderer2dStorage.Lines.VertexArray = VertexArray::Create();
 
-        s_renderer2dStorage.Lines.LineVertexBuffer = VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(LineVertex));
+        s_renderer2dStorage.Lines.VertexBuffer = VertexBuffer::Create(s_renderer2dStorage.MaxRectVertex * sizeof(LineVertex));
 
         Creepy::BufferLayout lineVertexBufferLayout{
             {Creepy::ShaderDataType::Float3, "a_position"},
@@ -265,12 +263,12 @@ namespace Creepy {
             {Creepy::ShaderDataType::Int, "a_entityID"},
         };
 
-        s_renderer2dStorage.Lines.LineVertexBuffer->SetLayout(lineVertexBufferLayout);
+        s_renderer2dStorage.Lines.VertexBuffer->SetLayout(lineVertexBufferLayout);
 
         // We need add buffer after it add layout, if not it will empty
-        s_renderer2dStorage.Lines.LineVertexArray->AddVertexBuffer(s_renderer2dStorage.Lines.LineVertexBuffer);
+        s_renderer2dStorage.Lines.VertexArray->AddVertexBuffer(s_renderer2dStorage.Lines.VertexBuffer);
 
-        s_renderer2dStorage.Lines.LineVertexBufferBase = new LineVertex[s_renderer2dStorage.MaxRectVertex];
+        s_renderer2dStorage.Lines.VertexBufferBase = new LineVertex[s_renderer2dStorage.MaxRectVertex];
     }
 
     void initStorage2D() noexcept {
@@ -286,11 +284,11 @@ namespace Creepy {
         s_renderer2dStorage.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
         
         ENGINE_LOG_WARNING("Gona Create Shader");
-        s_renderer2dStorage.Rect.RectShader = Shader::Create("./assets/shaders/RectVertexShader.glsl", "./assets/shaders/RectFragmentShader.glsl");
+        s_renderer2dStorage.Rect.Shader = Shader::Create("./assets/shaders/RectVertexShader.glsl", "./assets/shaders/RectFragmentShader.glsl");
 
-        s_renderer2dStorage.Circle.CircleShader = Shader::Create("./assets/shaders/CircleVertexShader.glsl", "./assets/shaders/CircleFragmentShader.glsl");
+        s_renderer2dStorage.Circle.Shader = Shader::Create("./assets/shaders/CircleVertexShader.glsl", "./assets/shaders/CircleFragmentShader.glsl");
         
-        s_renderer2dStorage.Lines.LineShader = Shader::Create("./assets/shaders/LineVertexShader.glsl", "./assets/shaders/LineFragmentShader.glsl");
+        s_renderer2dStorage.Lines.Shader = Shader::Create("./assets/shaders/LineVertexShader.glsl", "./assets/shaders/LineFragmentShader.glsl");
 
         s_renderer2dStorage.TextureSlots[0] = s_renderer2dStorage.WhiteTexture;
 
@@ -300,61 +298,95 @@ namespace Creepy {
         s_renderer2dStorage.RectVertexPosition[3] = {-0.5,  0.5, 0.0f, 1.0f};
     }
 
-    void initCube() noexcept {
+    
+    static void initPrimitive(InstanceData3D& primitive, const std::filesystem::path& meshPath) noexcept{
 
-        auto&& Cube = s_renderer3dStorage.Cube;
+        primitive.VertexArray = VertexArray::Create();
 
-        Cube.CubeVertexArray = VertexArray::Create();
+        primitive.Mesh = Utils::ModelImporter::LoadMesh(meshPath).at(0);
 
-        Cube.CubeVertexBuffer = VertexBuffer::Create(Cube.MaxCubesVertices * sizeof(ModelVertex));
+        auto totalVertices = primitive.Mesh->GetTotalVertices();
+        auto totalIndices = primitive.Mesh->GetTotalIndices();
 
-        BufferLayout cubeBufferLayout{
-            {ShaderDataType::Float3, "a_position"},
-            {ShaderDataType::Float4, "a_color"},
-            {ShaderDataType::Float3, "a_normal"},
-            {ShaderDataType::Float2, "a_textureCoord"},
-            {ShaderDataType::Float, "a_textureIndex"},
-            {ShaderDataType::Int, "a_entityID"},
-        };
+        {   // Init Shared Vertex Buffer
+        
+            struct ModelSharedVertex{
+                glm::vec3 Position;
+                glm::vec3 Normal;
+                glm::vec2 TextureCoord;
+            };
 
-        Cube.CubeVertexBuffer->SetLayout(cubeBufferLayout);
+            BufferLayout primitiveBufferLayout{
+                {ShaderDataType::Float3, "a_position"},
+                {ShaderDataType::Float3, "a_normal"},
+                {ShaderDataType::Float2, "a_textureCoord"}
+            };
 
-        Cube.CubeVertexArray->AddVertexBuffer(Cube.CubeVertexBuffer);
+            ModelSharedVertex* vertices = new ModelSharedVertex[totalVertices];
 
-        Cube.CubeVertexBufferBase = new ModelVertex[s_renderer3dStorage.MaxModels];
+            auto&& meshVertices = primitive.Mesh->GetVertices();
 
-        Cube.CubeMesh = Utils::ModelImporter::LoadMesh("./assets/models/cube/Cube.gltf").at(0);
-
-        uint32_t* cubeIndices = new uint32_t[Cube.MaxCubesIndices];
-
-        size_t offset{0};
-
-        const auto&& cubeMeshIndices = Cube.CubeMesh->GetIndices();
-
-        auto totalIndices = Cube.CubeMesh->GetTotalIndices();
-        for(size_t i{}; i < Cube.MaxCubesIndices; i += totalIndices){
-            // TODO: Use std::span::at()
-
-            for(size_t j{}; j < totalIndices; j++){
-
-                cubeIndices[i + j] = offset + cubeMeshIndices[j];
+            for(size_t i{}; i < totalVertices; i++){
+                vertices[i].Position = meshVertices[i].Position;
+                vertices[i].Normal = meshVertices[i].Normal;
+                vertices[i].TextureCoord = meshVertices[i].TextureCoord;
             }
-            
-            offset += totalIndices;
+
+            primitive.VertexBuffer = VertexBuffer::Create(vertices, primitive.Mesh->GetTotalVertices() * sizeof(ModelSharedVertex));
+
+            primitive.VertexBuffer->SetLayout(primitiveBufferLayout);
+
+            primitive.VertexArray->AddVertexBuffer(primitive.VertexBuffer);
+
+            delete[] vertices;
+            vertices = nullptr;
         }
 
-        auto cubeIndexBuffer = IndexBuffer::Create(cubeIndices, Cube.MaxCubesIndices);
-        
-        Cube.CubeVertexArray->SetIndexBuffer(cubeIndexBuffer);
-        
-        delete[] cubeIndices;
-        cubeIndices = nullptr;
+        {   // Init Instance Vertex Buffer
+            BufferLayout instanceBufferLayout{
+                {ShaderDataType::Mat4, "a_transform"},
+                {ShaderDataType::Float4, "a_color"},
+                {ShaderDataType::Float, "a_textureIndex"},
+                {ShaderDataType::Int, "a_entityID"}
+            };
 
-        Cube.CubeShader = Shader::Create("./assets/shaders/CubeVertexShader.glsl", "./assets/shaders/CubeFragmentShader.glsl");
+            primitive.InstanceBuffer = VertexBuffer::Create(s_renderer3dStorage.MaxModels * sizeof(ModelVertex));
+
+            primitive.InstanceBuffer->SetLayout(instanceBufferLayout);
+
+            primitive.VertexArray->AddVertexBufferInstance(primitive.InstanceBuffer);
+        }
+        
+        {   // Init Index Buffers
+            uint32_t* primitiveIndices = new uint32_t[totalIndices];
+            const auto&& primitiveMeshIndices = primitive.Mesh->GetIndices();
+
+            ENGINE_LOG_WARNING("Total v: {} , i: {}", totalVertices, totalIndices);
+
+            for(size_t i{}; i < totalIndices; i++){
+                // TODO: Use std::span::at()
+                primitiveIndices[i] = primitiveMeshIndices[i];
+            }
+
+            auto primitiveIndexBuffer = IndexBuffer::Create(primitiveIndices, totalIndices);
+            
+            primitive.VertexArray->SetIndexBuffer(primitiveIndexBuffer);
+            
+            delete[] primitiveIndices;
+            primitiveIndices = nullptr;
+        }
+
+        primitive.Shader = Shader::Create("./assets/shaders/PrimitiveVertexShader.glsl", "./assets/shaders/PrimitiveFragmentShader.glsl");
     }
 
     void initStorage3D() noexcept {
-        initCube();
+        
+        initPrimitive(s_renderer3dStorage.Cube, "./assets/models/primitive/cube/Cube.gltf");
+        initPrimitive(s_renderer3dStorage.Cylinder, "./assets/models/primitive/cylinder/Cylinder.gltf");
+
+        initPrimitive(s_renderer3dStorage.Cone, "./assets/models/primitive/cone/Cone.gltf");
+        initPrimitive(s_renderer3dStorage.Torus, "./assets/models/primitive/torus/Torus.gltf");
+
     }
 
     void Renderer::Init() noexcept {
@@ -369,27 +401,37 @@ namespace Creepy {
 
     void Renderer::ShutDown() noexcept {
 
-        delete[] s_renderer2dStorage.Rect.RectVertexBufferBase;
-        delete[] s_renderer2dStorage.Circle.CircleVertexBufferBase;
-        delete[] s_renderer2dStorage.Lines.LineVertexBufferBase;
-        delete[] s_renderer3dStorage.Cube.CubeVertexBufferBase;
+        delete[] s_renderer2dStorage.Rect.VertexBufferBase;
+        delete[] s_renderer2dStorage.Circle.VertexBufferBase;
+        delete[] s_renderer2dStorage.Lines.VertexBufferBase;
+
+        s_renderer2dStorage.Rect.VertexArray.reset();
+        s_renderer2dStorage.Rect.VertexBuffer.reset();
+        s_renderer2dStorage.Rect.Shader.reset();
+
+        s_renderer2dStorage.Circle.VertexArray.reset();
+        s_renderer2dStorage.Circle.VertexBuffer.reset();
+        s_renderer2dStorage.Circle.Shader.reset();
+
+        s_renderer2dStorage.Lines.VertexArray.reset();
+        s_renderer2dStorage.Lines.VertexBuffer.reset();
+        s_renderer2dStorage.Lines.Shader.reset();
+
+        s_renderer3dStorage.Cube.VertexArray.reset();
+        s_renderer3dStorage.Cube.VertexBuffer.reset();
+        s_renderer3dStorage.Cube.Shader.reset();
         
+        s_renderer3dStorage.Cylinder.VertexArray.reset();
+        s_renderer3dStorage.Cylinder.VertexBuffer.reset();
+        s_renderer3dStorage.Cylinder.Shader.reset();
 
-        s_renderer2dStorage.Rect.RectVertexArray.reset();
-        s_renderer2dStorage.Rect.RectVertexBuffer.reset();
-        s_renderer2dStorage.Rect.RectShader.reset();
+        s_renderer3dStorage.Cone.VertexArray.reset();
+        s_renderer3dStorage.Cone.VertexBuffer.reset();
+        s_renderer3dStorage.Cone.Shader.reset();
 
-        s_renderer2dStorage.Circle.CircleVertexArray.reset();
-        s_renderer2dStorage.Circle.CircleVertexBuffer.reset();
-        s_renderer2dStorage.Circle.CircleShader.reset();
-
-        s_renderer2dStorage.Lines.LineVertexArray.reset();
-        s_renderer2dStorage.Lines.LineVertexBuffer.reset();
-        s_renderer2dStorage.Lines.LineShader.reset();
-
-        s_renderer3dStorage.Cube.CubeVertexArray.reset();
-        s_renderer3dStorage.Cube.CubeVertexBuffer.reset();
-        s_renderer3dStorage.Cube.CubeShader.reset();
+        s_renderer3dStorage.Torus.VertexArray.reset();
+        s_renderer3dStorage.Torus.VertexBuffer.reset();
+        s_renderer3dStorage.Torus.Shader.reset();
 
         s_renderer2dStorage.WhiteTexture.reset();
     }
@@ -425,77 +467,98 @@ namespace Creepy {
 
     void Renderer::Flush2DBatch() noexcept {
 
-        if(auto&& Rect = s_renderer2dStorage.Rect; Rect.RectIndexCount){
-            uint32_t dataSize = reinterpret_cast<uint8_t*>(Rect.RectVertexBufferPointer) - reinterpret_cast<uint8_t*>(Rect.RectVertexBufferBase);
-        
-            Rect.RectVertexBuffer->SetData(Rect.RectVertexBufferBase, dataSize);
+        if(auto&& Rect = s_renderer2dStorage.Rect; Rect.IndexCount){
+            uint32_t dataSize = reinterpret_cast<uint8_t*>(Rect.VertexBufferPointer) - reinterpret_cast<uint8_t*>(Rect.VertexBufferBase);
+            
+            Rect.VertexBuffer->SetData(Rect.VertexBufferBase, dataSize);
             
             // Bind All Texture
             for(uint32_t i{0}; i < s_renderer2dStorage.TextureSlotIndex; i++){
                 s_renderer2dStorage.TextureSlots[i]->Bind(i);
             }
 
-            Rect.RectShader->Bind();
-            RenderCommand::DrawIndex(Rect.RectVertexArray, Rect.RectIndexCount);
+            Rect.Shader->Bind();
+            RenderCommand::DrawIndex(Rect.VertexArray, Rect.IndexCount);
             ++s_rendererCoreStorage.Stats.DrawCalls;
         }
 
-        if(auto&& Circle = s_renderer2dStorage.Circle; Circle.CircleIndexCount){
-            uint32_t dataSize = reinterpret_cast<uint8_t*>(Circle.CircleVertexBufferPointer) - reinterpret_cast<uint8_t*>(Circle.CircleVertexBufferBase);
+        if(auto&& Circle = s_renderer2dStorage.Circle; Circle.IndexCount){
+            uint32_t dataSize = reinterpret_cast<uint8_t*>(Circle.VertexBufferPointer) - reinterpret_cast<uint8_t*>(Circle.VertexBufferBase);
         
-            Circle.CircleVertexBuffer->SetData(Circle.CircleVertexBufferBase, dataSize);
+            Circle.VertexBuffer->SetData(Circle.VertexBufferBase, dataSize);
         
-            Circle.CircleShader->Bind();
-            RenderCommand::DrawIndex(Circle.CircleVertexArray, Circle.CircleIndexCount);
+            Circle.Shader->Bind();
+            RenderCommand::DrawIndex(Circle.VertexArray, Circle.IndexCount);
             ++s_rendererCoreStorage.Stats.DrawCalls;
         }
         
-        if(auto&& Lines = s_renderer2dStorage.Lines; Lines.LineVertexCount){
-            uint32_t dataSize = reinterpret_cast<uint8_t*>(Lines.LineVertexBufferPointer) - reinterpret_cast<uint8_t*>(Lines.LineVertexBufferBase);
+        if(auto&& Lines = s_renderer2dStorage.Lines; Lines.IndexCount){
+            uint32_t dataSize = reinterpret_cast<uint8_t*>(Lines.VertexBufferPointer) - reinterpret_cast<uint8_t*>(Lines.VertexBufferBase);
+
+            Lines.VertexBuffer->SetData(Lines.VertexBufferBase, dataSize);
         
-            Lines.LineVertexBuffer->SetData(Lines.LineVertexBufferBase, dataSize);
-        
-            Lines.LineShader->Bind();
-            RenderCommand::DrawLines(Lines.LineVertexArray, Lines.LineVertexCount);
+            Lines.Shader->Bind();
+            RenderCommand::DrawLines(Lines.VertexArray, Lines.IndexCount);
             ++s_rendererCoreStorage.Stats.DrawCalls;
         }
+    }
+
+    static void flushPrimitive(InstanceData3D& primitive) noexcept {
+
+        if(primitive.InstanceCount){
+            
+            primitive.InstanceBuffer->SetData(primitive.InstanceData.data(), primitive.InstanceData.size() * sizeof(ModelVertex));
+
+            for(uint32_t i{}; i < s_renderer2dStorage.TextureSlotIndex; i++){
+                s_renderer2dStorage.TextureSlots[i]->Bind(i);
+            }
+
+            primitive.Shader->Bind();
+
+            RenderCommand::DrawInstances(primitive.VertexArray, primitive.Mesh->GetTotalIndices(), primitive.InstanceCount);
+
+            ++s_rendererCoreStorage.Stats.DrawCalls;
+        }
+
     }
 
     void Renderer::Flush3DBatch() noexcept {
 
-        if(auto&& Cube = s_renderer3dStorage.Cube; Cube.CubeIndexCount){
-            uint32_t dataSize = reinterpret_cast<uint8_t*>(Cube.CubeVertexBufferPointer) - reinterpret_cast<uint8_t*>(Cube.CubeVertexBufferBase);
+        flushPrimitive(s_renderer3dStorage.Cube);
 
-            Cube.CubeVertexBuffer->SetData(Cube.CubeVertexBufferBase, dataSize);
+        flushPrimitive(s_renderer3dStorage.Cylinder);
 
-            for(uint32_t i{0}; i < s_renderer2dStorage.TextureSlotIndex; i++){
-                s_renderer2dStorage.TextureSlots[i]->Bind(i);
-            }
+        flushPrimitive(s_renderer3dStorage.Cone);
 
-            Cube.CubeShader->Bind();
-
-            RenderCommand::DrawIndex(Cube.CubeVertexArray, Cube.CubeIndexCount);
-            ++s_rendererCoreStorage.Stats.DrawCalls;
-        }
+        flushPrimitive(s_renderer3dStorage.Torus);
 
     }
 
     void Renderer::start2DBatch() noexcept{
-        s_renderer2dStorage.Rect.RectIndexCount = 0;
-        s_renderer2dStorage.Rect.RectVertexBufferPointer = s_renderer2dStorage.Rect.RectVertexBufferBase;
+        s_renderer2dStorage.Rect.IndexCount = 0;
+        s_renderer2dStorage.Rect.VertexBufferPointer = s_renderer2dStorage.Rect.VertexBufferBase;
 
-        s_renderer2dStorage.Circle.CircleIndexCount = 0;
-        s_renderer2dStorage.Circle.CircleVertexBufferPointer = s_renderer2dStorage.Circle.CircleVertexBufferBase;
+        s_renderer2dStorage.Circle.IndexCount = 0;
+        s_renderer2dStorage.Circle.VertexBufferPointer = s_renderer2dStorage.Circle.VertexBufferBase;
 
-        s_renderer2dStorage.Lines.LineVertexCount = 0;
-        s_renderer2dStorage.Lines.LineVertexBufferPointer = s_renderer2dStorage.Lines.LineVertexBufferBase;
+        s_renderer2dStorage.Lines.IndexCount = 0;
+        s_renderer2dStorage.Lines.VertexBufferPointer = s_renderer2dStorage.Lines.VertexBufferBase;
 
         s_renderer2dStorage.TextureSlotIndex = 1;
     }
 
     void Renderer::start3DBatch() noexcept {
-        s_renderer3dStorage.Cube.CubeIndexCount = 0;
-        s_renderer3dStorage.Cube.CubeVertexBufferPointer = s_renderer3dStorage.Cube.CubeVertexBufferBase;
+        s_renderer3dStorage.Cube.InstanceCount = 0;
+        s_renderer3dStorage.Cube.InstanceData.clear();
+        
+        s_renderer3dStorage.Cylinder.InstanceCount = 0;
+        s_renderer3dStorage.Cylinder.InstanceData.clear();
+
+        s_renderer3dStorage.Cone.InstanceCount = 0;
+        s_renderer3dStorage.Cone.InstanceData.clear();
+
+        s_renderer3dStorage.Torus.InstanceCount = 0;
+        s_renderer3dStorage.Torus.InstanceData.clear();
     }
 
     void Renderer::flushAndReset2DBatch() noexcept {
@@ -512,19 +575,31 @@ namespace Creepy {
 
     // TODO: Separate
     void Renderer::check2DBatchNeedReset() noexcept {
-        if(s_renderer2dStorage.Rect.RectIndexCount >= s_renderer2dStorage.MaxRectIndex){
+        if(s_renderer2dStorage.Rect.IndexCount >= s_renderer2dStorage.MaxRectIndex){
             flushAndReset2DBatch();
         }
 
-        if(s_renderer2dStorage.Circle.CircleIndexCount >= s_renderer2dStorage.MaxRectIndex){
+        if(s_renderer2dStorage.Circle.IndexCount >= s_renderer2dStorage.MaxRectIndex){
             flushAndReset2DBatch();
         }
     }
 
     void Renderer::check3DBatchNeedReset() noexcept {
-        if(s_renderer3dStorage.Cube.CubeIndexCount >= s_renderer3dStorage.MaxModels){
-            flushAndReset3DBatch();
-        }
+        // if(s_renderer3dStorage.Cube.InstanceCount >= s_renderer3dStorage.MaxModels){
+        //     flushAndReset3DBatch();
+        // }
+
+        // if(s_renderer3dStorage.Cylinder.InstanceCount >= s_renderer3dStorage.MaxModels){
+        //     flushAndReset3DBatch();
+        // }
+
+        // if(s_renderer3dStorage.Cone.InstanceCount >= s_renderer3dStorage.MaxModels){
+        //     flushAndReset3DBatch();
+        // }
+
+        // if(s_renderer3dStorage.Torus.InstanceCount >= s_renderer3dStorage.MaxModels){
+        //     flushAndReset3DBatch();
+        // }
     }
 
     void Renderer::checkTextureNeedReset(float& textureIndex, const Ref<Texture2D>& texture) noexcept {
@@ -557,44 +632,22 @@ namespace Creepy {
 
         for(size_t i{0}; i < 4; i++){
             
-            Rect.RectVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[i];
-            Rect.RectVertexBufferPointer->Color = color;
-            Rect.RectVertexBufferPointer->TextureCoord = textureCoords.at(i);
-            Rect.RectVertexBufferPointer->TextureIndex = textureIndex;
-            Rect.RectVertexBufferPointer->TilingFactor = tilingFactor;
-            Rect.RectVertexBufferPointer->EntityID = entityID;
+            Rect.VertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[i];
+            Rect.VertexBufferPointer->Color = color;
+            Rect.VertexBufferPointer->TextureCoord = textureCoords.at(i);
+            Rect.VertexBufferPointer->TextureIndex = textureIndex;
+            Rect.VertexBufferPointer->TilingFactor = tilingFactor;
+            Rect.VertexBufferPointer->EntityID = entityID;
 
-            Rect.RectVertexBufferPointer++;
+            Rect.VertexBufferPointer++;
         }
 
-        Rect.RectIndexCount += 6;
+        Rect.IndexCount += 6;
 
 
         ++s_rendererCoreStorage.Stats.RectCount;
     }
 
-    void Renderer::setCubeProperty(const glm::mat4& transform, const glm::vec4& color, float textureIndex, int entityID) noexcept {
-        
-        auto&& Cube = s_renderer3dStorage.Cube;
-
-        for(size_t i{}; i < Cube.CubeMesh->GetTotalVertices(); i++){
-
-            auto&& vertexAt =  Cube.CubeMesh->GetVertices()[i];
-
-            Cube.CubeVertexBufferPointer->Position = transform * vertexAt.Position;
-            Cube.CubeVertexBufferPointer->Color = color;
-            Cube.CubeVertexBufferPointer->Normal = vertexAt.Normal;
-            Cube.CubeVertexBufferPointer->TextureCoord = vertexAt.TextureCoord;
-            Cube.CubeVertexBufferPointer->TextureIndex = textureIndex;
-            Cube.CubeVertexBufferPointer->EntityID = entityID;
-
-            Cube.CubeVertexBufferPointer++;
-
-        }
-
-        Cube.CubeIndexCount += Cube.CubeMesh->GetTotalIndices();
-
-    }
 
     void Renderer::DrawRect(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color) noexcept {
         DrawRect({position.x, position.y, 0.0f}, size, color);
@@ -713,17 +766,17 @@ namespace Creepy {
 
         for(uint32_t i{}; i < 4; i++){
 
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->Position = transform.GetTransform() * s_renderer2dStorage.RectVertexPosition[i];
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->LocalPosition = s_renderer2dStorage.RectVertexPosition[i] * 2.0f;
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->Color = circle.Color;
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->Thickness = circle.Thickness;
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->Fade = circle.Fade;
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->EntityID = entityID;
+            s_renderer2dStorage.Circle.VertexBufferPointer->Position = transform.GetTransform() * s_renderer2dStorage.RectVertexPosition[i];
+            s_renderer2dStorage.Circle.VertexBufferPointer->LocalPosition = s_renderer2dStorage.RectVertexPosition[i] * 2.0f;
+            s_renderer2dStorage.Circle.VertexBufferPointer->Color = circle.Color;
+            s_renderer2dStorage.Circle.VertexBufferPointer->Thickness = circle.Thickness;
+            s_renderer2dStorage.Circle.VertexBufferPointer->Fade = circle.Fade;
+            s_renderer2dStorage.Circle.VertexBufferPointer->EntityID = entityID;
 
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer++;
+            s_renderer2dStorage.Circle.VertexBufferPointer++;
         }
 
-        s_renderer2dStorage.Circle.CircleIndexCount += 6;
+        s_renderer2dStorage.Circle.IndexCount += 6;
 
     }
 
@@ -733,32 +786,32 @@ namespace Creepy {
 
         for(uint32_t i{}; i < 4; i++){
 
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[i];
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->LocalPosition = s_renderer2dStorage.RectVertexPosition[i] * 2.0f;
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->Color = color;
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->Thickness = thickNess;
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->Fade = fade;
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer->EntityID = entityID;
+            s_renderer2dStorage.Circle.VertexBufferPointer->Position = transform * s_renderer2dStorage.RectVertexPosition[i];
+            s_renderer2dStorage.Circle.VertexBufferPointer->LocalPosition = s_renderer2dStorage.RectVertexPosition[i] * 2.0f;
+            s_renderer2dStorage.Circle.VertexBufferPointer->Color = color;
+            s_renderer2dStorage.Circle.VertexBufferPointer->Thickness = thickNess;
+            s_renderer2dStorage.Circle.VertexBufferPointer->Fade = fade;
+            s_renderer2dStorage.Circle.VertexBufferPointer->EntityID = entityID;
 
-            s_renderer2dStorage.Circle.CircleVertexBufferPointer++;
+            s_renderer2dStorage.Circle.VertexBufferPointer++;
         }
 
-        s_renderer2dStorage.Circle.CircleIndexCount += 6;
+        s_renderer2dStorage.Circle.IndexCount += 6;
     }
 
     void Renderer::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, int entityID) noexcept {
 
-        s_renderer2dStorage.Lines.LineVertexBufferPointer->Position = start;
-        s_renderer2dStorage.Lines.LineVertexBufferPointer->Color = color;
-        s_renderer2dStorage.Lines.LineVertexBufferPointer->EntityID = entityID;
-        s_renderer2dStorage.Lines.LineVertexBufferPointer++;
+        s_renderer2dStorage.Lines.VertexBufferPointer->Position = start;
+        s_renderer2dStorage.Lines.VertexBufferPointer->Color = color;
+        s_renderer2dStorage.Lines.VertexBufferPointer->EntityID = entityID;
+        s_renderer2dStorage.Lines.VertexBufferPointer++;
 
-        s_renderer2dStorage.Lines.LineVertexBufferPointer->Position = end;
-        s_renderer2dStorage.Lines.LineVertexBufferPointer->Color = color;
-        s_renderer2dStorage.Lines.LineVertexBufferPointer->EntityID = entityID;
-        s_renderer2dStorage.Lines.LineVertexBufferPointer++;
+        s_renderer2dStorage.Lines.VertexBufferPointer->Position = end;
+        s_renderer2dStorage.Lines.VertexBufferPointer->Color = color;
+        s_renderer2dStorage.Lines.VertexBufferPointer->EntityID = entityID;
+        s_renderer2dStorage.Lines.VertexBufferPointer++;
 
-        s_renderer2dStorage.Lines.LineVertexCount += 2;
+        s_renderer2dStorage.Lines.IndexCount += 2;
     }
 
 
@@ -792,24 +845,33 @@ namespace Creepy {
 
     // MARK: 3D Draw
 
+    
+    static void setPrimitiveProperty(InstanceData3D& primitive, const glm::mat4& transform, const glm::vec4& color, float textureIndex, int entityID = -1) noexcept {
+
+        primitive.InstanceData.emplace_back(transform, color, textureIndex, entityID);
+
+        primitive.InstanceCount++;
+
+    }
+
     void Renderer::DrawCube(const glm::mat4& transform, const glm::vec4& color, int entityID) noexcept {
         constexpr float textureIndex{0.0f};
         
-        setCubeProperty(transform, color, textureIndex, entityID);
+        setPrimitiveProperty(s_renderer3dStorage.Cube, transform, color, textureIndex, entityID);
     }
 
     void Renderer::DrawLineCube(const glm::mat4& transform, const glm::vec4& color, int entityID) noexcept {
         glm::vec3 lineVertex[8];
-        auto&& vertices = s_renderer3dStorage.Cube.CubeMesh->GetVertices();
+        auto&& vertices = s_renderer3dStorage.Cube.Mesh->GetVertices();
 
-        lineVertex[0] = transform * vertices[0].Position;
-        lineVertex[1] = transform * vertices[1].Position;
-        lineVertex[2] = transform * vertices[2].Position;
-        lineVertex[3] = transform * vertices[3].Position;
-        lineVertex[4] = transform * vertices[4].Position;
-        lineVertex[5] = transform * vertices[5].Position;
-        lineVertex[6] = transform * vertices[10].Position;
-        lineVertex[7] = transform * vertices[28].Position;
+        lineVertex[0] = transform * glm::vec4(vertices[0].Position, 1.0f);
+        lineVertex[1] = transform * glm::vec4(vertices[1].Position, 1.0f);
+        lineVertex[2] = transform * glm::vec4(vertices[2].Position, 1.0f);
+        lineVertex[3] = transform * glm::vec4(vertices[3].Position, 1.0f);
+        lineVertex[4] = transform * glm::vec4(vertices[4].Position, 1.0f);
+        lineVertex[5] = transform * glm::vec4(vertices[5].Position, 1.0f);
+        lineVertex[6] = transform * glm::vec4(vertices[10].Position, 1.0f);
+        lineVertex[7] = transform * glm::vec4(vertices[28].Position, 1.0f);
         
         DrawLine(lineVertex[0], lineVertex[2], color, entityID);
         DrawLine(lineVertex[0], lineVertex[4], color, entityID);
@@ -823,6 +885,25 @@ namespace Creepy {
         DrawLine(lineVertex[4], lineVertex[5], color, entityID);
         DrawLine(lineVertex[4], lineVertex[7], color, entityID);
         DrawLine(lineVertex[6], lineVertex[7], color, entityID);
+    }
+
+    void Renderer::DrawCylinder(const glm::mat4& transform, const glm::vec4& color, int entityID) noexcept {
+
+        constexpr float textureIndex{0.0f};
+        
+        setPrimitiveProperty(s_renderer3dStorage.Cylinder, transform, color, textureIndex, entityID);
+    }
+
+    void Renderer::DrawCone(const glm::mat4& transform, const glm::vec4& color, int entityID) noexcept {
+        constexpr float textureIndex{0.0f};
+        
+        setPrimitiveProperty(s_renderer3dStorage.Cone, transform, color, textureIndex, entityID);
+    }
+
+    void Renderer::DrawTorus(const glm::mat4& transform, const glm::vec4& color, int entityID) noexcept {
+        constexpr float textureIndex{0.0f};
+        
+        setPrimitiveProperty(s_renderer3dStorage.Torus, transform, color, textureIndex, entityID);
     }
 
 

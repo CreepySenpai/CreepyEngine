@@ -120,37 +120,12 @@ namespace Creepy {
 
             // Script
             {   
-                auto&& scriptEntity = m_registry.view<ScriptComponent>();
-
-                for(auto&& entityID : scriptEntity){
-                    Entity entity{entityID, this};
-                    ScriptEngine::OnUpdateEntity(entity, timeStep.GetSeconds());
-                }
+                this->onScriptUpdate(timeStep);
             }
 
             // Physic
-
             {
-                constexpr const int32_t velocityIteration = 8;
-                constexpr const int32_t positionIteration = 3;
-
-                m_physicWorld->Step(timeStep.GetSeconds(), velocityIteration, positionIteration);
-
-                auto&& view = m_registry.view<RigidBody2DComponent>();
-
-                for(auto&& entityID : view){
-                    Entity entity{entityID, this};
-                    auto& transform = entity.GetComponent<TransformComponent>();
-                    auto& rigid2D = entity.GetComponent<RigidBody2DComponent>();
-
-                    auto body = reinterpret_cast<b2Body*>(rigid2D.RuntimeBody);
-                    auto&& position = body->GetPosition();
-                    
-                    transform.Position.x = position.x;
-                    transform.Position.y = position.y;
-
-                    transform.Rotation.z = body->GetAngle();
-                }
+                this->onPhysicUpdate(timeStep);
             }
         }
 
@@ -174,19 +149,7 @@ namespace Creepy {
 
                 Renderer::BeginScene(*mainCamera, transformMatrix);
 
-                {
-                    m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
-
-                        Renderer::DrawSprite(transformComponent, spriteComponent, static_cast<uint32_t>(entityID));
-
-                    });
-                }
-
-                {
-                    m_registry.view<TransformComponent, CircleSpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, CircleSpriteComponent& circle){
-                        Renderer::DrawCircle(transformComponent, circle, static_cast<uint32_t>(entityID));
-                    });
-                }
+                this->onRenderUpdate();
 
                 Renderer::EndScene();
             }
@@ -198,26 +161,7 @@ namespace Creepy {
         // Physic
         if(!m_isScenePause || m_stepFrame-- > 0)
         {
-            constexpr const int32_t velocityIteration{8};
-            constexpr const int32_t positionIteration{3};
-
-            m_physicWorld->Step(timeStep.GetSeconds(), velocityIteration, positionIteration);
-
-            auto&& view = m_registry.view<RigidBody2DComponent>();
-
-            for(auto&& entityID : view){
-                Entity entity{entityID, this};
-                auto& transform = entity.GetComponent<TransformComponent>();
-                auto& rigid2D = entity.GetComponent<RigidBody2DComponent>();
-
-                auto body = reinterpret_cast<b2Body*>(rigid2D.RuntimeBody);
-                auto&& position = body->GetPosition();
-                
-                transform.Position.x = position.x;
-                transform.Position.y = position.y;
-
-                transform.Rotation.z = body->GetAngle();
-            }
+            this->onPhysicUpdate(timeStep);
         }
         
 
@@ -252,7 +196,7 @@ namespace Creepy {
        auto&& entitiesHasCamera = m_registry.view<CameraComponent>();
 
        for(auto&& entity : entitiesHasCamera){
-            auto camera = entitiesHasCamera.get<CameraComponent>(entity);
+            auto&& camera = entitiesHasCamera.get<CameraComponent>(entity);
             
             if(camera.IsPrimary){
                 return Entity{entity, this};
@@ -390,6 +334,46 @@ namespace Creepy {
 
         Renderer::BeginScene(editorCamera);
 
+        this->onRenderUpdate();
+
+        Renderer::EndScene();
+    }
+
+    void Scene::onScriptUpdate(TimeStep timeStep) noexcept {
+        auto&& scriptEntity = m_registry.view<ScriptComponent>();
+
+        for (auto&& entityID : scriptEntity)
+        {
+            Entity entity{entityID, this};
+            ScriptEngine::OnUpdateEntity(entity, timeStep.GetSeconds());
+        }
+    }
+
+    void Scene::onPhysicUpdate(TimeStep timeStep) noexcept {
+        constexpr const int32_t velocityIteration{8};
+        constexpr const int32_t positionIteration{3};
+
+        m_physicWorld->Step(timeStep.GetSeconds(), velocityIteration, positionIteration);
+
+        auto &&view = m_registry.view<RigidBody2DComponent>();
+
+        for (auto &&entityID : view)
+        {
+            Entity entity{entityID, this};
+            auto &transform = entity.GetComponent<TransformComponent>();
+            auto &rigid2D = entity.GetComponent<RigidBody2DComponent>();
+
+            auto body = reinterpret_cast<b2Body *>(rigid2D.RuntimeBody);
+            auto &&position = body->GetPosition();
+
+            transform.Position.x = position.x;
+            transform.Position.y = position.y;
+
+            transform.Rotation.z = body->GetAngle();
+        }
+    }
+
+    void Scene::onRenderUpdate() noexcept {
         {
             m_registry.view<TransformComponent, SpriteComponent>().each([](auto entityID, TransformComponent& transformComponent, SpriteComponent& spriteComponent){
 
@@ -412,12 +396,25 @@ namespace Creepy {
                         Renderer::DrawCube(transformComponent.GetTransform(), {160.0f / 255.0f, 163.0f / 255.0f, 168.0f / 255.0f, 1.0f}, static_cast<int>(entityID));
                         break;
                     }
+
+                    case MeshComponent::MeshType::CYLINDER: {
+                        Renderer::DrawCylinder(transformComponent.GetTransform(), {160.0f / 255.0f, 163.0f / 255.0f, 168.0f / 255.0f, 1.0f}, static_cast<int>(entityID));
+                        break;
+                    }
+
+                    case MeshComponent::MeshType::CONE: {
+                        Renderer::DrawCone(transformComponent.GetTransform(), {160.0f / 255.0f, 163.0f / 255.0f, 168.0f / 255.0f, 1.0f}, static_cast<int>(entityID));
+                        break;
+                    }
+
+                    case MeshComponent::MeshType::TORUS: {
+                        Renderer::DrawTorus(transformComponent.GetTransform(), {160.0f / 255.0f, 163.0f / 255.0f, 168.0f / 255.0f, 1.0f}, static_cast<int>(entityID));
+                        break;
+                    }
                 }
             });
         }
 
-
-        Renderer::EndScene();
     }
 
     template <typename Component>
@@ -512,4 +509,6 @@ namespace Creepy {
         , ScriptComponent, RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent>::CopyComponentIfExits(entity, newEntity);
 
     }
+
+    
 }

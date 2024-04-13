@@ -23,7 +23,6 @@
 // Renderer
 #include <CreepyEngine/Renderer/Buffer.hpp>
 #include <CreepyEngine/Renderer/GraphicContext.hpp>
-#include <CreepyEngine/Renderer/OrthographicCamera.hpp>
 #include <CreepyEngine/Renderer/RenderCommand.hpp>
 #include <CreepyEngine/Renderer/Renderer.hpp>
 #include <CreepyEngine/Renderer/Shader.hpp>
@@ -35,9 +34,6 @@
 
 // Timer
 #include <CreepyEngine/Core/TimeStep.hpp>
-
-// Controller
-#include <CreepyEngine/Controller/OrthographicCameraController.hpp>
 
 // Scene
 #include <CreepyEngine/Scene/Scene.hpp>

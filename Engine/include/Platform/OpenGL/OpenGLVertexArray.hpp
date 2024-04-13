@@ -17,6 +17,8 @@ namespace Creepy
 
             void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) noexcept override;
 
+            void AddVertexBufferInstance(const Ref<VertexBuffer>& vertexBuffer) noexcept override;
+
             void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) noexcept override;
 
             inline const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const noexcept override {

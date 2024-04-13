@@ -68,6 +68,11 @@ namespace Creepy {
             void onPhysic2DStop() noexcept;
 
             void renderScene(EditorCamera& editorCamera) noexcept;
+
+        private:
+            void onScriptUpdate(TimeStep timeStep) noexcept;
+            void onPhysicUpdate(TimeStep timeStep) noexcept;
+            void onRenderUpdate() noexcept;
         
         private:
             entt::registry m_registry;

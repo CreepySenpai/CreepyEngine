@@ -8,7 +8,7 @@
 namespace Creepy{
     
     struct Vertex{
-        glm::vec4 Position;
+        glm::vec3 Position;
         glm::vec4 Color;
         glm::vec3 Normal;
         glm::vec2 TextureCoord;
@@ -26,11 +26,11 @@ namespace Creepy{
             constexpr Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) noexcept 
                 : m_vertices{vertices}, m_indices{indices} {}
 
-            constexpr std::span<Vertex> GetVertices() noexcept {
+            constexpr std::span<const Vertex> GetVertices() const noexcept {
                 return m_vertices;
             }
 
-            constexpr std::span<uint32_t> GetIndices() noexcept {
+            constexpr std::span<const uint32_t> GetIndices() const noexcept {
                 return m_indices;
             }
 

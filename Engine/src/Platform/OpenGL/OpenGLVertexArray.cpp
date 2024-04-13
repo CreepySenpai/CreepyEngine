@@ -80,7 +80,7 @@ namespace Creepy
                 case ShaderDataType::Mat3:
                 case ShaderDataType::Mat4: {
                     uint32_t count = element.GetComponentCount();
-                    for(uint32_t i{}; i < count; i++){
+                    for(uint32_t i{}; i < 4; i++){
                         glEnableVertexAttribArray(m_vertexBufferIndex);
 
                         glVertexAttribPointer(m_vertexBufferIndex, count, ShaderDataTypeToOpenGLDataType(element.Type), 
@@ -102,6 +102,85 @@ namespace Creepy
 
                     glVertexAttribIPointer(m_vertexBufferIndex, element.GetComponentCount(), ShaderDataTypeToOpenGLDataType(element.Type), 
                         layout.GetStride(), reinterpret_cast<const void*>(element.Offset));
+
+                    ++m_vertexBufferIndex;
+                    break;
+                }
+            }
+        }
+
+        m_vertexBuffers.emplace_back(vertexBuffer);
+    }
+
+    void OpenGLVertexArray::AddVertexBufferInstance(const Ref<VertexBuffer>& vertexBuffer) noexcept {
+        if(vertexBuffer->GetLayout().GetElements().size() == 0){
+            ENGINE_LOG_ERROR("VertexBuffer Has No Layout!!!");
+            return;
+        }
+
+        glBindVertexArray(m_rendererID);
+        vertexBuffer->Bind();   // We bind vertex buffer data to vertex array 
+
+        const auto& layout = vertexBuffer->GetLayout(); // We get all layout in vertex array
+        
+        //Enable and set up data for every vertex attrib
+        for(const auto& element : layout) {
+            switch(element.Type){
+                case ShaderDataType::Float:
+                case ShaderDataType::Float2:
+                case ShaderDataType::Float3:
+                case ShaderDataType::Float4: {
+                    glEnableVertexAttribArray(m_vertexBufferIndex);
+
+                    glVertexAttribPointer(m_vertexBufferIndex, element.GetComponentCount(), ShaderDataTypeToOpenGLDataType(element.Type), 
+                        element.Normalize ? GL_TRUE : GL_FALSE, layout.GetStride(), reinterpret_cast<const void*>(element.Offset));
+
+                    glVertexAttribDivisor(m_vertexBufferIndex, 1);
+                    ++m_vertexBufferIndex;
+                    break;
+                }
+
+                case ShaderDataType::Mat3: {
+                    uint32_t count = element.GetComponentCount();
+                    for(uint32_t i{}; i < 3; i++){
+                        glEnableVertexAttribArray(m_vertexBufferIndex);
+                        
+                        glVertexAttribPointer(m_vertexBufferIndex, count, ShaderDataTypeToOpenGLDataType(element.Type), 
+                        element.Normalize ? GL_TRUE : GL_FALSE, layout.GetStride(), reinterpret_cast<const void*>(element.Offset + sizeof(float) * count * i));
+                        
+                        glVertexAttribDivisor(m_vertexBufferIndex, 1);
+                        ++m_vertexBufferIndex;
+                    }
+                    
+                    break;
+                }
+
+                case ShaderDataType::Mat4: {
+                    uint32_t count = element.GetComponentCount();
+                    for(uint32_t i{}; i < 4; i++){
+                        glEnableVertexAttribArray(m_vertexBufferIndex);
+                        
+                        glVertexAttribPointer(m_vertexBufferIndex, count, ShaderDataTypeToOpenGLDataType(element.Type), 
+                        element.Normalize ? GL_TRUE : GL_FALSE, layout.GetStride(), reinterpret_cast<const void*>(element.Offset + sizeof(float) * count * i));
+                        
+                        glVertexAttribDivisor(m_vertexBufferIndex, 1);
+                        ++m_vertexBufferIndex;
+                    }
+                    
+                    break;
+                }
+
+                case ShaderDataType::Int:
+                case ShaderDataType::Int2:
+                case ShaderDataType::Int3:
+                case ShaderDataType::Int4:
+                case ShaderDataType::Bool: {
+                    glEnableVertexAttribArray(m_vertexBufferIndex);
+
+                    glVertexAttribIPointer(m_vertexBufferIndex, element.GetComponentCount(), ShaderDataTypeToOpenGLDataType(element.Type), 
+                        layout.GetStride(), reinterpret_cast<const void*>(element.Offset));
+                    
+                    glVertexAttribDivisor(m_vertexBufferIndex, 1);
 
                     ++m_vertexBufferIndex;
                     break;

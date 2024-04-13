@@ -69,6 +69,11 @@ namespace Creepy {
 
             static void DrawLineCube(const glm::mat4& transform, const glm::vec4& color, int entityID = -1) noexcept;
 
+            static void DrawCylinder(const glm::mat4& transform, const glm::vec4& color, int entityID = -1) noexcept;
+            
+            static void DrawCone(const glm::mat4& transform, const glm::vec4& color, int entityID = -1) noexcept;
+            static void DrawTorus(const glm::mat4& transform, const glm::vec4& color, int entityID = -1) noexcept;
+
             struct Statistics{
                 uint32_t DrawCalls{0};
                 uint32_t RectCount{0};
@@ -90,8 +95,7 @@ namespace Creepy {
 
             // TODO: Add Texture Coord When Use SubTexture
             // static void setCubeProperty(const glm::mat4& transform, const glm::vec4& color, std::span<glm::vec3> textureCoords, float textureIndex, int entityID = -1) noexcept;
-            static void setCubeProperty(const glm::mat4& transform, const glm::vec4& color, float textureIndex, int entityID = -1) noexcept;
-
+            
             static void start2DBatch() noexcept;
             static void start3DBatch() noexcept;
             static void flushAndReset2DBatch() noexcept;

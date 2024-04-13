@@ -7,7 +7,7 @@ namespace Creepy {
     class OpenGLVertexBuffer : public VertexBuffer {
         public:
             OpenGLVertexBuffer(uint32_t size) noexcept;
-            OpenGLVertexBuffer(float* vertex, uint32_t size) noexcept;
+            OpenGLVertexBuffer(const void* data, uint32_t size) noexcept;
             virtual ~OpenGLVertexBuffer() noexcept;
             void Bind() const noexcept override;
 

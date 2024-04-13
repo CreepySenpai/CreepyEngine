@@ -35,8 +35,9 @@ namespace Creepy {
 
     }
 
-    void OpenGLRendererAPI::DrawInstances() noexcept {
-        
+    void OpenGLRendererAPI::DrawInstances(const Ref<VertexArray>& vertexArray, uint32_t vertexCount, uint32_t instanceCount) noexcept {
+        vertexArray->Bind();
+        glDrawElementsInstanced(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
     }
 
     void OpenGLRendererAPI::SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept {

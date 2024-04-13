@@ -13,12 +13,12 @@ namespace Creepy
         ENGINE_LOG_WARNING("Create A VertexBuffer: {}", m_rendererID);
     }
 
-    OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertex, uint32_t size) noexcept {
+    OpenGLVertexBuffer::OpenGLVertexBuffer(const void* data, uint32_t size) noexcept {
         glCreateBuffers(1, &m_rendererID);
 
         glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
 
-        glBufferData(GL_ARRAY_BUFFER, size, vertex, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 
         ENGINE_LOG_WARNING("Create A VertexBuffer: {}", m_rendererID);
     }

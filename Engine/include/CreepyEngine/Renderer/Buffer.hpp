@@ -86,10 +86,10 @@ namespace Creepy {
                     return 4;
                 }
                 case ShaderDataType::Mat3: {
-                    return 3 * 3;
+                    return 3;
                 }
                 case ShaderDataType::Mat4: {
-                    return 4 * 4;
+                    return 4;
                 }
                 case ShaderDataType::Int: {
                     return 1;
@@ -198,7 +198,7 @@ namespace Creepy {
             
             virtual void SetData(const void* data, uint32_t size) noexcept = 0;
 
-            static Ref<VertexBuffer> Create(float* vertex, uint32_t size) noexcept;
+            static Ref<VertexBuffer> Create(const void* data, uint32_t size) noexcept;
             static Ref<VertexBuffer> Create(uint32_t size) noexcept;
     };
 
