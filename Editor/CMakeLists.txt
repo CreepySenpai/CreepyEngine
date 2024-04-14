@@ -25,3 +25,22 @@ target_link_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC 
     CreepyEngine
 )
+
+
+set(cppcheck_exe "D:/Enviroments/cppcheck/build/bin/cppcheck.exe")
+
+message(STATUS "Cpp Check Dir: ${cppcheck_exe}")
+
+set(CMAKE_CXX_CPPCHECK "${cppcheck_exe}" --std=c++23
+            "--enable=all"
+            "--output-file=report.txt"
+            "--inconclusive"
+            "--inline-suppr"
+            "--quiet"
+            "--verbose"
+            "--suppress=unmatchedSuppression"
+            "--suppress=unusedFunction"
+            "--suppress=containerOutOfBounds"
+            "--template='{file}:{line}: warning: {id} ({severity}): {message}'")
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_CPPCHECK "${CMAKE_CXX_CPPCHECK}")

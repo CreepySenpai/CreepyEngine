@@ -11,8 +11,6 @@ namespace Creepy {
     ContentBrowserPanel::ContentBrowserPanel() noexcept : m_currentDirectory{AssetDirectory} {
         m_directoryIcon = Texture2D::Create("./assets/icons/directory_icon.png");
         m_fileIcon = Texture2D::Create("./assets/icons/file_icon.png");
-
-        
     }
 
     void ContentBrowserPanel::OnImGuiRender() noexcept {

@@ -10,9 +10,9 @@ namespace Creepy{
             CreepyEditor() noexcept : Application{"CreepyEditor", 1600, 900} {
                 this->PushLayer(new EditorLayer());
             }
-            
-            virtual ~CreepyEditor() noexcept {
 
+            virtual ~CreepyEditor() noexcept {
+                
             }
         private:
     };

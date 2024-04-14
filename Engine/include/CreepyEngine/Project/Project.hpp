@@ -15,12 +15,11 @@ namespace Creepy {
         std::filesystem::path MeshPath;
     };
 
-    class Project
+    class [[nodiscard]] Project
     {
         public:
-            // Project() noexcept;
 
-            static inline const std::filesystem::path& GetAssetDirectory() noexcept {
+            static inline constexpr const std::filesystem::path& GetAssetDirectory() noexcept {
                 return s_activeProject->m_config.AssetDirectoryPath;
             }
 

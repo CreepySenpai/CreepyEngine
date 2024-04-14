@@ -309,12 +309,6 @@ namespace Creepy {
         auto totalIndices = primitive.Mesh->GetTotalIndices();
 
         {   // Init Shared Vertex Buffer
-        
-            struct ModelSharedVertex{
-                glm::vec3 Position;
-                glm::vec3 Normal;
-                glm::vec2 TextureCoord;
-            };
 
             BufferLayout primitiveBufferLayout{
                 {ShaderDataType::Float3, "a_position"},
@@ -322,24 +316,11 @@ namespace Creepy {
                 {ShaderDataType::Float2, "a_textureCoord"}
             };
 
-            ModelSharedVertex* vertices = new ModelSharedVertex[totalVertices];
-
-            auto&& meshVertices = primitive.Mesh->GetVertices();
-
-            for(size_t i{}; i < totalVertices; i++){
-                vertices[i].Position = meshVertices[i].Position;
-                vertices[i].Normal = meshVertices[i].Normal;
-                vertices[i].TextureCoord = meshVertices[i].TextureCoord;
-            }
-
-            primitive.VertexBuffer = VertexBuffer::Create(vertices, primitive.Mesh->GetTotalVertices() * sizeof(ModelSharedVertex));
+            primitive.VertexBuffer = VertexBuffer::Create(primitive.Mesh->GetVertices().data(), primitive.Mesh->GetTotalVertices() * sizeof(Creepy::Vertex));
 
             primitive.VertexBuffer->SetLayout(primitiveBufferLayout);
 
             primitive.VertexArray->AddVertexBuffer(primitive.VertexBuffer);
-
-            delete[] vertices;
-            vertices = nullptr;
         }
 
         {   // Init Instance Vertex Buffer
