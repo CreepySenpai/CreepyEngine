@@ -30,7 +30,7 @@ namespace Creepy {
 
     class OpenGLIndexBuffer : public IndexBuffer {
         public:
-            OpenGLIndexBuffer(uint32_t* index, uint32_t count) noexcept;
+            OpenGLIndexBuffer(const void* indexData, uint32_t count) noexcept;
             virtual ~OpenGLIndexBuffer() noexcept;
             void Bind() const noexcept override;
 

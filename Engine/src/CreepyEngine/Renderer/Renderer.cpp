@@ -358,22 +358,9 @@ namespace Creepy {
         }
         
         {   // Init Index Buffers
-            uint32_t* primitiveIndices = new uint32_t[totalIndices];
-            const auto&& primitiveMeshIndices = primitive.Mesh->GetIndices();
-
-            ENGINE_LOG_WARNING("Total v: {} , i: {}", totalVertices, totalIndices);
-
-            for(size_t i{}; i < totalIndices; i++){
-                // TODO: Use std::span::at()
-                primitiveIndices[i] = primitiveMeshIndices[i];
-            }
-
-            auto primitiveIndexBuffer = IndexBuffer::Create(primitiveIndices, totalIndices);
+            auto primitiveIndexBuffer = IndexBuffer::Create(primitive.Mesh->GetIndices().data(), totalIndices);
             
             primitive.VertexArray->SetIndexBuffer(primitiveIndexBuffer);
-            
-            delete[] primitiveIndices;
-            primitiveIndices = nullptr;
         }
 
         primitive.Shader = Shader::Create("./assets/shaders/PrimitiveVertexShader.glsl", "./assets/shaders/PrimitiveFragmentShader.glsl");

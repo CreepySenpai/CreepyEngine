@@ -45,10 +45,10 @@ namespace Creepy
     ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
     
-    OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* index, uint32_t count) noexcept : m_count{count} {
+    OpenGLIndexBuffer::OpenGLIndexBuffer(const void* indexData, uint32_t count) noexcept : m_count{count} {
         glCreateBuffers(1, &m_rendererID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_rendererID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), index, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indexData, GL_STATIC_DRAW);
 
         ENGINE_LOG_WARNING("Create A IndexBuffer: {}", m_rendererID);
     }

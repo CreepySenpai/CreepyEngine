@@ -92,4 +92,9 @@ namespace YAML
         return writer;
     }
 
+    Emitter& operator<<(YAML::Emitter& writer, const std::filesystem::path& filePath) {
+        writer << filePath.string();
+        return writer;
+    }
+
 }

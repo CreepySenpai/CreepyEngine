@@ -1,6 +1,7 @@
 #pragma once
 #include "yaml.h"
 #include <glm/glm.hpp>
+#include <filesystem>
 
 namespace YAML {
 
@@ -25,4 +26,5 @@ namespace YAML {
     Emitter& operator<<(YAML::Emitter& writer, const glm::vec2& vec);
     Emitter& operator<<(YAML::Emitter& writer, const glm::vec3& vec);
     Emitter& operator<<(YAML::Emitter& writer, const glm::vec4& vec);
+    Emitter& operator<<(YAML::Emitter& writer, const std::filesystem::path& filePath);
 }

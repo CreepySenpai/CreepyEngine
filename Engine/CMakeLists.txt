@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20.0)
 
 set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 23)
+set(VULKANINCLUDE "D:/Enviroments/vulkan/Include")
+set(VULKANLIB "D:/Enviroments/vulkan/Lib")
 
 project(CreepyEngine VERSION 0.1.0 LANGUAGES C CXX)
 
@@ -19,14 +21,24 @@ file(GLOB EXTENDED_YAMLCPP ${CMAKE_SOURCE_DIR}/src/Extended/yaml-cpp/*.cpp)
 file(GLOB CORAL ${CMAKE_SOURCE_DIR}/src/Coral/*.cpp)
 file(GLOB SCRIPTING ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Scripting/*.cpp)
 file(GLOB UTILS ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Utils/*.cpp)
+file(GLOB PROJECTCORE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Project/*.cpp)
 
-add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${EVENTENGINE} ${RENDERERENGINE} ${PLATFORMWINDOWS} ${GLAD} ${IMGUI} ${DEBUG} ${OPENGL} ${SCENE} ${MATH} ${EXTENDED_YAMLCPP} ${CORAL} ${SCRIPTING} ${UTILS})
+add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${EVENTENGINE} ${RENDERERENGINE} ${PLATFORMWINDOWS} ${GLAD} ${IMGUI} ${DEBUG} ${OPENGL} ${SCENE} ${MATH} ${EXTENDED_YAMLCPP} ${CORAL} ${SCRIPTING} ${UTILS} ${PROJECTCORE})
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/lib)
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32 yaml-cpp.dll box2d assimp.dll shaderc_combined glslang spirv-cross-cpp spirv-cross-core spirv-cross-glsl spirv-cross-reflect spirv-cross-util SPIRV-Tools-opt SPIRV-Tools SPIRV MachineIndependent GenericCodeGen OSDependent SPVRemapper)
+target_include_directories(${PROJECT_NAME} PUBLIC 
+                    ${CMAKE_SOURCE_DIR}/include
+                    ${VULKANINCLUDE}
+                )
+                
+target_link_directories(${PROJECT_NAME} PUBLIC 
+                    ${CMAKE_SOURCE_DIR}/lib
+                    ${VULKANLIB}
+                )
+
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32 yaml-cpp.dll box2d assimp.dll vulkan-1 shaderc_combined glslang spirv-cross-cpp spirv-cross-core spirv-cross-glsl spirv-cross-reflect spirv-cross-util SPIRV-Tools-opt SPIRV-Tools SPIRV MachineIndependent GenericCodeGen OSDependent SPVRemapper)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
+
 add_compile_definitions(STB_IMAGE_IMPLEMENTATION)
 
 add_compile_definitions(YAML_CPP_STATIC_DEFINE)

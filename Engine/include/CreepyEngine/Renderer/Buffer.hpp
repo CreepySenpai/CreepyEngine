@@ -213,7 +213,7 @@ namespace Creepy {
 
             virtual uint32_t GetCount() const noexcept = 0;
 
-            static Ref<IndexBuffer> Create(uint32_t* index, uint32_t count) noexcept;
+            static Ref<IndexBuffer> Create(const void* indexData, uint32_t count) noexcept;
     };
 
     

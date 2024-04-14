@@ -55,7 +55,7 @@ namespace Creepy
         return nullptr;
     }
 
-    Ref<IndexBuffer> IndexBuffer::Create(uint32_t* index, uint32_t count) noexcept {
+    Ref<IndexBuffer> IndexBuffer::Create(const void* indexData, uint32_t count) noexcept {
 
         switch (Renderer::GetRenderAPI())
         {
@@ -64,7 +64,7 @@ namespace Creepy
                 return nullptr;
             }
             case RendererAPI::API::OPENGL: {
-                return std::make_shared<OpenGLIndexBuffer>(index, count);
+                return std::make_shared<OpenGLIndexBuffer>(indexData, count);
             }
             case RendererAPI::API::VULKAN : {
                 ENGINE_LOG_ERROR("Not support vulkan!");
