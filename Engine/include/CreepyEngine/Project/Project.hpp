@@ -19,18 +19,29 @@ namespace Creepy {
     {
         public:
 
-            static inline constexpr const std::filesystem::path& GetAssetDirectory() noexcept {
+            ~Project() noexcept{
+                ENGINE_LOG_WARNING("Destroyyyyyyyyyyyyyy");
+            }
+
+            inline constexpr const std::filesystem::path& GetAssetDirectory() noexcept {
                 return s_activeProject->m_config.AssetDirectoryPath;
             }
 
-            static inline constexpr ProjectConfig& GetConfig() noexcept {
-                return s_activeProject->m_config;
+            inline constexpr ProjectConfig& GetConfig() noexcept {
+                return m_config;
             }
 
+            static Ref<Project> GetActive() noexcept {
+                return s_activeProject;
+            }
+
+            static Ref<Project> New() noexcept;
             static Ref<Project> Load(const std::filesystem::path& projectPath) noexcept;
+            static bool Save(const std::filesystem::path& filetPath) noexcept;
+
         private:
             ProjectConfig m_config;
 
-            inline static Ref<Project> s_activeProject;
+            static Ref<Project> s_activeProject;
     };
 }

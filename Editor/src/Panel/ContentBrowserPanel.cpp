@@ -9,13 +9,22 @@ namespace Creepy {
     extern const std::filesystem::path AssetDirectory{"./assets"};
 
     ContentBrowserPanel::ContentBrowserPanel() noexcept : m_currentDirectory{AssetDirectory} {
+        ENGINE_LOG_ERROR("Gonna Access1");
+        if(Project::GetActive() == nullptr){
+            ENGINE_LOG_WARNING("Null");
+        }
+        else {
+            ENGINE_LOG_ERROR("Init Path: {}", Project::GetActive()->GetAssetDirectory().string());
+            ENGINE_LOG_ERROR("Gonna Access2");
+        }
+        
         m_directoryIcon = Texture2D::Create("./assets/icons/directory_icon.png");
         m_fileIcon = Texture2D::Create("./assets/icons/file_icon.png");
     }
 
     void ContentBrowserPanel::OnImGuiRender() noexcept {
         ImGui::Begin("Content Browser");
-
+        
         if(m_currentDirectory != AssetDirectory){
             if(ImGui::Button("<-")){
                 m_currentDirectory = m_currentDirectory.parent_path();

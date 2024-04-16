@@ -4,17 +4,20 @@
 
 namespace Creepy {
 
-    extern const std::filesystem::path AssetDirectory;
-
     static char buffer[256];
 
     EditorLayer* EditorLayer::s_instance = nullptr;
+
+    extern const std::filesystem::path AssetDirectory;
 
     EditorLayer::EditorLayer() noexcept : Layer{"LevelEditor"}{
         if(s_instance){
             APP_LOG_ERROR("Only once Editor Instance exit");
         }
         s_instance = this;
+        
+        // TODO: 
+        // this->openProject("./Sandbox.cxproj");
 
         FrameBufferSpecification spec{.Width = 700, .Height = 700, .Attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::GREEN_INT, FrameBufferTextureFormat::DEPTH}};
         m_frameBuffer = FrameBuffer::Create(spec);
@@ -855,4 +858,25 @@ namespace Creepy {
         Entity newEntity = m_activeScene->CreateEntity(entity.GetName());
 
     }
+
+    void EditorLayer::newProject() noexcept
+    {
+        Project::New();
+    }
+
+    void EditorLayer::openProject(const std::filesystem::path& filePath) noexcept
+    {
+        if(Project::Load(filePath)){
+            ENGINE_LOG_WARNING("Asset Path: {}", Project::GetActive()->GetAssetDirectory().string());
+            auto&& startScenePath = Project::GetActive()->GetAssetDirectory() / Project::GetActive()->GetConfig().StartScene;
+            ENGINE_LOG_WARNING("Scene Path: {}", startScenePath.string());
+            // this->openScene(startScenePath);
+        }
+    }
+
+    void EditorLayer::saveProject() noexcept
+    {
+        // Project::Save()
+    }
+
 }

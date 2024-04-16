@@ -13,11 +13,6 @@ namespace Creepy{
         glm::vec2 TextureCoord;
     };
 
-    struct MeshInfo{
-        uint32_t Vertices;
-        uint32_t Indices;
-    };
-
     class Mesh
     {
         public:

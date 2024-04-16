@@ -42,6 +42,9 @@
 #include <CreepyEngine/Scene/Components.hpp>
 #include <CreepyEngine/Scene/SceneSerializer.hpp>
 
+// Project
+#include <CreepyEngine/Project/Project.hpp>
+
 // Math
 #include <CreepyEngine/Math/Math.hpp>
 

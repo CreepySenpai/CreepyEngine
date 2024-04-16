@@ -8,6 +8,10 @@ namespace Creepy{
     {
         public:
             CreepyEditor() noexcept : Application{"CreepyEditor", 1600, 900} {
+
+                // TODO: Move to another place
+                Project::Load("./Sandbox.cxproj");
+
                 this->PushLayer(new EditorLayer());
             }
 

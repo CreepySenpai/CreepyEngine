@@ -42,6 +42,10 @@ namespace Creepy {
 
             void onDuplicateEntity() noexcept;
 
+            void newProject() noexcept;
+            void openProject(const std::filesystem::path& filePath) noexcept;
+            void saveProject() noexcept;
+
             void newScene() noexcept;
             void openScene() noexcept;
             void openScene(const std::filesystem::path& filePath) noexcept;

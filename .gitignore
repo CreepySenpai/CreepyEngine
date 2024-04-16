@@ -14,3 +14,4 @@ _deps
 *.json
 Debug
 obj
+report.txt
