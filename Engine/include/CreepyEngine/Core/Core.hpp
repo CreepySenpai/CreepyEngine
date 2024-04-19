@@ -26,10 +26,16 @@
 
 #define APP_LOG_TRACE(...) Creepy::Log::GetClientLogger()->trace(__VA_ARGS__)
 
+#define ENGINE_ASSERT_C(cond)    \
+if(!cond){                              \
+    ENGINE_LOG_WARNING("Failed in file {}, at line {}", __FILE__, __LINE__);               \
+    __debugbreak();                     \
+}  
 
 #define ENGINE_ASSERT(cond, message)    \
 if(!cond){                              \
     ENGINE_LOG_WARNING("Failed to {}, in file {}, at line {}", message, __FILE__, __LINE__);               \
+    __debugbreak();                     \
 }                                       \
 
 

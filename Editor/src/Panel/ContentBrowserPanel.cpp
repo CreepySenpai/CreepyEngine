@@ -6,9 +6,9 @@
 
 namespace Creepy {
 
-    extern const std::filesystem::path AssetDirectory{"./assets"};
+    // extern const std::filesystem::path AssetDirectory{"./assets"};
 
-    ContentBrowserPanel::ContentBrowserPanel() noexcept : m_currentDirectory{AssetDirectory} {
+    ContentBrowserPanel::ContentBrowserPanel() noexcept : m_currentDirectory{Project::GetActive()->GetAssetDirectory()} {
         ENGINE_LOG_ERROR("Gonna Access1");
         if(Project::GetActive() == nullptr){
             ENGINE_LOG_WARNING("Null");
@@ -25,7 +25,7 @@ namespace Creepy {
     void ContentBrowserPanel::OnImGuiRender() noexcept {
         ImGui::Begin("Content Browser");
         
-        if(m_currentDirectory != AssetDirectory){
+        if(m_currentDirectory != Project::GetActive()->GetAssetDirectory()){
             if(ImGui::Button("<-")){
                 m_currentDirectory = m_currentDirectory.parent_path();
             }
@@ -48,7 +48,7 @@ namespace Creepy {
             
             auto&& path = entry.path();
 
-            auto&& relativePath = std::filesystem::relative(entry.path(), AssetDirectory);
+            auto&& relativePath = std::filesystem::relative(entry.path(), Project::GetActive()->GetAssetDirectory());
 
             auto&& fileName = relativePath.filename().string();
 

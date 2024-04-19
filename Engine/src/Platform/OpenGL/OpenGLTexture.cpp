@@ -1,6 +1,6 @@
 #include <Platform/OpenGL/OpenGLTexture.hpp>
 #include <stb_image/stb_image.hpp>
-
+#include <CreepyEngine/Project/Project.hpp>
 namespace Creepy {
 
     OpenGLTexture2D::OpenGLTexture2D(const std::filesystem::path& filePath) noexcept : m_filePath{filePath} {
@@ -8,7 +8,7 @@ namespace Creepy {
         int width, height, channels;
         std::string path = filePath.string();
         auto imgData = stbi_load(path.c_str(), &width, &height, &channels, 0);
-
+        
         ENGINE_ASSERT((imgData != nullptr), std::format("Failed to load image: {}", filePath.string()));
 
         m_width = static_cast<uint32_t>(width);

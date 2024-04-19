@@ -1,4 +1,27 @@
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Project\Project.cpp:1: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Project/Project.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Project\Project.cpp:2: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Project/ProjectSerializer.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Project\Project.cpp:3: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Core/Core.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:1: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Scene/SceneSerializer.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:2: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Scene/Components.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:3: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Scene/Entity.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:4: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Scripting/ScriptEngine.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:5: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Utils/ScriptEngineUtils.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:6: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Project/Project.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:7: warning: missingIncludeSystem (information): Include file: <yaml-cpp/yaml_ex.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:243: warning: variableScope (style): The scope of the variable 'camera' can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for 'i' can be reduced:
+void f(int x)
+{
+    int i = 0;
+    if (x) {
+        // it's safe to move 'int i = 0;' here
+        for (int n = 0; n < 10; ++n) {
+            // it is possible but not safe to move 'int i = 0;' here
+            do_something(&i);
+        }
+    }
+}
+When you see this message it is always safe to reduce the variable scope 1 level.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:403: warning: shadowVariable (style): Local variable 'uuid' shadows outer variable'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:60: warning: constVariableReference (style): Variable 'transformComponent' can be declared as reference to const'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:229: warning: constVariableReference (style): Variable 'circleComponent' can be declared as reference to const'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:272: warning: constVariableReference (style): Variable 'rigid2D' can be declared as reference to const'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:286: warning: constVariableReference (style): Variable 'bxCollider2D' can be declared as reference to const'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Scene\SceneSerializer.cpp:305: warning: constVariableReference (style): Variable 'circleCollider2D' can be declared as reference to const'
 'nofile:0: warning: checkersReport (information): Active checkers: 172/592 (use --checkers-report=<filename> to see details)'

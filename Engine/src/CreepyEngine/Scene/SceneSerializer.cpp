@@ -3,6 +3,7 @@
 #include <CreepyEngine/Scene/Entity.hpp>
 #include <CreepyEngine/Scripting/ScriptEngine.hpp>
 #include <CreepyEngine/Utils/ScriptEngineUtils.hpp>
+#include <CreepyEngine/Project/Project.hpp>
 #include <yaml-cpp/yaml_ex.hpp>
 
 namespace Creepy
@@ -214,7 +215,8 @@ namespace Creepy
             writer << YAML::Key << "TilingFactor" << YAML::Value << spriteComponent.TilingFactor;
             
             if(spriteComponent.Texture){
-                writer << YAML::Key << "Texture" << YAML::Value << spriteComponent.Texture->GetTexturePath().string();
+                auto&& relativePath = std::filesystem::relative(spriteComponent.Texture->GetTexturePath(), Project::GetActive()->GetAssetDirectory());
+                writer << YAML::Key << "Texture" << YAML::Value << relativePath.string();
             }
 
             writer << YAML::EndMap;
@@ -496,7 +498,8 @@ namespace Creepy
                     spriteComponent.Color = spriteNode["Color"].as<glm::vec4>();
                     spriteComponent.TilingFactor = spriteNode["TilingFactor"].as<float>();
                     if(spriteNode["Texture"]){
-                        spriteComponent.Texture = Texture2D::Create(spriteNode["Texture"].as<std::string>());
+                        auto&& realPath = Project::GetActive()->GetAssetDirectory() / std::filesystem::path{spriteNode["Texture"].as<std::string>()};
+                        spriteComponent.Texture = Texture2D::Create(realPath);
                     }
 
                 }

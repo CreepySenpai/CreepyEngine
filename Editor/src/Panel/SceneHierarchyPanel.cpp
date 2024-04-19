@@ -11,7 +11,7 @@
 
 namespace Creepy {
 
-    extern const std::filesystem::path AssetDirectory;
+    // extern const std::filesystem::path AssetDirectory;
 
     SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& scene) noexcept : m_scene{scene} {
 
@@ -561,7 +561,7 @@ namespace Creepy {
                     
                     auto path = reinterpret_cast<const char*>(payload->Data);
 
-                    std::filesystem::path texturePath{AssetDirectory / path};
+                    std::filesystem::path texturePath{Project::GetActive()->GetAssetDirectory() / path};
 
                     if(std::filesystem::exists(texturePath) && texturePath.extension().string() == ".png"){
                         

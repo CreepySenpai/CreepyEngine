@@ -8,7 +8,7 @@ namespace Creepy {
 
     EditorLayer* EditorLayer::s_instance = nullptr;
 
-    extern const std::filesystem::path AssetDirectory;
+    // extern const std::filesystem::path AssetDirectory;
 
     EditorLayer::EditorLayer() noexcept : Layer{"LevelEditor"}{
         if(s_instance){
@@ -26,15 +26,17 @@ namespace Creepy {
         m_editorScene = std::make_shared<Scene>();
         m_activeScene = m_editorScene;
 
-        m_playIcon = Texture2D::Create("./assets/icons/play_icon.png");
+        auto&& assetDir = Project::GetActive()->GetAssetDirectory();
 
-        m_stopIcon = Texture2D::Create("./assets/icons/stop_icon.png");
+        m_playIcon = Texture2D::Create(assetDir / "icons/play_icon.png");
 
-        m_simulationIcon = Texture2D::Create("./assets/icons/simulation_icon.png");
+        m_stopIcon = Texture2D::Create(assetDir / "icons/stop_icon.png");
 
-        m_pauseIcon = Texture2D::Create("./assets/icons/pause_icon.png");
+        m_simulationIcon = Texture2D::Create(assetDir / "icons/simulation_icon.png");
 
-        m_steppingIcon = Texture2D::Create("./assets/icons/step-icon.png");
+        m_pauseIcon = Texture2D::Create(assetDir / "icons/pause_icon.png");
+
+        m_steppingIcon = Texture2D::Create(assetDir / "icons/step-icon.png");
 
         m_editorCamera = EditorCamera{45.0f, 1.0f, 0.01f, 1000.0f};
         
@@ -287,7 +289,7 @@ namespace Creepy {
             if(auto payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
                 auto path = reinterpret_cast<const char*>(payload->Data);
 
-                this->openScene(AssetDirectory / path);
+                this->openScene(Project::GetActive()->GetAssetDirectory() / path);
             }
 
             ImGui::EndDragDropTarget();
