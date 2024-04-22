@@ -1,11 +1,14 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/quaternion.hpp>
 #include <string>
 #include <functional>
 #include <cstdint>
+#include <bitset>
+
+#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 
 #include <CreepyEngine/Core/TimeStep.hpp>
 #include <CreepyEngine/Core/Core.hpp>
@@ -161,5 +164,19 @@ namespace Creepy {
 
         MeshType Type{MeshType::NONE};
         
+    };
+
+    struct RigidBody3DComponent{
+        enum class BodyType : uint32_t {
+            STATIC = 0, DYNAMIC, KINEMATIC
+        };
+
+        BodyType Type{BodyType::STATIC};
+
+        std::bitset<3> FixedRotation{"000"};
+
+        void* RuntimeBody{nullptr};
+
+        bool EnableGravity{false};
     };
 }

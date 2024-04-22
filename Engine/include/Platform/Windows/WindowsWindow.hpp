@@ -4,38 +4,42 @@
 #include <memory>
 #include <GLFW/glfw3.h>
 #include <CreepyEngine/Core/Window.hpp>
-#include <CreepyEngine/Renderer/GraphicContext.hpp>
-#include <CreepyEngine/Core/Core.hpp>
 
 namespace Creepy {
+
+    class GraphicContext;
+
     class WindowsWindow : public Window {
         public:
             WindowsWindow(const WindowProperty& windowProperty) noexcept;
 
-            // constexpr virtual ~WindowsWindow() = default;
-
             constexpr virtual void OnUpdate() noexcept override;
 
-            [[nodiscard]] constexpr virtual uint32_t GetWindowWidth() const noexcept override {
+            void ShutDown() noexcept override;
+
+            [[nodiscard]] constexpr uint32_t GetWindowWidth() const noexcept override {
                 return m_windowData.Width;
             }
 
-            [[nodiscard]] constexpr virtual uint32_t GetWindowHeight() const noexcept override {
+            [[nodiscard]] constexpr uint32_t GetWindowHeight() const noexcept override {
                 return m_windowData.Height;
             }
 
-            constexpr virtual void SetEventCallBack(const std::function<void(Event&)>& callBack) noexcept override;
-            constexpr virtual void SetVSync(bool setting) noexcept override;
-            constexpr virtual bool IsVSyncEnable() const noexcept override;
+            [[nodiscard]] Ref<GraphicContext> GetGraphicContext() noexcept override {
+                return m_context;
+            }
 
-            [[nodiscard]] constexpr inline virtual void* GetNativeWindow() const noexcept override {
+            constexpr void SetEventCallBack(const std::function<void(Event&)>& callBack) noexcept override;
+            constexpr void SetVSync(bool setting) noexcept override;
+            constexpr bool IsVSyncEnable() const noexcept override;
+
+            [[nodiscard]] constexpr inline void* GetNativeWindow() const noexcept override {
                 return static_cast<void*>(m_window.get());
             }
 
         private:
-            constexpr virtual void Init(const WindowProperty& windowProperty) noexcept;
+            constexpr void Init(const WindowProperty& windowProperty) noexcept;
             constexpr void AttachEvent() noexcept;
-            constexpr virtual void ShutDown() noexcept;
 
             Ref<GLFWwindow> m_window;
 

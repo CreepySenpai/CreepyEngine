@@ -9,9 +9,17 @@
 
 namespace Creepy {
 
+    namespace Physic2D{
+        class PhysicWorld2D;
+    }
+
+    namespace Physic3D{
+        class PhysicWorld3D;
+    }
+
     template <typename T>
     concept ValidComponents = Utils::IsAnyOf<std::remove_cvref_t<T>, IDComponent, TagComponent, TransformComponent, SpriteComponent, CircleSpriteComponent, CameraComponent, NativeScriptComponent
-        , ScriptComponent, RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent>;
+        , ScriptComponent, RigidBody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent, RigidBody3DComponent>;
 
     class Entity
     {
@@ -85,6 +93,9 @@ namespace Creepy {
             // For hovered Entity
             // TODO: Remove
             friend class EditorLayer;
+
+            friend class Creepy::Physic2D::PhysicWorld2D;
+            friend class Creepy::Physic3D::PhysicWorld3D;
 
             entt::entity m_entityHandle;
             Scene* m_scene;

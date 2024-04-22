@@ -1,5 +1,5 @@
 #include <Platform/OpenGL/OpenGLFrameBuffer.hpp>
-#include <CreepyEngine/Debug/ErrorHandle.hpp>
+#include <CreepyEngine/Debug/OpenGLErrorHandle.hpp>
 #include <glad/glad.h>
 
 

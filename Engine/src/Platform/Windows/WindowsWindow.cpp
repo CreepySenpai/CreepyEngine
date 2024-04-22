@@ -3,6 +3,7 @@
 #include <CreepyEngine/Events/KeyEvent.hpp>
 #include <CreepyEngine/Events/MouseEvent.hpp>
 #include <CreepyEngine/Core/Log.hpp>
+#include <CreepyEngine/Core/Core.hpp>
 #include <Platform/OpenGL/OpenGLContext.hpp>
 
 
@@ -186,7 +187,7 @@ namespace Creepy {
     }
 
 
-    constexpr void WindowsWindow::ShutDown() noexcept {
-        
+    void WindowsWindow::ShutDown() noexcept {
+        m_context->ShutDown();
     }
 }

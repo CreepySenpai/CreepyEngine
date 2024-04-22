@@ -10,6 +10,14 @@ namespace Creepy {
     class TimeStep;
     class EditorCamera;
 
+    namespace Physic2D{
+        class PhysicWorld2D;
+    }
+
+    namespace Physic3D{
+        class PhysicWorld3D;
+    }
+
     class Scene
     {
         public:
@@ -91,6 +99,9 @@ namespace Creepy {
             friend class Entity;
             friend class SceneHierarchyPanel;
             friend class SceneSerializer;
+            
+            friend class Creepy::Physic2D::PhysicWorld2D;
+            friend class Creepy::Physic3D::PhysicWorld3D;
     };
     
     

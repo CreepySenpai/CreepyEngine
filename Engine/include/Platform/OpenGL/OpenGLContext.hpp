@@ -1,7 +1,8 @@
 #pragma once
 
 #include <CreepyEngine/Renderer/GraphicContext.hpp>
-#include <GLFW/glfw3.h>
+
+class GLFWwindow;
 
 namespace Creepy {
 
@@ -12,6 +13,7 @@ namespace Creepy {
 
             void Init() noexcept override;
             void SwapBuffers() noexcept override;
+            void ShutDown() noexcept override;
         private:
             GLFWwindow* m_windowHandle;
     };

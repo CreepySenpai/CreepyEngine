@@ -1,6 +1,7 @@
 #include <Platform/OpenGL/OpenGLContext.hpp>
 #include <CreepyEngine/Core/Core.hpp>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 namespace Creepy {
 
@@ -19,6 +20,10 @@ namespace Creepy {
 
     void OpenGLContext::SwapBuffers() noexcept {
         glfwSwapBuffers(m_windowHandle);
+    }
+
+    void OpenGLContext::ShutDown() noexcept {
+
     }
 
 }

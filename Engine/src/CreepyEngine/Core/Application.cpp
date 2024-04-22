@@ -38,6 +38,8 @@ namespace Creepy {
     }
 
     Application::~Application() noexcept {
+        m_window->ShutDown();
+        
         Renderer::ShutDown();
         ScriptEngine::ShutDown();
         ENGINE_LOG_WARNING("Call Shut Down Eng");

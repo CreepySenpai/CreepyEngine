@@ -130,6 +130,35 @@ namespace Creepy {
         }));
     }
 
+    // template <typename... Components>
+    // struct Register{
+    //     constexpr static void RegisterComponentss() noexcept;
+    // };
+
+    // template <>
+    // struct Register<>{
+    //     constexpr static void RegisterComponentss() noexcept;
+    // };
+
+    // template <typename Comp1, typename... Components>
+    // struct Register<Comp1, Components...>{
+
+    //     constexpr static void RegisterComponentss() noexcept {
+
+    //         std::string typeName{typeid(Comp1).name()};
+    //         typeName.erase(0, 10);
+    //         typeName.pop_back();
+    //         std::string managedTypeName{std::format("Creepy.{}", typeName)};
+    //         ENGINE_LOG_WARNING("Name: {}", managedTypeName);
+
+    //         s_entityHasComponentFuncs.emplace(std::make_pair(managedTypeName, [](Entity& entity){
+    //             return entity.HasComponent<Comp1>();
+    //         }));
+
+    //         Register<Components...>::RegisterComponentss();
+    //     }
+    // };
+
     void ScriptGlue::RegisterComponents() noexcept {
         s_entityHasComponentFuncs.clear();
         
@@ -145,6 +174,7 @@ namespace Creepy {
         RegisterComponent<BoxCollider2DComponent>();
         RegisterComponent<CircleCollider2DComponent>();
         RegisterComponent<MeshComponent>();
+        RegisterComponent<RigidBody3DComponent>();
 
         ENGINE_LOG_WARNING("Component Regis: {}", s_entityHasComponentFuncs.size());
     }

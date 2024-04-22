@@ -1,14 +1,30 @@
 #pragma once
 
+#include <CreepyEngine/Core/Core.hpp>
 
-namespace Creepy {
+class b2World;
+
+namespace Creepy{
+
+    class TimeStep;
+
+    class Scene;
+
+}
+
+namespace Creepy::Physic2D {
 
     class PhysicWorld2D
     {
         public:
-            // PhysicWorld2D();
-            // ~PhysicWorld2D();
+            static void InitWorld2D(Scene* scene) noexcept;
+
+            static void UpdateWorld2D(Creepy::TimeStep timeStep, Scene* scene) noexcept;
+
+            static void DestroyWorld2D(Scene* scene) noexcept;
+
         private:
-            
+
+            static Ref<b2World> s_physicWorld2D;
     };
 }

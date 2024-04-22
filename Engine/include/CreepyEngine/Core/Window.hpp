@@ -7,6 +7,9 @@
 #include "Core.hpp"
 
 namespace Creepy {
+    
+    class GraphicContext;
+
     struct WindowProperty {
         std::string Title{"Window"};
         uint32_t Width{600}, Height{600};
@@ -25,8 +28,12 @@ namespace Creepy {
 
             constexpr virtual void OnUpdate() noexcept = 0;
 
+            virtual void ShutDown() noexcept = 0;
+
             constexpr virtual uint32_t GetWindowWidth() const noexcept = 0;
             constexpr virtual uint32_t GetWindowHeight() const noexcept = 0;
+
+            constexpr virtual Ref<GraphicContext> GetGraphicContext() noexcept = 0;
 
             constexpr virtual void SetEventCallBack(const std::function<void(Event&)>& callBack) noexcept = 0;
             constexpr virtual void SetVSync(bool setting) noexcept = 0;

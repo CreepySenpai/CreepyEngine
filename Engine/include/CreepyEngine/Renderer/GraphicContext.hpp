@@ -9,8 +9,7 @@ namespace Creepy
             virtual ~GraphicContext() noexcept = default;
             virtual void Init() noexcept = 0;
             virtual void SwapBuffers() noexcept = 0;
-        private:
-            
+            virtual void ShutDown() noexcept = 0;    
     };
     
 }
