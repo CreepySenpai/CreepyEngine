@@ -12,7 +12,7 @@ namespace Creepy{
                 // TODO: Move to another place
                 Project::Load("./Sandbox.cxproj");
 
-                this->PushLayer(new EditorLayer());
+                // this->PushLayer(new EditorLayer());
             }
 
             virtual ~CreepyEditor() noexcept {

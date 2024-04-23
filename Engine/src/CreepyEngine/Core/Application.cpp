@@ -29,19 +29,20 @@ namespace Creepy {
         
         ENGINE_LOG_WARNING("Gona Create Render");
         Renderer::Init();
-        ENGINE_LOG_WARNING("Gona Create Script");
-        ScriptEngine::Init();
-        ENGINE_LOG_WARNING("Gona Create ImGui");
-        m_imGuiLayer = new ImGuiLayer();
+        // ENGINE_LOG_WARNING("Gona Create Script");
+        // ScriptEngine::Init();
+        // ENGINE_LOG_WARNING("Gona Create ImGui");
+        // m_imGuiLayer = new ImGuiLayer();
         
-        this->PushOverlay(m_imGuiLayer);  // No memory leak because layerStack will free it
+        // this->PushOverlay(m_imGuiLayer);  // No memory leak because layerStack will free it
     }
 
     Application::~Application() noexcept {
         m_window->ShutDown();
         
+        // ScriptEngine::ShutDown();
+
         Renderer::ShutDown();
-        ScriptEngine::ShutDown();
         ENGINE_LOG_WARNING("Call Shut Down Eng");
     }
 
@@ -70,13 +71,13 @@ namespace Creepy {
             
 
             // Render All Data For ImGui Layer
-            m_imGuiLayer->Begin();
+            // m_imGuiLayer->Begin();
 
-            for(auto&& layer : m_layerStack){
-                layer->OnImGuiRender();
-            }
+            // for(auto&& layer : m_layerStack){
+            //     layer->OnImGuiRender();
+            // }
 
-            m_imGuiLayer->End();
+            // m_imGuiLayer->End();
 
             m_window->OnUpdate();
 

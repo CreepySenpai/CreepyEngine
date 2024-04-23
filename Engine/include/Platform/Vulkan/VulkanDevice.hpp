@@ -12,6 +12,8 @@ namespace Creepy {
 
         static void DestroyDevice(VulkanContext* context) noexcept;
 
+        static void VulkanDeviceQuerySwapChainSupport(vk::PhysicalDevice physicDev, vk::SurfaceKHR surface, VulkanSwapChainSupportInfo& info) noexcept;
+
     };
 
 }

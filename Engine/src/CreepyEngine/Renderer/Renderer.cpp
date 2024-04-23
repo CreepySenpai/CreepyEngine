@@ -361,47 +361,47 @@ namespace Creepy {
         
         RenderCommand::Init();
 
-        initCoreStorage();
-        initStorage2D();
-        initStorage3D();
+        // initCoreStorage();
+        // initStorage2D();
+        // initStorage3D();
 
     }
 
     void Renderer::ShutDown() noexcept {
 
-        delete[] s_renderer2dStorage.Rect.VertexBufferBase;
-        delete[] s_renderer2dStorage.Circle.VertexBufferBase;
-        delete[] s_renderer2dStorage.Lines.VertexBufferBase;
+        // delete[] s_renderer2dStorage.Rect.VertexBufferBase;
+        // delete[] s_renderer2dStorage.Circle.VertexBufferBase;
+        // delete[] s_renderer2dStorage.Lines.VertexBufferBase;
 
-        s_renderer2dStorage.Rect.VertexArray.reset();
-        s_renderer2dStorage.Rect.VertexBuffer.reset();
-        s_renderer2dStorage.Rect.Shader.reset();
+        // s_renderer2dStorage.Rect.VertexArray.reset();
+        // s_renderer2dStorage.Rect.VertexBuffer.reset();
+        // s_renderer2dStorage.Rect.Shader.reset();
 
-        s_renderer2dStorage.Circle.VertexArray.reset();
-        s_renderer2dStorage.Circle.VertexBuffer.reset();
-        s_renderer2dStorage.Circle.Shader.reset();
+        // s_renderer2dStorage.Circle.VertexArray.reset();
+        // s_renderer2dStorage.Circle.VertexBuffer.reset();
+        // s_renderer2dStorage.Circle.Shader.reset();
 
-        s_renderer2dStorage.Lines.VertexArray.reset();
-        s_renderer2dStorage.Lines.VertexBuffer.reset();
-        s_renderer2dStorage.Lines.Shader.reset();
+        // s_renderer2dStorage.Lines.VertexArray.reset();
+        // s_renderer2dStorage.Lines.VertexBuffer.reset();
+        // s_renderer2dStorage.Lines.Shader.reset();
 
-        s_renderer3dStorage.Cube.VertexArray.reset();
-        s_renderer3dStorage.Cube.VertexBuffer.reset();
-        s_renderer3dStorage.Cube.Shader.reset();
+        // s_renderer3dStorage.Cube.VertexArray.reset();
+        // s_renderer3dStorage.Cube.VertexBuffer.reset();
+        // s_renderer3dStorage.Cube.Shader.reset();
         
-        s_renderer3dStorage.Cylinder.VertexArray.reset();
-        s_renderer3dStorage.Cylinder.VertexBuffer.reset();
-        s_renderer3dStorage.Cylinder.Shader.reset();
+        // s_renderer3dStorage.Cylinder.VertexArray.reset();
+        // s_renderer3dStorage.Cylinder.VertexBuffer.reset();
+        // s_renderer3dStorage.Cylinder.Shader.reset();
 
-        s_renderer3dStorage.Cone.VertexArray.reset();
-        s_renderer3dStorage.Cone.VertexBuffer.reset();
-        s_renderer3dStorage.Cone.Shader.reset();
+        // s_renderer3dStorage.Cone.VertexArray.reset();
+        // s_renderer3dStorage.Cone.VertexBuffer.reset();
+        // s_renderer3dStorage.Cone.Shader.reset();
 
-        s_renderer3dStorage.Torus.VertexArray.reset();
-        s_renderer3dStorage.Torus.VertexBuffer.reset();
-        s_renderer3dStorage.Torus.Shader.reset();
+        // s_renderer3dStorage.Torus.VertexArray.reset();
+        // s_renderer3dStorage.Torus.VertexBuffer.reset();
+        // s_renderer3dStorage.Torus.Shader.reset();
 
-        s_renderer2dStorage.WhiteTexture.reset();
+        // s_renderer2dStorage.WhiteTexture.reset();
     }
 
     

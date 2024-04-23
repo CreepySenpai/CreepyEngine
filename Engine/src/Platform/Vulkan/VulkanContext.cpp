@@ -1,4 +1,4 @@
-#include <vector>
+#include <CreepyEngine/Core/Core.hpp>
 #include <GLFW/glfw3.h>
 #include <CreepyEngine/Core/Application.hpp>
 #include <Platform/Vulkan/VulkanContext.hpp>
@@ -13,17 +13,17 @@ namespace Creepy {
         switch(severity){
             
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:{
-                ENGINE_LOG_INFO("Vulkan Debug Info: {}", data->pMessage);
+                ENGINE_LOG_ERROR("Vulkan Debug Info: {}", data->pMessage);
                 break;
             }
 
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:{
-                ENGINE_LOG_TRACE("Vulkan Debug Trace: {}", data->pMessage);
+                ENGINE_LOG_ERROR("Vulkan Debug Trace: {}", data->pMessage);
                 break;
             }
 
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:{
-                ENGINE_LOG_WARNING("Vulkan Debug Warning: {}", data->pMessage);
+                ENGINE_LOG_ERROR("Vulkan Debug Warning: {}", data->pMessage);
                 break;
             }
 
@@ -36,22 +36,30 @@ namespace Creepy {
         return VK_FALSE;
     }
 
-    VulkanContext::VulkanContext(GLFWwindow* windowHandle) noexcept : m_windowHandle{windowHandle} {}
+    VulkanContext::VulkanContext(GLFWwindow* windowHandle) noexcept : m_windowHandle{windowHandle} {
+        
+    }
 
     void VulkanContext::Init() noexcept
     {
         
         // TODO: Custom ALloc
-        m_allocator = nullptr;
+        Allocator = nullptr;
+        ENGINE_LOG_WARNING("Create Instance");
 
         // Create Instance
         initInstance();
+        ENGINE_LOG_WARNING("Create Debug");
 
         // Create Debugger
         initDebugMessage();
 
+        ENGINE_LOG_WARNING("Create Surface");
+
         // Create Surface
         initSurface();
+
+        ENGINE_LOG_WARNING("Create Device");
 
         // Create Device
         initDevice();
@@ -78,7 +86,7 @@ namespace Creepy {
             "VK_LAYER_KHRONOS_validation"
         };
 
-        auto supportLayers = vk::enumerateInstanceLayerProperties(m_dynamicLoader);
+        auto supportLayers = vk::enumerateInstanceLayerProperties();
 
         for(auto& layer : supportLayers){
             ENGINE_LOG_WARNING("Support Layer: {}", layer.layerName.data());
@@ -91,40 +99,51 @@ namespace Creepy {
         instanceInfo.ppEnabledExtensionNames = extensions.data();
         instanceInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
         instanceInfo.ppEnabledLayerNames = layers.data();
+        
+        ENGINE_LOG_WARNING("Gonna Create Instance");
 
-        VULKAN_CHECK_ERROR(m_instance = vk::createInstance(instanceInfo, m_allocator, m_dynamicLoader));
+        try{
+            Instance = vk::createInstance(instanceInfo, nullptr);
+        }
+        catch(const vk::SystemError& e){
+            ENGINE_LOG_ERROR("Vulkan Error: {}", e.what());
+        }
 
-        if(m_instance){
-            ENGINE_LOG_INFO("Create Vulkan Instance Success");
-        }
-        else {
-            ENGINE_LOG_WARNING("Create Vulkan Instance Fail");
-        }
+        DynamicLoader = vk::DispatchLoaderDynamic(Instance, vkGetInstanceProcAddr);
+
     }
 
     void VulkanContext::initDebugMessage() noexcept {
-        vk::DebugUtilsMessengerCreateInfoEXT debugInfo{};
-        debugInfo.flags = vk::DebugUtilsMessengerCreateFlagsEXT{};
-        debugInfo.messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
-        debugInfo.messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation;
-        debugInfo.pUserData = nullptr;
-        debugInfo.pfnUserCallback = debugUtilsCallback;
+        vk::DebugUtilsMessengerCreateInfoEXT debugInfo{
+            vk::DebugUtilsMessengerCreateFlagsEXT{},
+            vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError,
+            vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation,
+            debugUtilsCallback,
+            nullptr
+        };
+        
+        ENGINE_LOG_WARNING("Gonna Create Debug");
+        
+        m_debugUtils = Instance.createDebugUtilsMessengerEXT(debugInfo, nullptr, DynamicLoader);
 
-        m_debugUtils = m_instance.createDebugUtilsMessengerEXT(debugInfo, m_allocator, m_dynamicLoader);
+        ENGINE_LOG_WARNING("Create Vulkan Debug");
     }
 
     void VulkanContext::initSurface() noexcept {
         VkSurfaceKHR surfaceHandle;
         
-        if(glfwCreateWindowSurface(m_instance, m_windowHandle, nullptr, &surfaceHandle) != VK_SUCCESS) {
+        if(glfwCreateWindowSurface(Instance, m_windowHandle, nullptr, &surfaceHandle) != VK_SUCCESS) {
             ENGINE_LOG_ERROR("Cannot Create Surface");
         }
 
-        m_surface = vk::SurfaceKHR{surfaceHandle};
+        Surface = vk::SurfaceKHR{surfaceHandle};
+
+        ENGINE_LOG_WARNING("Create Vulkan Surface");
     }
 
     void VulkanContext::initDevice() noexcept {
         Device::CreateVulkanDevice(this);
+        ENGINE_LOG_WARNING("Create Vulkan Device");
     }
 
     void VulkanContext::SwapBuffers() noexcept
@@ -136,10 +155,12 @@ namespace Creepy {
         
         Device::DestroyDevice(this);
 
-        m_dynamicLoader.vkDestroyDebugUtilsMessengerEXT(m_instance, static_cast<VkDebugUtilsMessengerEXT>(m_debugUtils), nullptr);
+        DynamicLoader.vkDestroyDebugUtilsMessengerEXT(Instance, static_cast<VkDebugUtilsMessengerEXT>(m_debugUtils), nullptr);
 
-        m_instance.destroySurfaceKHR(m_surface);
-        m_instance.destroy();
+        Instance.destroySurfaceKHR(Surface);
+        Instance.destroy();
+
+        ENGINE_LOG_WARNING("Destroy Vulkan");
     }
 
 }

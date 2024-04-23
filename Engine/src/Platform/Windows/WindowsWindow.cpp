@@ -4,8 +4,8 @@
 #include <CreepyEngine/Events/MouseEvent.hpp>
 #include <CreepyEngine/Core/Log.hpp>
 #include <CreepyEngine/Core/Core.hpp>
-#include <Platform/OpenGL/OpenGLContext.hpp>
-
+// #include <Platform/OpenGL/OpenGLContext.hpp>
+#include <Platform/Vulkan/VulkanContext.hpp>
 
 
 namespace Creepy {
@@ -67,7 +67,7 @@ namespace Creepy {
 
         // Use For Vulkan
         
-        // glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
         m_window = std::shared_ptr<GLFWwindow>(
             glfwCreateWindow(static_cast<int>(m_windowData.Width), static_cast<int>(m_windowData.Height), m_windowData.Title.c_str(), nullptr, nullptr),
@@ -75,12 +75,13 @@ namespace Creepy {
                 glfwDestroyWindow(window);
             });
         
-        m_context = std::make_shared<OpenGLContext>(m_window.get());
+        // m_context = std::make_shared<OpenGLContext>(m_window.get());
+        m_context = std::make_shared<VulkanContext>(m_window.get());
         m_context->Init();
 
         glfwSetWindowUserPointer(m_window.get(), &m_windowData);    // Sign A Pointer To Window Property
         
-        this->SetVSync(true);
+        // this->SetVSync(true);
 
         // Set CallBack Event
        

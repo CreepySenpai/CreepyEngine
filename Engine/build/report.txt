@@ -1,11 +1,21 @@
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Physics\2D\PhysicWorld2D.cpp:1: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Core/TimeStep.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Physics\2D\PhysicWorld2D.cpp:2: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Scene/Components.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Physics\2D\PhysicWorld2D.cpp:3: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Scene/Entity.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Physics\2D\PhysicWorld2D.cpp:4: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Scene/Scene.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Physics\2D\PhysicWorld2D.cpp:5: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Physics/2D/PhysicWorld2D.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Physics\2D\PhysicWorld2D.cpp:7: warning: missingIncludeSystem (information): Include file: <box2d/b2_world.h> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Physics\2D\PhysicWorld2D.cpp:8: warning: missingIncludeSystem (information): Include file: <box2d/b2_body.h> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Physics\2D\PhysicWorld2D.cpp:9: warning: missingIncludeSystem (information): Include file: <box2d/b2_fixture.h> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Physics\2D\PhysicWorld2D.cpp:10: warning: missingIncludeSystem (information): Include file: <box2d/b2_polygon_shape.h> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Physics\2D\PhysicWorld2D.cpp:11: warning: missingIncludeSystem (information): Include file: <box2d/b2_circle_shape.h> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:1: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Core/Core.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:2: warning: missingIncludeSystem (information): Include file: <Platform/Vulkan/VulkanDevice.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:3: warning: missingIncludeSystem (information): Include file: <Platform/Vulkan/VulkanContext.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:99: warning: redundantCondition (style): The condition '!requirements.Graphics || requirements.Graphics && queueInfo.GraphicsFamilyIndex!=-1' is equivalent to '!requirements.Graphics || queueInfo.GraphicsFamilyIndex!=-1'.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:100: warning: redundantCondition (style): The condition '!requirements.Present || requirements.Present && queueInfo.PresentFamilyIndex!=-1' is equivalent to '!requirements.Present || queueInfo.PresentFamilyIndex!=-1'.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:101: warning: redundantCondition (style): The condition '!requirements.Compute || requirements.Compute && queueInfo.ComputeFamilyIndex!=-1' is equivalent to '!requirements.Compute || queueInfo.ComputeFamilyIndex!=-1'.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:102: warning: redundantCondition (style): The condition '!requirements.Transfer || requirements.Transfer && queueInfo.TransferFamilyIndex!=-1' is equivalent to '!requirements.Transfer || queueInfo.TransferFamilyIndex!=-1'.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:58: warning: variableScope (style): The scope of the variable 'transferScore' can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for 'i' can be reduced:
+void f(int x)
+{
+    int i = 0;
+    if (x) {
+        // it's safe to move 'int i = 0;' here
+        for (int n = 0; n < 10; ++n) {
+            // it is possible but not safe to move 'int i = 0;' here
+            do_something(&i);
+        }
+    }
+}
+When you see this message it is always safe to reduce the variable scope 1 level.'
 'nofile:0: warning: checkersReport (information): Active checkers: 172/592 (use --checkers-report=<filename> to see details)'

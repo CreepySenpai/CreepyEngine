@@ -400,7 +400,6 @@ namespace Creepy
                     if(fields){
 
                         auto& fieldMap = ScriptEngine::GetScriptFieldData();
-                        auto& uuid = deserializeEntity.GetUUID();
 
                         for(auto&& field : fields){
                             auto&& fieldName = field["Name"].as<std::string>();

@@ -25,12 +25,12 @@ namespace Creepy {
 
         public:
             GLFWwindow* m_windowHandle;
-            vk::Instance m_instance{nullptr};
-            vk::AllocationCallbacks m_allocator{nullptr};
-            vk::DispatchLoaderDynamic m_dynamicLoader;  // must not be null
+            vk::Instance Instance{nullptr};
+            vk::AllocationCallbacks Allocator{nullptr};
+            vk::DispatchLoaderDynamic DynamicLoader;  // must not be null
             vk::DebugUtilsMessengerEXT m_debugUtils{nullptr};
-            vk::SurfaceKHR m_surface{nullptr};
-            VulkanDevice m_device{};
+            vk::SurfaceKHR Surface{nullptr};
+            VulkanDevice Devices{};
     };
     
 }
