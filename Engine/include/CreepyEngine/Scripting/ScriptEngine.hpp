@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <glm/glm.hpp>
 #include <CreepyEngine/Utils/ConceptUtils.hpp>
+#include <CreepyEngine/Utils/TypesUtils.hpp>
 
 
 // Forward declare
@@ -93,11 +94,11 @@ namespace Creepy{
         public:
 
             constexpr ScriptField() noexcept {
-                std::ranges::fill(m_buffer, 0);
+                std::ranges::fill(m_buffer, std::byte{0});
             }
 
             constexpr ScriptField(ScriptFieldDataType dataType) noexcept : DataType{dataType} {
-                std::ranges::fill(m_buffer, 0);
+                std::ranges::fill(m_buffer, std::byte{0});
             }
 
             template <RequireTypes T>
@@ -109,11 +110,10 @@ namespace Creepy{
             template <RequireTypes T>
             constexpr void SetValue(T value) noexcept
             {
-                // std::memcpy(m_buffer, &value, sizeof(T));
-                new (&m_buffer[0]) T(value);
+                new (&m_buffer[0]) T{value};
             }
 
-            [[nodiscard]] constexpr uint8_t* GetValueRaw() noexcept {
+            [[nodiscard]] constexpr std::byte* GetValueRaw() noexcept {
                 return m_buffer;
             }
 
@@ -121,7 +121,8 @@ namespace Creepy{
             ScriptFieldDataType DataType{ScriptFieldDataType::NONE};
 
         private:
-            uint8_t m_buffer[16];
+            AlignMentBuffer<bool, char, uint8_t, short, uint16_t, int, 
+        uint32_t, long, uint64_t, float, double, glm::vec2, glm::vec3, glm::vec4> m_buffer;
     };
     
 }

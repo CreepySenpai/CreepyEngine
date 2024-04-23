@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <CreepyEngine/Utils/TypesUtils.hpp>
 
 namespace Creepy{
 

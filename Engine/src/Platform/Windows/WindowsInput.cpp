@@ -6,7 +6,7 @@ namespace Creepy {
 
     bool Input::IsKeyPressed(KeyCode keyCode) noexcept
     {
-        auto&& window = reinterpret_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
+        auto&& window = static_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
 
         int state = glfwGetKey(window, std::to_underlying(keyCode));
 
@@ -14,7 +14,7 @@ namespace Creepy {
     }
     
     bool Input::IsMouseButtonPressed(MouseButtonCode mouseButton) noexcept {
-        auto&& window = reinterpret_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
+        auto&& window = static_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
 
         int state = glfwGetMouseButton(window, std::to_underlying(mouseButton));
 
@@ -34,7 +34,7 @@ namespace Creepy {
     }
 
     std::pair<float, float> Input::GetMousePosition() noexcept {
-        auto&& window = reinterpret_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
+        auto&& window = static_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow());
         
         double x{0.0}, y{0.0};
         

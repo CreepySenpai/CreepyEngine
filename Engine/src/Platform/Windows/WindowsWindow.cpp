@@ -95,7 +95,7 @@ namespace Creepy {
     constexpr void WindowsWindow::AttachEvent() noexcept {
 
         glfwSetWindowSizeCallback(m_window.get(), [](GLFWwindow* window, int width, int height) {
-            auto&& windowData = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+            auto&& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
             windowData.Width = width;
             windowData.Height = height;
 
@@ -104,7 +104,7 @@ namespace Creepy {
         });
 
         glfwSetWindowCloseCallback(m_window.get(), [](GLFWwindow* window){
-            auto&& windowData = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+            auto&& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
             WindowCloseEvent event;
 
@@ -112,7 +112,7 @@ namespace Creepy {
         });
 
         glfwSetKeyCallback(m_window.get(), [](GLFWwindow* window, int keyCode, int scanCode, int action, int mods){
-            auto&& windowData = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+            auto&& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
             
             switch (action)
             {
@@ -137,7 +137,7 @@ namespace Creepy {
         });
 
         glfwSetCharCallback(m_window.get(), [](GLFWwindow* window, unsigned int keyCode){
-            auto&& windowData = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+            auto&& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
             KeyTypedEvent event{static_cast<KeyCode>(keyCode)};
             windowData.EventCallBack(event);
@@ -145,7 +145,7 @@ namespace Creepy {
         });
 
         glfwSetMouseButtonCallback(m_window.get(), [](GLFWwindow* window, int button, int action, int mods){
-            auto&& windowData = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+            auto&& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
             switch (action)
             {
@@ -170,7 +170,7 @@ namespace Creepy {
         
 
         glfwSetScrollCallback(m_window.get(), [](GLFWwindow* window, double xOffset, double yOffset){
-            auto&& windowData = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+            auto&& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
             
             MouseScrolledEvent event{xOffset, yOffset};
 
@@ -179,7 +179,7 @@ namespace Creepy {
         
 
         glfwSetCursorPosCallback(m_window.get(), [](GLFWwindow* window, double xpos, double ypos){
-            auto&& windowData = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+            auto&& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
             MouseMovedEvent event{xpos, ypos};
 
