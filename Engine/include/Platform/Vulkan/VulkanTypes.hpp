@@ -22,6 +22,10 @@ namespace Creepy{
         vk::PhysicalDeviceProperties PhysicalDeviceProperties;
         vk::PhysicalDeviceFeatures PhysicalDeviceFeatures;
         vk::PhysicalDeviceMemoryProperties PhysicalDeviceMemory;
+        vk::Queue GraphicsQueue{};
+        vk::Queue PresentQueue{};
+        vk::Queue TransferQueue{};
+        vk::Format DepthFormat{};
     };
 
 }

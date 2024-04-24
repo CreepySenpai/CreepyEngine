@@ -14,6 +14,7 @@ namespace Creepy {
 
         static void VulkanDeviceQuerySwapChainSupport(vk::PhysicalDevice physicDev, vk::SurfaceKHR surface, VulkanSwapChainSupportInfo& info) noexcept;
 
+        static bool VulkanDeviceDetectDepthFormat(VulkanDevice& devices) noexcept;
     };
 
 }

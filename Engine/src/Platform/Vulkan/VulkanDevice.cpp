@@ -1,6 +1,7 @@
-#include <CreepyEngine/Core/Core.hpp>
+#include <utility>
 #include <Platform/Vulkan/VulkanDevice.hpp>
 #include <Platform/Vulkan/VulkanContext.hpp>
+#include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
 
 namespace Creepy{
 
@@ -27,11 +28,74 @@ namespace Creepy{
     bool selectPhysicalDevice(VulkanContext* context) noexcept;
 
     bool Device::CreateVulkanDevice(VulkanContext* context) noexcept {
-        return selectPhysicalDevice(context);
+
+        std::clog << "Gonna Select Physical Dev\n";
+
+        if(selectPhysicalDevice(context)){
+            std::clog << "Gonna Create Logical Dev\n";
+
+            std::vector<int> indices;
+            indices.emplace_back(context->Devices.GraphicsFamilyIndex);
+            
+            if(!(context->Devices.GraphicsFamilyIndex == context->Devices.PresentFamilyIndex)){
+                indices.emplace_back(context->Devices.PresentFamilyIndex);
+            }
+
+            if(!(context->Devices.GraphicsFamilyIndex == context->Devices.TransferFamilyIndex)){
+                indices.emplace_back(context->Devices.TransferFamilyIndex);
+            }
+
+            std::vector<vk::DeviceQueueCreateInfo> deviceQueueInfos;
+            deviceQueueInfos.reserve(indices.size());
+
+            for(size_t i{}; i < indices.size(); ++i){
+                vk::DeviceQueueCreateInfo info{};
+                info.flags = vk::DeviceQueueCreateFlags{};
+                info.queueFamilyIndex = indices.at(i);
+                info.queueCount = 1;
+                // info.queueCount = indices.at(i) == context->Devices.GraphicsFamilyIndex ? 2 : 1;
+                info.pNext = nullptr;
+                float priorities{1.0f};
+                info.pQueuePriorities = &priorities;
+                deviceQueueInfos.emplace_back(info);
+            }
+
+            vk::PhysicalDeviceFeatures physicalDevFeatures{};
+            physicalDevFeatures.samplerAnisotropy = vk::True;
+            
+            std::array<const char*, 1> extensions{
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+            };
+
+            vk::DeviceCreateInfo deviceInfo{};
+            deviceInfo.flags = vk::DeviceCreateFlags{};
+            deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(deviceQueueInfos.size());
+            deviceInfo.pQueueCreateInfos = deviceQueueInfos.data();
+            deviceInfo.pEnabledFeatures = &physicalDevFeatures;
+            deviceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+            deviceInfo.ppEnabledExtensionNames = extensions.data();
+
+            std::clog << "Dev Size: " << deviceQueueInfos.size() << ", Ex C: " << extensions.size() << '\n';
+            
+            VULKAN_CHECK_ERROR(context->Devices.LogicalDevice = context->Devices.PhysicalDevice.createDevice(deviceInfo));
+
+            std::clog << "Created Logical Dev\n";
+
+            context->Devices.GraphicsQueue = context->Devices.LogicalDevice.getQueue(context->Devices.GraphicsFamilyIndex, 0);
+
+            context->Devices.PresentQueue = context->Devices.LogicalDevice.getQueue(context->Devices.PresentFamilyIndex, 0);
+            
+            context->Devices.TransferQueue = context->Devices.LogicalDevice.getQueue(context->Devices.TransferFamilyIndex, 0);
+            
+            std::clog << "Queue Obta\n";
+
+            return true;
+        }
+        return false;
     }
 
     void Device::DestroyDevice(VulkanContext* context) noexcept {
-    
+        context->Devices.LogicalDevice.destroy();
     }
 
     void Device::VulkanDeviceQuerySwapChainSupport(vk::PhysicalDevice physicDev, vk::SurfaceKHR surface, VulkanSwapChainSupportInfo& info) noexcept {
@@ -41,12 +105,37 @@ namespace Creepy{
 
     }
 
+    bool Device::VulkanDeviceDetectDepthFormat(VulkanDevice& devices) noexcept {
+        constexpr const std::array candidateFormats{
+            vk::Format::eD32Sfloat,
+            vk::Format::eD32SfloatS8Uint,
+            vk::Format::eD24UnormS8Uint
+        };
+
+        auto&& flags = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
+        for(auto&& candidate : candidateFormats){
+
+            auto&& formatProperties = devices.PhysicalDevice.getFormatProperties(candidate); 
+
+            if((formatProperties.linearTilingFeatures & flags) == flags){
+                devices.DepthFormat = candidate;
+                return true;
+            }
+            else if((formatProperties.optimalTilingFeatures & flags) == flags) {
+                devices.DepthFormat = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     bool selectQueueFamily(VulkanContext* context, vk::PhysicalDevice& physicDev, const VulkanPhysicalDeviceRequirements& requirements, VulkanPhysicalDeviceQueueFamilyInfo& queueInfo, VulkanSwapChainSupportInfo& swapChainInfo) noexcept {
             auto&& physicDevPro = physicDev.getProperties();
 
             if(requirements.DiscreteGPU){
                 if(physicDevPro.deviceType != vk::PhysicalDeviceType::eDiscreteGpu){
-                    ENGINE_LOG_ERROR("Loh GPU");
+                    std::clog << "Loh GPU\n";
                         return false;
                 }
             }
@@ -78,7 +167,7 @@ namespace Creepy{
 
                     // Check Support Present
                     if(physicDev.getSurfaceSupportKHR(i, context->Surface)){
-                        ENGINE_LOG_WARNING("Queue {} support present", i);
+                        std::clog << "Queue " << i << " support present\n";
                         queueInfo.PresentFamilyIndex = i;
                     }
 
@@ -87,11 +176,11 @@ namespace Creepy{
             }
 
             {
-                ENGINE_LOG_WARNING("Device Name: {}", std::string{physicDevPro.deviceName.data()});
-                ENGINE_LOG_WARNING("Graphic Index: {}", queueInfo.GraphicsFamilyIndex);
-                ENGINE_LOG_WARNING("Present Index: {}", queueInfo.PresentFamilyIndex);
-                ENGINE_LOG_WARNING("Compute Index: {}", queueInfo.ComputeFamilyIndex);
-                ENGINE_LOG_WARNING("Transfer Index: {}", queueInfo.TransferFamilyIndex);
+                std::clog << "Device Name: " << physicDevPro.deviceName.data() << '\n';
+                std::clog << "Graphic Index: " << queueInfo.GraphicsFamilyIndex << '\n';
+                std::clog << "Present Index: " << queueInfo.PresentFamilyIndex << '\n';
+                std::clog << "Compute Index: " << queueInfo.ComputeFamilyIndex << '\n';
+                std::clog << "Transfer Index: " << queueInfo.TransferFamilyIndex << '\n';
             }
 
             // Juice
@@ -101,16 +190,16 @@ namespace Creepy{
                 (!requirements.Compute || (requirements.Compute && queueInfo.ComputeFamilyIndex != -1)) && 
                 (!requirements.Transfer || (requirements.Transfer && queueInfo.TransferFamilyIndex != -1))
             ){
-                ENGINE_LOG_WARNING("Device Met Require: {}", std::string{physicDevPro.deviceName.data()});
-                ENGINE_LOG_WARNING("Graphic Index: {}", queueInfo.GraphicsFamilyIndex);
-                ENGINE_LOG_WARNING("Present Index: {}", queueInfo.PresentFamilyIndex);
-                ENGINE_LOG_WARNING("Compute Index: {}", queueInfo.ComputeFamilyIndex);
-                ENGINE_LOG_WARNING("Transfer Index: {}", queueInfo.TransferFamilyIndex);
+                std::clog << "Device Met Require: " << physicDevPro.deviceName.data() << '\n';
+                std::clog << "Graphic Index: " << queueInfo.GraphicsFamilyIndex << '\n';
+                std::clog << "Present Index: " << queueInfo.PresentFamilyIndex << '\n';
+                std::clog << "Compute Index: " << queueInfo.ComputeFamilyIndex << '\n';
+                std::clog << "Transfer Index: " << queueInfo.TransferFamilyIndex << '\n';
 
                 Device::VulkanDeviceQuerySwapChainSupport(physicDev, context->Surface, swapChainInfo);
 
                 if(swapChainInfo.Formats.size() < 1 || swapChainInfo.PresentModes.size() < 1){
-                    ENGINE_LOG_WARNING("Swapchain not support skip dev");
+                    std::clog << "Swapchain not support skip dev\n";
                     return false;
                 }
 
@@ -128,7 +217,7 @@ namespace Creepy{
                         }
 
                         if(!isFound){
-                            ENGINE_LOG_ERROR("Extension {} not found!!!", std::string{requireEx});
+                            std::clog << "Extension " << requireEx << " not found!!!\n";
                             return false;
                         }
                     }
@@ -136,7 +225,7 @@ namespace Creepy{
 
                 
                 if(auto&& features = physicDev.getFeatures(); requirements.SamplerAnisotropy && !features.samplerAnisotropy){
-                    ENGINE_LOG_ERROR("Device not support SamplerAnisotropy");
+                    std::clog << "Device not support SamplerAnisotropy\n";
                 }
 
                 return true;
@@ -149,7 +238,7 @@ namespace Creepy{
         auto&& totalPhysicDev = context->Instance.enumeratePhysicalDevices();
 
         if(totalPhysicDev.size() == 0){
-            ENGINE_LOG_ERROR("No Physical Device Support");
+            std::clog << "No Physical Device Support\n";
             return false;
         }
 
@@ -167,8 +256,8 @@ namespace Creepy{
 
             if(selectQueueFamily(context, physicDev, requirements, queueInfo, context->Devices.SwapChainSupport)) {
                 auto&& pro = physicDev.getProperties();
-                ENGINE_LOG_WARNING("Selected Device: {}", std::string{pro.deviceName.data()});
-                ENGINE_LOG_WARNING("Type Device: {}", std::to_underlying(pro.deviceType));
+                std::clog << "Selected Device: " << pro.deviceName.data() << '\n';
+                std::clog << "Type Device: " << std::to_underlying(pro.deviceType) << '\n';
                 
                 context->Devices.PhysicalDevice = physicDev;
                 context->Devices.GraphicsFamilyIndex = queueInfo.GraphicsFamilyIndex;
