@@ -8,12 +8,13 @@
 namespace Creepy {
 
     class GraphicContext;
+    class TimeStep;
 
     class WindowsWindow : public Window {
         public:
             WindowsWindow(const WindowProperty& windowProperty) noexcept;
 
-            constexpr virtual void OnUpdate() noexcept override;
+            constexpr virtual void OnUpdate(TimeStep timeStep) noexcept override;
 
             void ShutDown() noexcept override;
 

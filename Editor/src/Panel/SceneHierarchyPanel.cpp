@@ -235,7 +235,6 @@ namespace Creepy {
                 ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{4.0f, 4.0f});
 
                 // Calculate after setup frame padding
-                const float lineHeight = GImGui->FontSize + GImGui->Style.FramePadding.y * 2.0f;
                 
                 ImGui::Separator();
 

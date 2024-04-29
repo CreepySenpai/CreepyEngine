@@ -79,7 +79,7 @@ namespace Creepy {
 
             // m_imGuiLayer->End();
 
-            m_window->OnUpdate();
+            m_window->OnUpdate(timeStep);
 
         }
         

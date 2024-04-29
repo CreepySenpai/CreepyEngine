@@ -4,21 +4,27 @@
 
 namespace Creepy{
 
-    class VulkanContext;
+    struct VulkanImageSpec;
 
-    struct VulkanImage {
-        
-        vk::Image ImageHandle;
-        vk::ImageView ImageView;
-        vk::DeviceMemory ImageMemory;
-        uint32_t Width;
-        uint32_t Height;
+    class VulkanImage
+    {
+        public:
+            VulkanImage(const VulkanImageSpec& spec) noexcept;
 
-        static void CreateImage(VulkanContext* context, vk::ImageType imageType, uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags memoryFlags, bool isCreateView, vk::ImageAspectFlags aspect, VulkanImage &image) noexcept;
-        
-        static void CreateImageView(VulkanContext* context, vk::Format format, VulkanImage& image, vk::ImageAspectFlags aspect) noexcept;
+            constexpr vk::ImageView GetImageView() const noexcept {
+                return m_imageView;
+            }
 
-        static void DestroyImage(VulkanContext* context, VulkanImage& image) noexcept;
+            void Destroy() noexcept;
+
+        private:
+            void createImageView(vk::Format format, vk::ImageAspectFlags aspect) noexcept;
+
+        private:
+            vk::Image m_handle{nullptr};
+            vk::ImageView m_imageView{nullptr};
+            vk::DeviceMemory m_imageMemory{nullptr};
+            uint32_t m_width{};
+            uint32_t m_height{};
     };
-
 }

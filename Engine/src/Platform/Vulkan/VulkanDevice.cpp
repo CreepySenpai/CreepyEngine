@@ -1,111 +1,37 @@
+#include <iostream>
 #include <utility>
+#include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
 #include <Platform/Vulkan/VulkanDevice.hpp>
 #include <Platform/Vulkan/VulkanContext.hpp>
-#include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
+#include <CreepyEngine/Utils/VulkanUtils.hpp>
 
 namespace Creepy{
 
-    struct VulkanPhysicalDeviceRequirements{
-        bool Graphics{false};
-        bool Present{false};
-        bool Compute{false};
-        bool Transfer{false};
-        bool SamplerAnisotropy{false};
-        bool DiscreteGPU{false};
-        std::vector<const char*> DeviceExtensionName;
-    };
-
-    struct VulkanPhysicalDeviceQueueFamilyInfo{
-        int GraphicsFamilyIndex{-1};
-        int PresentFamilyIndex{-1};
-        int ComputeFamilyIndex{-1};
-        int TransferFamilyIndex{-1};
-    };
-
-    // Forward Declare
-    bool selectQueueFamily(VulkanContext* context, vk::PhysicalDevice& physicDev, const VulkanPhysicalDeviceRequirements& requirements, VulkanPhysicalDeviceQueueFamilyInfo& queueInfo, VulkanSwapChainSupportInfo& swapChainInfo) noexcept;
-    
-    bool selectPhysicalDevice(VulkanContext* context) noexcept;
-
-    bool Device::CreateVulkanDevice(VulkanContext* context) noexcept {
-
-        std::clog << "Gonna Select Physical Dev\n";
-
-        if(selectPhysicalDevice(context)){
-            std::clog << "Gonna Create Logical Dev\n";
-
-            std::vector<int> indices;
-            indices.emplace_back(context->Devices.GraphicsFamilyIndex);
-            
-            if(!(context->Devices.GraphicsFamilyIndex == context->Devices.PresentFamilyIndex)){
-                indices.emplace_back(context->Devices.PresentFamilyIndex);
-            }
-
-            if(!(context->Devices.GraphicsFamilyIndex == context->Devices.TransferFamilyIndex)){
-                indices.emplace_back(context->Devices.TransferFamilyIndex);
-            }
-
-            std::vector<vk::DeviceQueueCreateInfo> deviceQueueInfos;
-            deviceQueueInfos.reserve(indices.size());
-
-            for(size_t i{}; i < indices.size(); ++i){
-                vk::DeviceQueueCreateInfo info{};
-                info.flags = vk::DeviceQueueCreateFlags{};
-                info.queueFamilyIndex = indices.at(i);
-                info.queueCount = 1;
-                // info.queueCount = indices.at(i) == context->Devices.GraphicsFamilyIndex ? 2 : 1;
-                info.pNext = nullptr;
-                float priorities{1.0f};
-                info.pQueuePriorities = &priorities;
-                deviceQueueInfos.emplace_back(info);
-            }
-
-            vk::PhysicalDeviceFeatures physicalDevFeatures{};
-            physicalDevFeatures.samplerAnisotropy = vk::True;
-            
-            std::array<const char*, 1> extensions{
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME
-            };
-
-            vk::DeviceCreateInfo deviceInfo{};
-            deviceInfo.flags = vk::DeviceCreateFlags{};
-            deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(deviceQueueInfos.size());
-            deviceInfo.pQueueCreateInfos = deviceQueueInfos.data();
-            deviceInfo.pEnabledFeatures = &physicalDevFeatures;
-            deviceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-            deviceInfo.ppEnabledExtensionNames = extensions.data();
-
-            std::clog << "Dev Size: " << deviceQueueInfos.size() << ", Ex C: " << extensions.size() << '\n';
-            
-            VULKAN_CHECK_ERROR(context->Devices.LogicalDevice = context->Devices.PhysicalDevice.createDevice(deviceInfo));
-
-            std::clog << "Created Logical Dev\n";
-
-            context->Devices.GraphicsQueue = context->Devices.LogicalDevice.getQueue(context->Devices.GraphicsFamilyIndex, 0);
-
-            context->Devices.PresentQueue = context->Devices.LogicalDevice.getQueue(context->Devices.PresentFamilyIndex, 0);
-            
-            context->Devices.TransferQueue = context->Devices.LogicalDevice.getQueue(context->Devices.TransferFamilyIndex, 0);
-            
-            std::clog << "Queue Obta\n";
-
-            return true;
-        }
-        return false;
+    VulkanDevice::VulkanDevice() noexcept {
+        this->initDevice();
     }
 
-    void Device::DestroyDevice(VulkanContext* context) noexcept {
-        context->Devices.LogicalDevice.destroy();
+    void VulkanDevice::DestroyDevice() noexcept {
+        m_logicalDevice.destroyCommandPool(GraphicCommandPool);
+        
+        m_logicalDevice.destroy();
     }
 
-    void Device::VulkanDeviceQuerySwapChainSupport(vk::PhysicalDevice physicDev, vk::SurfaceKHR surface, VulkanSwapChainSupportInfo& info) noexcept {
-        info.Capabilities = physicDev.getSurfaceCapabilitiesKHR(surface);
-        info.Formats = physicDev.getSurfaceFormatsKHR(surface);
-        info.PresentModes = physicDev.getSurfacePresentModesKHR(surface);
 
+    VulkanSwapChainSupportInfo VulkanDevice::QuerySwapChainSupport(vk::SurfaceKHR surface, vk::PhysicalDevice physicalDev) noexcept {
+        VulkanSwapChainSupportInfo supportInfo;
+        supportInfo.Capabilities = physicalDev.getSurfaceCapabilitiesKHR(surface);
+        supportInfo.Formats = physicalDev.getSurfaceFormatsKHR(surface);
+        supportInfo.PresentModes = physicalDev.getSurfacePresentModesKHR(surface);
+        return supportInfo;
     }
 
-    bool Device::VulkanDeviceDetectDepthFormat(VulkanDevice& devices) noexcept {
+    VulkanSwapChainSupportInfo VulkanDevice::QuerySwapChainSupport(vk::SurfaceKHR surface) noexcept {
+        return QuerySwapChainSupport(surface, m_physicalDevice);
+    }
+
+
+    bool VulkanDevice::DetectDepthFormat() noexcept {
         constexpr const std::array candidateFormats{
             vk::Format::eD32Sfloat,
             vk::Format::eD32SfloatS8Uint,
@@ -115,14 +41,14 @@ namespace Creepy{
         auto&& flags = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
         for(auto&& candidate : candidateFormats){
 
-            auto&& formatProperties = devices.PhysicalDevice.getFormatProperties(candidate); 
+            auto&& formatProperties = m_physicalDevice.getFormatProperties(candidate); 
 
             if((formatProperties.linearTilingFeatures & flags) == flags){
-                devices.DepthFormat = candidate;
+                m_depthBufferFormat = candidate;
                 return true;
             }
             else if((formatProperties.optimalTilingFeatures & flags) == flags) {
-                devices.DepthFormat = candidate;
+                m_depthBufferFormat = candidate;
                 return true;
             }
         }
@@ -130,8 +56,27 @@ namespace Creepy{
         return false;
     }
 
-    bool selectQueueFamily(VulkanContext* context, vk::PhysicalDevice& physicDev, const VulkanPhysicalDeviceRequirements& requirements, VulkanPhysicalDeviceQueueFamilyInfo& queueInfo, VulkanSwapChainSupportInfo& swapChainInfo) noexcept {
-            auto&& physicDevPro = physicDev.getProperties();
+    void VulkanDevice::ReQuerySwapChainSupport(vk::SurfaceKHR surface) noexcept {
+        m_swapChainInfo = this->QuerySwapChainSupport(surface);
+    }
+
+    void VulkanDevice::initDevice() noexcept{
+        VulkanUtils::Log("Gonna Select Physical Dev");
+        VulkanUtils::Log(std::format("Gonna Select Physical Dev: {} - {}", 1, 2));
+        // std::clog << "Gonna Select Physical Dev\n";
+        this->selectPhysicalDevice();
+        
+        this->createLogicalDevice();
+            
+        std::clog << "Queue Obta\n";
+
+        this->createCommandPool();
+    }
+
+    bool VulkanDevice::selectQueueFamily(VulkanPhysicalDeviceRequirements& requirements, vk::PhysicalDevice physicalDev) noexcept
+    {
+        std::clog << "Select Queue\n";
+        auto&& physicDevPro = physicalDev.getProperties();
 
             if(requirements.DiscreteGPU){
                 if(physicDevPro.deviceType != vk::PhysicalDeviceType::eDiscreteGpu){
@@ -141,7 +86,7 @@ namespace Creepy{
             }
 
             {
-                auto&& queuesPro = physicDev.getQueueFamilyProperties();
+                auto&& queuesPro = physicalDev.getQueueFamilyProperties();
 
                 // We choose queue have small transfer score -> transfer queue
                 uint32_t transferScore{255};
@@ -149,63 +94,55 @@ namespace Creepy{
                     uint32_t currentTransferScore{};
 
                     if(queue.queueFlags & vk::QueueFlagBits::eGraphics){
-                        queueInfo.GraphicsFamilyIndex = i;
+                        m_graphicsFamilyIndex = i;
                         ++currentTransferScore;
                     }
 
                     if(queue.queueFlags & vk::QueueFlagBits::eCompute){
-                        queueInfo.ComputeFamilyIndex = i;
+                        m_computeFamilyIndex = i;
                         ++currentTransferScore;
                     }
 
                     if(queue.queueFlags & vk::QueueFlagBits::eTransfer){
                         if(currentTransferScore <= transferScore){
                             transferScore = currentTransferScore;
-                            queueInfo.TransferFamilyIndex = i;
+                            m_transferFamilyIndex = i;
                         }
                     }
 
                     // Check Support Present
-                    if(physicDev.getSurfaceSupportKHR(i, context->Surface)){
+                    if(physicalDev.getSurfaceSupportKHR(i, VulkanContext::GetInstance()->Surface)){
                         std::clog << "Queue " << i << " support present\n";
-                        queueInfo.PresentFamilyIndex = i;
+                        m_presentFamilyIndex = i;
                     }
 
                     ++i;
                 }
             }
 
-            {
-                std::clog << "Device Name: " << physicDevPro.deviceName.data() << '\n';
-                std::clog << "Graphic Index: " << queueInfo.GraphicsFamilyIndex << '\n';
-                std::clog << "Present Index: " << queueInfo.PresentFamilyIndex << '\n';
-                std::clog << "Compute Index: " << queueInfo.ComputeFamilyIndex << '\n';
-                std::clog << "Transfer Index: " << queueInfo.TransferFamilyIndex << '\n';
-            }
-
             // Juice
             if(
-                (!requirements.Graphics || (requirements.Graphics && queueInfo.GraphicsFamilyIndex != -1)) && 
-                (!requirements.Present || (requirements.Present && queueInfo.PresentFamilyIndex != -1)) &&
-                (!requirements.Compute || (requirements.Compute && queueInfo.ComputeFamilyIndex != -1)) && 
-                (!requirements.Transfer || (requirements.Transfer && queueInfo.TransferFamilyIndex != -1))
+                (!requirements.Graphics || (requirements.Graphics && m_graphicsFamilyIndex != -1)) && 
+                (!requirements.Present || (requirements.Present && m_presentFamilyIndex != -1)) &&
+                (!requirements.Compute || (requirements.Compute && m_computeFamilyIndex != -1)) && 
+                (!requirements.Transfer || (requirements.Transfer && m_transferFamilyIndex != -1))
             ){
                 std::clog << "Device Met Require: " << physicDevPro.deviceName.data() << '\n';
-                std::clog << "Graphic Index: " << queueInfo.GraphicsFamilyIndex << '\n';
-                std::clog << "Present Index: " << queueInfo.PresentFamilyIndex << '\n';
-                std::clog << "Compute Index: " << queueInfo.ComputeFamilyIndex << '\n';
-                std::clog << "Transfer Index: " << queueInfo.TransferFamilyIndex << '\n';
+                std::clog << "Graphic Index: " << m_graphicsFamilyIndex << '\n';
+                std::clog << "Present Index: " << m_presentFamilyIndex << '\n';
+                std::clog << "Compute Index: " << m_computeFamilyIndex << '\n';
+                std::clog << "Transfer Index: " << m_transferFamilyIndex << '\n';
 
-                Device::VulkanDeviceQuerySwapChainSupport(physicDev, context->Surface, swapChainInfo);
+                m_swapChainInfo = QuerySwapChainSupport(VulkanContext::GetInstance()->Surface, physicalDev);
 
-                if(swapChainInfo.Formats.size() < 1 || swapChainInfo.PresentModes.size() < 1){
+                if(m_swapChainInfo.Formats.size() < 1 || m_swapChainInfo.PresentModes.size() < 1){
                     std::clog << "Swapchain not support skip dev\n";
                     return false;
                 }
 
                 if(requirements.DeviceExtensionName.size() > 0){
 
-                    auto&& extensions = physicDev.enumerateDeviceExtensionProperties();
+                    auto&& extensions = physicalDev.enumerateDeviceExtensionProperties();
 
                     for(auto&& requireEx : requirements.DeviceExtensionName){
                         bool isFound{false};
@@ -224,7 +161,7 @@ namespace Creepy{
                 }
 
                 
-                if(auto&& features = physicDev.getFeatures(); requirements.SamplerAnisotropy && !features.samplerAnisotropy){
+                if(auto&& features = physicalDev.getFeatures(); requirements.SamplerAnisotropy && !features.samplerAnisotropy){
                     std::clog << "Device not support SamplerAnisotropy\n";
                 }
 
@@ -234,13 +171,17 @@ namespace Creepy{
         return false;
     }
 
-    bool selectPhysicalDevice(VulkanContext* context) noexcept {
-        auto&& totalPhysicDev = context->Instance.enumeratePhysicalDevices();
+    void VulkanDevice::selectPhysicalDevice() noexcept
+    {
+        std::clog << "Get Context Instance\n";
+        auto&& totalPhysicDev = VulkanContext::GetInstance()->Instance.enumeratePhysicalDevices();
 
         if(totalPhysicDev.size() == 0){
             std::clog << "No Physical Device Support\n";
-            return false;
+            return;
         }
+
+        std::clog << "Total physicdev: " << totalPhysicDev.size() << '\n';
 
         for(auto&& physicDev : totalPhysicDev){
             VulkanPhysicalDeviceRequirements requirements{};
@@ -251,27 +192,86 @@ namespace Creepy{
             requirements.SamplerAnisotropy = true;
             requirements.DiscreteGPU = true;
             requirements.DeviceExtensionName.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-            VulkanPhysicalDeviceQueueFamilyInfo queueInfo{};
-
-            if(selectQueueFamily(context, physicDev, requirements, queueInfo, context->Devices.SwapChainSupport)) {
-                auto&& pro = physicDev.getProperties();
+            
+            if(selectQueueFamily(requirements, physicDev)) {
+                m_physicalDevice = physicDev;
+                auto&& pro = m_physicalDevice.getProperties();
                 std::clog << "Selected Device: " << pro.deviceName.data() << '\n';
                 std::clog << "Type Device: " << std::to_underlying(pro.deviceType) << '\n';
-                
-                context->Devices.PhysicalDevice = physicDev;
-                context->Devices.GraphicsFamilyIndex = queueInfo.GraphicsFamilyIndex;
-                context->Devices.PresentFamilyIndex = queueInfo.PresentFamilyIndex;
-                context->Devices.TransferFamilyIndex = queueInfo.TransferFamilyIndex;
-
-                context->Devices.PhysicalDeviceProperties = pro;
-                context->Devices.PhysicalDeviceFeatures = physicDev.getFeatures();
-                context->Devices.PhysicalDeviceMemory = physicDev.getMemoryProperties();
+                std::clog << "Graphic Index: " << m_graphicsFamilyIndex << '\n';
+                std::clog << "Present Index: " << m_presentFamilyIndex << '\n';
+                std::clog << "Compute Index: " << m_computeFamilyIndex << '\n';
+                std::clog << "Transfer Index: " << m_transferFamilyIndex << '\n';
                 break;
             }
         }
 
-        return true;
     }
 
+    void VulkanDevice::createLogicalDevice() noexcept
+    {
+        std::clog << "Gonna Create Logical Dev\n";
+
+        std::vector<int> indices;
+        indices.emplace_back(m_graphicsFamilyIndex);
+            
+        if(!(m_graphicsFamilyIndex == m_presentFamilyIndex)){
+            indices.emplace_back(m_presentFamilyIndex);
+        }
+
+        if(!(m_graphicsFamilyIndex == m_transferFamilyIndex)){
+            indices.emplace_back(m_transferFamilyIndex);
+        }
+
+        std::vector<vk::DeviceQueueCreateInfo> deviceQueueInfos;
+        deviceQueueInfos.reserve(indices.size());
+
+        for(size_t i{}; i < indices.size(); ++i){
+            vk::DeviceQueueCreateInfo info{};
+            info.flags = vk::DeviceQueueCreateFlags{};
+            info.queueFamilyIndex = indices.at(i);
+            info.queueCount = 1;
+            info.pNext = nullptr;
+            constexpr float priorities{1.0f};
+            info.pQueuePriorities = &priorities;
+            deviceQueueInfos.emplace_back(info);
+        }
+
+        vk::PhysicalDeviceFeatures physicalDevFeatures{};
+        physicalDevFeatures.samplerAnisotropy = vk::True;
+            
+        constexpr std::array<const char*, 1> extensions{
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        };
+
+        vk::DeviceCreateInfo deviceInfo{};
+        deviceInfo.flags = vk::DeviceCreateFlags{};
+        deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(deviceQueueInfos.size());
+        deviceInfo.pQueueCreateInfos = deviceQueueInfos.data();
+        deviceInfo.pEnabledFeatures = &physicalDevFeatures;
+        deviceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+        deviceInfo.ppEnabledExtensionNames = extensions.data();
+
+        std::clog << "Dev Size: " << deviceQueueInfos.size() << ", Ex C: " << extensions.size() << '\n';
+            
+        VULKAN_CHECK_ERROR(m_logicalDevice = m_physicalDevice.createDevice(deviceInfo));
+
+        std::clog << "Created Logical Dev\n";
+
+        // Select Queue
+        m_graphicsQueue = m_logicalDevice.getQueue(m_graphicsFamilyIndex, 0);
+
+        m_presentQueue = m_logicalDevice.getQueue(m_presentFamilyIndex, 0);
+            
+        m_transferQueue = m_logicalDevice.getQueue(m_transferFamilyIndex, 0);
+    }
+
+    void VulkanDevice::createCommandPool() noexcept
+    {
+        vk::CommandPoolCreateInfo commandPoolInfo{};
+        commandPoolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+        commandPoolInfo.queueFamilyIndex = m_graphicsFamilyIndex;
+
+        VULKAN_CHECK_ERROR(GraphicCommandPool = m_logicalDevice.createCommandPool(commandPoolInfo));
+    }
 }

@@ -2,30 +2,39 @@
 
 #include <vector>
 #include <vulkan/vulkan.hpp>
+#include <glm/glm.hpp>
 
-namespace Creepy{
+namespace Creepy {
 
     struct VulkanSwapChainSupportInfo{
         vk::SurfaceCapabilitiesKHR Capabilities;
         std::vector<vk::SurfaceFormatKHR> Formats;
         std::vector<vk::PresentModeKHR> PresentModes;
     };
-
-    struct VulkanDevice {
-        vk::PhysicalDevice PhysicalDevice{nullptr};
-        vk::Device LogicalDevice{nullptr};
-        VulkanSwapChainSupportInfo SwapChainSupport{};
-        int GraphicsFamilyIndex{};
-        int PresentFamilyIndex{};
-        int ComputeFamilyIndex{};
-        int TransferFamilyIndex{};
-        vk::PhysicalDeviceProperties PhysicalDeviceProperties;
-        vk::PhysicalDeviceFeatures PhysicalDeviceFeatures;
-        vk::PhysicalDeviceMemoryProperties PhysicalDeviceMemory;
-        vk::Queue GraphicsQueue{};
-        vk::Queue PresentQueue{};
-        vk::Queue TransferQueue{};
-        vk::Format DepthFormat{};
+    
+    struct VulkanImageSpec{
+        vk::ImageType ImageType;
+        uint32_t Width;
+        uint32_t Height;
+        vk::Format Format;
+        vk::ImageTiling Tiling;
+        vk::ImageUsageFlags Usage;
+        vk::MemoryPropertyFlags MemoryFlags;
+        vk::ImageAspectFlags Aspect;
+        bool IsCreateView;
     };
 
+    struct VulkanRenderPassSpec{
+        glm::vec4 RenderArea;
+        glm::vec4 ClearColor;
+        float Depth;
+        uint32_t Stencil;
+    };
+
+    struct VulkanFrameBufferSpec{
+        uint32_t Width;
+        uint32_t Height;
+        vk::RenderPass RenderPassHandle;
+        std::vector<vk::ImageView> Attachments;
+    };
 }

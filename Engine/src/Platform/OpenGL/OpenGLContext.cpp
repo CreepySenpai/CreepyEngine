@@ -1,5 +1,6 @@
 #include <Platform/OpenGL/OpenGLContext.hpp>
 #include <CreepyEngine/Core/Core.hpp>
+#include <CreepyEngine/Core/TimeStep.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -20,6 +21,10 @@ namespace Creepy {
 
     void OpenGLContext::SwapBuffers() noexcept {
         glfwSwapBuffers(m_windowHandle);
+    }
+
+    void OpenGLContext::Update(TimeStep timeStep) noexcept{
+
     }
 
     void OpenGLContext::ShutDown() noexcept {

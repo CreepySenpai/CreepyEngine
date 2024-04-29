@@ -4,7 +4,7 @@
 #include <CreepyEngine/Events/MouseEvent.hpp>
 #include <CreepyEngine/Core/Log.hpp>
 #include <CreepyEngine/Core/Core.hpp>
-// #include <Platform/OpenGL/OpenGLContext.hpp>
+#include <CreepyEngine/Core/TimeStep.hpp>
 #include <Platform/Vulkan/VulkanContext.hpp>
 
 
@@ -23,8 +23,9 @@ namespace Creepy {
         this->Init(windowProperty);
     }
 
-    constexpr void WindowsWindow::OnUpdate() noexcept {
+    constexpr void WindowsWindow::OnUpdate(TimeStep timeStep) noexcept {
         glfwPollEvents();
+        m_context->Update(timeStep);
         m_context->SwapBuffers();
     }
 

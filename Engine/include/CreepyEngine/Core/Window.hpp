@@ -9,6 +9,7 @@
 namespace Creepy {
     
     class GraphicContext;
+    class TimeStep;
 
     struct WindowProperty {
         std::string Title{"Window"};
@@ -26,7 +27,7 @@ namespace Creepy {
 
             constexpr virtual ~Window() noexcept = default;
 
-            constexpr virtual void OnUpdate() noexcept = 0;
+            constexpr virtual void OnUpdate(TimeStep timeStep) noexcept = 0;
 
             virtual void ShutDown() noexcept = 0;
 
