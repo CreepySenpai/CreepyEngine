@@ -1,23 +1,22 @@
 #include <Platform/Vulkan/VulkanFence.hpp>
-#include <Platform/Vulkan/VulkanContext.hpp>
 #include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
 
 namespace Creepy {
 
-    VulkanFence::VulkanFence(bool isSignaled) noexcept : m_isSignaled{isSignaled} {
+    VulkanFence::VulkanFence(vk::Device logicalDev, bool isSignaled) noexcept : m_isSignaled{isSignaled} {
         vk::FenceCreateInfo fenceInfo{};
 
         if(isSignaled){
             fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
         }
 
-        VULKAN_CHECK_ERROR(m_handle = VulkanContext::GetInstance()->GetLogicalDevice().createFence(fenceInfo));
+        VULKAN_CHECK_ERROR(m_handle = logicalDev.createFence(fenceInfo));
     }
             
-    void VulkanFence::Wait(uint64_t timeOut) noexcept {
+    void VulkanFence::Wait(vk::Device logicalDev, uint64_t timeOut) noexcept {
 
         if(!m_isSignaled){
-            auto&& res = VulkanContext::GetInstance()->GetLogicalDevice().waitForFences(m_handle, true, timeOut);
+            auto&& res = logicalDev.waitForFences(m_handle, true, timeOut);
 
             switch(res){
                 case vk::Result::eSuccess:{
@@ -44,15 +43,15 @@ namespace Creepy {
         }
     }
 
-    void VulkanFence::Reset() noexcept {
+    void VulkanFence::Reset(vk::Device logicalDev) noexcept {
         if(m_isSignaled) {
-            VulkanContext::GetInstance()->GetLogicalDevice().resetFences(m_handle);
+            logicalDev.resetFences(m_handle);
             m_isSignaled = false;
         }
     }
     
-    void VulkanFence::Destroy() noexcept {
-        VulkanContext::GetInstance()->GetLogicalDevice().destroyFence(m_handle);
+    void VulkanFence::Destroy(vk::Device logicalDev) noexcept {
+        logicalDev.destroyFence(m_handle);
         m_isSignaled = false;
     }
 

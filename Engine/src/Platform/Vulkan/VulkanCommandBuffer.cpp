@@ -1,11 +1,10 @@
 #include <Platform/Vulkan/VulkanCommandBuffer.hpp>
-#include <Platform/Vulkan/VulkanContext.hpp>
 #include <Platform/Vulkan/VulkanDevice.hpp>
 #include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
 
 namespace Creepy {
 
-    VulkanCommandBuffer::VulkanCommandBuffer(vk::CommandPool commandPool, vk::CommandBufferLevel level) noexcept {
+    VulkanCommandBuffer::VulkanCommandBuffer(vk::Device logicalDev, vk::CommandPool commandPool, vk::CommandBufferLevel level) noexcept {
 
         vk::CommandBufferAllocateInfo allocInfo{};
         allocInfo.commandPool = commandPool;
@@ -15,13 +14,13 @@ namespace Creepy {
         m_state = CommandBufferState::NOT_ALLOCATED;
 
         // Only Alloc 1 Command Buffer
-        VULKAN_CHECK_ERROR(m_handle = VulkanContext::GetInstance()->GetLogicalDevice().allocateCommandBuffers(allocInfo).at(0));
+        VULKAN_CHECK_ERROR(m_handle = logicalDev.allocateCommandBuffers(allocInfo).at(0));
         
         m_state = CommandBufferState::READY;
     }
     
-    void VulkanCommandBuffer::Free(vk::CommandPool commandPool) noexcept {
-        VulkanContext::GetInstance()->GetLogicalDevice().freeCommandBuffers(commandPool, m_handle);
+    void VulkanCommandBuffer::Free(vk::Device logicalDev, vk::CommandPool commandPool) noexcept {
+        logicalDev.freeCommandBuffers(commandPool, m_handle);
         m_state = CommandBufferState::NOT_ALLOCATED;
     }
 

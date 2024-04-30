@@ -22,32 +22,29 @@ namespace Creepy {
         imageInfo.samples = vk::SampleCountFlagBits::e1;
         imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-        auto&& logicalDev = VulkanContext::GetInstance()->GetLogicalDevice();
-
-        VULKAN_CHECK_ERROR(m_handle = logicalDev.createImage(imageInfo));
+        VULKAN_CHECK_ERROR(m_handle = spec.LogicalDev.createImage(imageInfo));
         
-        auto&& memoryRequire = logicalDev.getImageMemoryRequirements(m_handle);
+        auto&& memoryRequire = spec.LogicalDev.getImageMemoryRequirements(m_handle);
         
         int&& memoryIndex = VulkanContext::GetInstance()->FindMemoryIndex(memoryRequire.memoryTypeBits, spec.MemoryFlags);
+
         vk::MemoryAllocateInfo allocInfo{};
         allocInfo.allocationSize = memoryRequire.size;
         allocInfo.memoryTypeIndex = memoryIndex;
 
-        VULKAN_CHECK_ERROR(m_imageMemory = logicalDev.allocateMemory(allocInfo));
+        VULKAN_CHECK_ERROR(m_imageMemory = spec.LogicalDev.allocateMemory(allocInfo));
 
         // TODO: config offset
-        logicalDev.bindImageMemory(m_handle, m_imageMemory, 0);
-
+        spec.LogicalDev.bindImageMemory(m_handle, m_imageMemory, 0);
 
         if(spec.IsCreateView){
-            createImageView(spec.Format, spec.Aspect);
+            createImageView(spec.LogicalDev, spec.Format, spec.Aspect);
         }
 
     }
 
-    void VulkanImage::Destroy() noexcept
+    void VulkanImage::Destroy(vk::Device logicalDev) noexcept
     {
-        auto&& logicalDev = VulkanContext::GetInstance()->GetLogicalDevice();
         logicalDev.destroyImageView(m_imageView);
         m_imageView = nullptr;
         logicalDev.freeMemory(m_imageMemory);
@@ -56,7 +53,7 @@ namespace Creepy {
         m_handle = nullptr;
     }
 
-    void VulkanImage::createImageView(vk::Format format, vk::ImageAspectFlags aspect) noexcept {
+    void VulkanImage::createImageView(vk::Device logicalDev, vk::Format format, vk::ImageAspectFlags aspect) noexcept {
         vk::ImageViewCreateInfo imageViewInfo{};
         imageViewInfo.flags = vk::ImageViewCreateFlags{};
         imageViewInfo.image = m_handle;
@@ -69,6 +66,6 @@ namespace Creepy {
         imageViewInfo.subresourceRange.baseArrayLayer = 0;
         imageViewInfo.subresourceRange.layerCount = 1;
 
-        VULKAN_CHECK_ERROR(m_imageView = VulkanContext::GetInstance()->GetLogicalDevice().createImageView(imageViewInfo));
+        VULKAN_CHECK_ERROR(m_imageView = logicalDev.createImageView(imageViewInfo));
     }
 }

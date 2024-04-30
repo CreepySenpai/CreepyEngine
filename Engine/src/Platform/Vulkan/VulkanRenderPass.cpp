@@ -11,11 +11,11 @@ namespace Creepy{
     VulkanRenderPass::VulkanRenderPass(const VulkanRenderPassSpec& renderPassSpec) noexcept
         : m_renderArea{renderPassSpec.RenderArea}, m_clearColor{renderPassSpec.ClearColor}, m_depth{renderPassSpec.Depth}, m_stencil{renderPassSpec.Stencil}
     {
-        this->init();
+        this->init(renderPassSpec.LogicalDev);
     }
 
-    void VulkanRenderPass::Destroy() noexcept {
-        VulkanContext::GetInstance()->GetLogicalDevice().destroyRenderPass(m_handle);
+    void VulkanRenderPass::Destroy(vk::Device logicalDev) noexcept {
+        logicalDev.destroyRenderPass(m_handle);
     }
 
     void VulkanRenderPass::Begin(VulkanCommandBuffer& commandBuffer, vk::Framebuffer frameBuffer) noexcept {
@@ -52,7 +52,7 @@ namespace Creepy{
         commandBuffer.SetState(CommandBufferState::RECORDING);
     }
 
-    void VulkanRenderPass::init() noexcept {
+    void VulkanRenderPass::init(vk::Device logicalDev) noexcept {
         vk::SubpassDescription subPass{};
         subPass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
 
@@ -60,7 +60,7 @@ namespace Creepy{
         
         // Color Attachment
         attachments[0].flags = vk::AttachmentDescriptionFlags{};
-        attachments[0].format = VulkanContext::GetInstance()->SwapChain->GetImageFormat().format;
+        attachments[0].format = VulkanContext::GetInstance()->GetSwapChain()->GetImageFormat().format;
         attachments[0].samples = vk::SampleCountFlagBits::e1;
         attachments[0].loadOp = vk::AttachmentLoadOp::eClear;
         attachments[0].storeOp = vk::AttachmentStoreOp::eStore;
@@ -80,7 +80,7 @@ namespace Creepy{
         // Depth Attachment
         
         attachments[1].flags = vk::AttachmentDescriptionFlags{};
-        attachments[1].format = VulkanContext::GetInstance()->Devices->GetDepthBufferFormat();
+        attachments[1].format = VulkanContext::GetInstance()->GetDevices()->GetDepthBufferFormat();
         attachments[1].samples = vk::SampleCountFlagBits::e1;
         attachments[1].loadOp = vk::AttachmentLoadOp::eClear;
         attachments[1].storeOp = vk::AttachmentStoreOp::eStore;
@@ -122,6 +122,6 @@ namespace Creepy{
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
         
-        VULKAN_CHECK_ERROR(m_handle = VulkanContext::GetInstance()->GetLogicalDevice().createRenderPass(renderPassInfo));
+        VULKAN_CHECK_ERROR(m_handle = logicalDev.createRenderPass(renderPassInfo));
     }
 }

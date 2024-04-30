@@ -7,11 +7,11 @@ namespace Creepy {
     class VulkanFence
     {
         public:
-            VulkanFence(bool isSignaled) noexcept;
+            VulkanFence(vk::Device logicalDev, bool isSignaled) noexcept;
 
-            void Wait(uint64_t timeOut) noexcept;
-            void Reset() noexcept;
-            void Destroy() noexcept;
+            void Wait(vk::Device logicalDev, uint64_t timeOut) noexcept;
+            void Reset(vk::Device logicalDev) noexcept;
+            void Destroy(vk::Device logicalDev) noexcept;
 
             constexpr vk::Fence GetHandle() const noexcept {
                 return m_handle;

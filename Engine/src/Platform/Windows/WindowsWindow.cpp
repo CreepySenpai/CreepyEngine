@@ -97,6 +97,7 @@ namespace Creepy {
 
         glfwSetWindowSizeCallback(m_window.get(), [](GLFWwindow* window, int width, int height) {
             auto&& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
             windowData.Width = width;
             windowData.Height = height;
 

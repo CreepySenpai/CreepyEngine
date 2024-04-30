@@ -13,7 +13,7 @@ namespace Creepy{
         public:
             VulkanFrameBuffer(const VulkanFrameBufferSpec& frameBufferSpec) noexcept;
 
-            void Destroy() noexcept;
+            void Destroy(vk::Device logicalDev) noexcept;
 
             constexpr vk::Framebuffer GetHandle() const noexcept {
                 return m_handle;

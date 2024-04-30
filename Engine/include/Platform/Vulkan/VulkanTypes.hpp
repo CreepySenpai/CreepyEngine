@@ -21,6 +21,7 @@ namespace Creepy {
         vk::ImageUsageFlags Usage;
         vk::MemoryPropertyFlags MemoryFlags;
         vk::ImageAspectFlags Aspect;
+        vk::Device LogicalDev;
         bool IsCreateView;
     };
 
@@ -29,6 +30,7 @@ namespace Creepy {
         glm::vec4 ClearColor;
         float Depth;
         uint32_t Stencil;
+        vk::Device LogicalDev;
     };
 
     struct VulkanFrameBufferSpec{
@@ -36,5 +38,15 @@ namespace Creepy {
         uint32_t Height;
         vk::RenderPass RenderPassHandle;
         std::vector<vk::ImageView> Attachments;
+        vk::Device LogicalDev;
+    };
+
+    struct VulkanSwapChainSpec{
+        uint32_t Width{};
+        uint32_t Height{};
+        uint32_t GraphicFamilyIndex{};
+        uint32_t PresentFamilyIndex{};
+        vk::SurfaceKHR Surface{};
+        vk::Device LogicalDev{};
     };
 }

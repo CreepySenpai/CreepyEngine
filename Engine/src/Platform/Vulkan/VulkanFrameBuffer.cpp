@@ -14,12 +14,12 @@ namespace Creepy {
         frameInfo.height = frameBufferSpec.Height;
         frameInfo.layers = 1;
         frameInfo.renderPass = frameBufferSpec.RenderPassHandle;
-
-        VULKAN_CHECK_ERROR(m_handle = VulkanContext::GetInstance()->GetLogicalDevice().createFramebuffer(frameInfo));
+        
+        VULKAN_CHECK_ERROR(m_handle = frameBufferSpec.LogicalDev.createFramebuffer(frameInfo));
     }
 
-    void VulkanFrameBuffer::Destroy() noexcept {
-        VulkanContext::GetInstance()->GetLogicalDevice().destroyFramebuffer(m_handle);
+    void VulkanFrameBuffer::Destroy(vk::Device logicalDev) noexcept {
+        logicalDev.destroyFramebuffer(m_handle);
     }
 
 }

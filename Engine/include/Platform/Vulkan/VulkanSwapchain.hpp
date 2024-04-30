@@ -11,16 +11,22 @@ namespace Creepy {
 
     class VulkanImage;
 
+    struct VulkanSwapChainSpec;
+
     class VulkanSwapChain{
         public:
-            VulkanSwapChain(uint32_t width, uint32_t height) noexcept;
+            VulkanSwapChain(const VulkanSwapChainSpec& swapChainSpec) noexcept;
 
-            void Recreate(uint32_t width, uint32_t height) noexcept;
-            void Destroy() noexcept;
+            void Recreate(const VulkanSwapChainSpec& swapChainSpec) noexcept;
+            void Destroy(vk::Device logicalDev) noexcept;
             
             uint32_t AcquireNextImageIndex(uint64_t timeOut, vk::Semaphore imgAvailableSemaphore, vk::Fence fence) noexcept;
 
             vk::Result Present(vk::Queue presentQueue, vk::Semaphore renderComplete, uint32_t presentImageIndex) noexcept;
+
+            constexpr vk::SwapchainKHR GetHandle() const noexcept {
+                return m_handle;
+            }
 
             const vk::SurfaceFormatKHR& GetImageFormat() const noexcept {
                 return m_imageFormat;
@@ -45,9 +51,9 @@ namespace Creepy {
             std::shared_ptr<VulkanImage> GetDepthBuffer() const noexcept;
         
         private:
-            void createSwapChain(uint32_t width, uint32_t height) noexcept;
-            void createHandle(uint32_t width, uint32_t height, vk::PresentModeKHR presentMode) noexcept;
-            void createDepthBuffer(uint32_t width, uint32_t height, vk::Format depthFormat) noexcept;
+            void createSwapChain(const VulkanSwapChainSpec& swapChainSpec) noexcept;
+            void createHandle(const VulkanSwapChainSpec& swapChainSpec, vk::PresentModeKHR presentMode) noexcept;
+            void createDepthBuffer(vk::Device logicalDev, uint32_t width, uint32_t height, vk::Format depthFormat) noexcept;
         private:
             vk::SurfaceFormatKHR m_imageFormat;
             uint32_t m_maxFramesInFlight{};

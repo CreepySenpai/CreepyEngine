@@ -9,31 +9,31 @@
 
 namespace Creepy{
 
-    VulkanSwapChain::VulkanSwapChain(uint32_t width, uint32_t height) noexcept : m_maxFramesInFlight{2} {
+    VulkanSwapChain::VulkanSwapChain(const VulkanSwapChainSpec& swapChainSpec) noexcept : m_maxFramesInFlight{2} {
         std::clog << "Create Swapchain 1\n";
-        createSwapChain(width, height);
+        createSwapChain(swapChainSpec);
     }
 
-    void VulkanSwapChain::Recreate(uint32_t width, uint32_t height) noexcept {
-        this->Destroy();
-        createSwapChain(width, height);
+    void VulkanSwapChain::Recreate(const VulkanSwapChainSpec& swapChainSpec) noexcept {
+        this->Destroy(swapChainSpec.LogicalDev);
+        createSwapChain(swapChainSpec);
     }
 
-    void VulkanSwapChain::Destroy() noexcept {
+    void VulkanSwapChain::Destroy(vk::Device logicalDev) noexcept {
         
-        m_depthBuffer->Destroy();
+        m_depthBuffer->Destroy(logicalDev);
 
         m_images.clear();
 
         for(auto&& view : m_imageViews){
-            VulkanContext::GetInstance()->GetLogicalDevice().destroyImageView(view);
+            logicalDev.destroyImageView(view);
         }
 
         m_imageViews.clear();
 
         std::clog << "Destroy Sw\n";
 
-        VulkanContext::GetInstance()->GetLogicalDevice().destroySwapchainKHR(m_handle);
+        logicalDev.destroySwapchainKHR(m_handle);
         
         m_handle = nullptr;
     }
@@ -54,11 +54,11 @@ namespace Creepy{
     }
 
 
-    void VulkanSwapChain::createSwapChain(uint32_t width, uint32_t height) noexcept {
+    void VulkanSwapChain::createSwapChain(const VulkanSwapChainSpec& swapChainSpec) noexcept {
 
         bool isFound{false};
 
-        auto&& swapChainInfo =  VulkanContext::GetInstance()->Devices->GetSwapChainSupportInfo();
+        auto&& swapChainInfo =  VulkanContext::GetInstance()->GetDevices()->GetSwapChainSupportInfo();
 
         for(auto&& supportFormat : swapChainInfo.Formats){
             
@@ -83,17 +83,18 @@ namespace Creepy{
 
         std::clog << "ChainSupportInfo\n";
 
-        swapChainInfo = VulkanContext::GetInstance()->Devices->QuerySwapChainSupport(VulkanContext::GetInstance()->Surface);
+        swapChainInfo = VulkanContext::GetInstance()->GetDevices()->QuerySwapChainSupport(VulkanContext::GetInstance()->GetSurface());
 
         std::clog << "createSwapChain\n";
 
-        createHandle(width, height, presentMode);
+        createHandle(swapChainSpec, presentMode);
     }
 
-    void VulkanSwapChain::createHandle(uint32_t width, uint32_t height, vk::PresentModeKHR presentMode) noexcept
+    void VulkanSwapChain::createHandle(const VulkanSwapChainSpec& swapChainSpec, vk::PresentModeKHR presentMode) noexcept
     {
-        vk::Extent2D swapChainExtent{width, height};
-        auto&& swapChainSupportInfo =  VulkanContext::GetInstance()->Devices->GetSwapChainSupportInfo();
+        
+        vk::Extent2D swapChainExtent{swapChainSpec.Width, swapChainSpec.Height};
+        auto&& swapChainSupportInfo =  VulkanContext::GetInstance()->GetDevices()->GetSwapChainSupportInfo();
         auto &&capabilities = swapChainSupportInfo.Capabilities;
         if (capabilities.currentExtent != std::numeric_limits<uint32_t>::max())
         {
@@ -113,7 +114,7 @@ namespace Creepy{
 
         vk::SwapchainCreateInfoKHR swapChainInfo{};
         swapChainInfo.flags = vk::SwapchainCreateFlagsKHR{};
-        swapChainInfo.surface = VulkanContext::GetInstance()->Surface;
+        swapChainInfo.surface = swapChainSpec.Surface;
         swapChainInfo.minImageCount = imageCount;
         swapChainInfo.imageFormat = m_imageFormat.format;
         swapChainInfo.imageColorSpace = m_imageFormat.colorSpace;
@@ -122,13 +123,11 @@ namespace Creepy{
         swapChainInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
         swapChainInfo.oldSwapchain = nullptr;
 
-        auto &&devicesInstance = VulkanContext::GetInstance()->Devices;
-
-        if (devicesInstance->GetGraphicsFamilyIndex() != devicesInstance->GetPresentFamilyIndex())
+        if (swapChainSpec.GraphicFamilyIndex != swapChainSpec.PresentFamilyIndex)
         {
             const std::array<uint32_t, 2> queueFamilyIndices{
-                static_cast<uint32_t>(devicesInstance->GetGraphicsFamilyIndex()),
-                static_cast<uint32_t>(devicesInstance->GetPresentFamilyIndex())};
+                static_cast<uint32_t>(swapChainSpec.GraphicFamilyIndex),
+                static_cast<uint32_t>(swapChainSpec.PresentFamilyIndex)};
 
             std::clog << "Choose Mode Concurency\n";
             swapChainInfo.imageSharingMode = vk::SharingMode::eConcurrent;
@@ -150,14 +149,14 @@ namespace Creepy{
 
         std::clog << "Gonna Create Swapchain\n";
 
-        auto &&logicalDev = devicesInstance->GetLogicalDevice();
-        VULKAN_CHECK_ERROR(m_handle = logicalDev.createSwapchainKHR(swapChainInfo));
+        
+        VULKAN_CHECK_ERROR(m_handle = swapChainSpec.LogicalDev.createSwapchainKHR(swapChainInfo));
 
         std::clog << "Created Swapchain\n";
 
-        VulkanContext::GetInstance()->CurrentFrame = 0;
+        VulkanContext::GetInstance()->SetCurrentFrame(0);
 
-        VULKAN_CHECK_ERROR(m_images = logicalDev.getSwapchainImagesKHR(m_handle));
+        VULKAN_CHECK_ERROR(m_images = swapChainSpec.LogicalDev.getSwapchainImagesKHR(m_handle));
 
         std::clog << "Total Image: " << m_images.size() << '\n';
 
@@ -176,11 +175,12 @@ namespace Creepy{
             imgViewInfo.subresourceRange.baseArrayLayer = 0;
             imgViewInfo.subresourceRange.layerCount = 1;
 
-            VULKAN_CHECK_ERROR(m_imageViews.emplace_back(logicalDev.createImageView(imgViewInfo)));
+            VULKAN_CHECK_ERROR(m_imageViews.emplace_back(swapChainSpec.LogicalDev.createImageView(imgViewInfo)));
         }
 
         std::clog << "SwapChain Create Success\n";
-
+        
+        auto&& devicesInstance = VulkanContext::GetInstance()->GetDevices();
         if(devicesInstance->DetectDepthFormat()){
             std::clog << "Has Detect Depth Format\n";
         }
@@ -189,10 +189,10 @@ namespace Creepy{
             std::clog << "Cannot Detect Depth Format\n";
         }
 
-        createDepthBuffer(swapChainExtent.width, swapChainExtent.height, devicesInstance->GetDepthBufferFormat());
+        createDepthBuffer(swapChainSpec.LogicalDev, swapChainExtent.width, swapChainExtent.height, devicesInstance->GetDepthBufferFormat());
     }
 
-    void VulkanSwapChain::createDepthBuffer(uint32_t width, uint32_t height, vk::Format depthFormat) noexcept {
+    void VulkanSwapChain::createDepthBuffer(vk::Device logicalDev, uint32_t width, uint32_t height, vk::Format depthFormat) noexcept {
         
         VulkanImageSpec imgSpec;
         imgSpec.ImageType = vk::ImageType::e2D;
@@ -204,6 +204,7 @@ namespace Creepy{
         imgSpec.MemoryFlags = vk::MemoryPropertyFlagBits::eDeviceLocal;
         imgSpec.IsCreateView = true;
         imgSpec.Aspect = vk::ImageAspectFlagBits::eDepth;
+        imgSpec.LogicalDev = logicalDev;
 
         m_depthBuffer = std::make_shared<VulkanImage>(imgSpec);
 

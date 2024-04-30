@@ -30,7 +30,7 @@ namespace Creepy {
     void VulkanRendererAPI::DrawInstances(const Ref<VertexArray>& vertexArray, uint32_t indexCount, uint32_t instanceCount) noexcept {}
 
     void VulkanRendererAPI::SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept {
-        ENGINE_LOG_WARNING("Call Set ViewPort");
+        ENGINE_LOG_WARNING("Call Set ViewPort: {} - {} - {} - {}", x, y, width, height);
         VulkanContext::GetInstance()->SetViewPort(x, y, width, height);
     }
 

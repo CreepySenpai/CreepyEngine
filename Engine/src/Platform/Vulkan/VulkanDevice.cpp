@@ -111,7 +111,7 @@ namespace Creepy{
                     }
 
                     // Check Support Present
-                    if(physicalDev.getSurfaceSupportKHR(i, VulkanContext::GetInstance()->Surface)){
+                    if(physicalDev.getSurfaceSupportKHR(i, VulkanContext::GetInstance()->GetSurface())){
                         std::clog << "Queue " << i << " support present\n";
                         m_presentFamilyIndex = i;
                     }
@@ -133,7 +133,7 @@ namespace Creepy{
                 std::clog << "Compute Index: " << m_computeFamilyIndex << '\n';
                 std::clog << "Transfer Index: " << m_transferFamilyIndex << '\n';
 
-                m_swapChainInfo = QuerySwapChainSupport(VulkanContext::GetInstance()->Surface, physicalDev);
+                m_swapChainInfo = QuerySwapChainSupport(VulkanContext::GetInstance()->GetSurface(), physicalDev);
 
                 if(m_swapChainInfo.Formats.size() < 1 || m_swapChainInfo.PresentModes.size() < 1){
                     std::clog << "Swapchain not support skip dev\n";
@@ -174,8 +174,8 @@ namespace Creepy{
     void VulkanDevice::selectPhysicalDevice() noexcept
     {
         std::clog << "Get Context Instance\n";
-        auto&& totalPhysicDev = VulkanContext::GetInstance()->Instance.enumeratePhysicalDevices();
-
+        
+        auto&& totalPhysicDev = VulkanContext::GetInstance()->GetVulkanInstance().enumeratePhysicalDevices();
         if(totalPhysicDev.size() == 0){
             std::clog << "No Physical Device Support\n";
             return;
