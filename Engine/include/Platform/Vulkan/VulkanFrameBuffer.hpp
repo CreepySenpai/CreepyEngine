@@ -18,6 +18,10 @@ namespace Creepy{
             constexpr vk::Framebuffer GetHandle() const noexcept {
                 return m_handle;
             }
+
+            void BeginFrame() noexcept;
+
+            void EndFrame() noexcept;
         private:
             vk::Framebuffer m_handle;
             // std::vector<vk::ImageView> m_imageViews;

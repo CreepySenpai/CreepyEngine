@@ -3,7 +3,7 @@
 
 namespace Creepy{
 
-    VkBool32 VulkanUtils::VulkanDebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* data, void* userData) {
+    vk::Bool32 VulkanUtils::VulkanDebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* data, void* userData) {
         switch(severity){
             
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:{

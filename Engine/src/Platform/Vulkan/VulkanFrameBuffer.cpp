@@ -22,4 +22,12 @@ namespace Creepy {
         logicalDev.destroyFramebuffer(m_handle);
     }
 
+    void VulkanFrameBuffer::BeginFrame() noexcept {
+
+    }
+
+    void VulkanFrameBuffer::EndFrame() noexcept {
+        
+    }
+
 }

@@ -15,6 +15,9 @@ namespace Creepy {
     class VulkanSwapChain;
     class VulkanRenderPass;
 
+    // TODO: Remove
+    class VulkanShader;
+
     class VulkanContext : public GraphicContext
     {
         public:
@@ -69,6 +72,10 @@ namespace Creepy {
             void createCommandBuffer() noexcept;
             void createSyncObject() noexcept;
             void recreateSwapChain() noexcept;
+
+        private:
+            // TODO: Remove
+            void createShader() noexcept;
         
         public:
             GLFWwindow* m_windowHandle{nullptr};
@@ -94,6 +101,10 @@ namespace Creepy {
 
             std::vector<VulkanFence> m_inFlights;
 
+        private:
+            // TODO: Remove
+            std::shared_ptr<VulkanShader> m_nahShader{nullptr};
+        
         private:
             uint32_t m_cacheFrameBufferWidth{1600};
             uint32_t m_cacheFrameBufferHeight{900};

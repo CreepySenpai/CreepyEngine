@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CREEPYENGINE "D:/WorkSpace/GameEngineProjects/CreepyEngine_Cherno/Engine")
 
-project(CreepyEditor VERSION 0.1.0 LANGUAGES CXX)
+project(CreepyEditor VERSION 0.2.0 LANGUAGES CXX)
 
 file(GLOB COREEDITOR ${CMAKE_SOURCE_DIR}/src/Editor/*.cpp)
 file(GLOB COREPANEL ${CMAKE_SOURCE_DIR}/src/Panel/*.cpp)

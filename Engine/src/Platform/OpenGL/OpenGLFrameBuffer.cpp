@@ -145,6 +145,7 @@ namespace Creepy {
         if((width == 0) || (height == 0) || (width > maxFrameSize) || (height > maxFrameSize)){
             return;
         }
+        
         m_data.Width = width;
         m_data.Height = height;
 

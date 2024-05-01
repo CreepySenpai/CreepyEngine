@@ -6,6 +6,7 @@
 #include <Platform/Vulkan/VulkanSwapChain.hpp>
 #include <Platform/Vulkan/VulkanRenderPass.hpp>
 #include <Platform/Vulkan/VulkanImage.hpp>
+#include <Platform/Vulkan/VulkanShader.hpp>
 #include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
 #include <CreepyEngine/Utils/VulkanUtils.hpp>
 #include <GLFW/glfw3.h>
@@ -48,6 +49,10 @@ namespace Creepy{
 
         std::clog << "Create Sync Obj\n";
         createSyncObject();
+
+        std::clog << "Create Shader\n";
+        // TODO: Remove
+        createShader();
     }
 
     void VulkanContext::Init() noexcept {
@@ -275,6 +280,11 @@ namespace Creepy{
         auto&& logicalDev = m_devices->GetLogicalDevice();
         logicalDev.waitIdle();
 
+        {
+            std::clog << "Call Destroy Shader\n";
+            m_nahShader->Destroy();
+        }
+
         std::clog << "Call Destroy Sync Obj\n";
 
         for(auto&& imgSem : m_imagesAvailable){
@@ -451,5 +461,11 @@ namespace Creepy{
     void VulkanContext::SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept {
         m_cacheFrameBufferWidth = width;
         m_cacheFrameBufferHeight = height;
+    }
+
+    
+    // TODO: Remove
+    void VulkanContext::createShader() noexcept {
+        m_nahShader = std::make_shared<VulkanShader>("./assets/shaders/cache/vulkan/RectVertexShader.vulkan.spv", "./assets/shaders/cache/vulkan/RectFragmentShader.vulkan.spv");
     }
 }

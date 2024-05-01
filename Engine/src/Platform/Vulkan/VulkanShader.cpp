@@ -13,6 +13,11 @@ namespace Creepy {
         createFragmentShader();
     }
 
+    void VulkanShader::Destroy() noexcept {
+        VulkanContext::GetInstance()->GetLogicalDevice().destroyShaderModule(m_vertexShaderHandle);
+        VulkanContext::GetInstance()->GetLogicalDevice().destroyShaderModule(m_fragmentShaderHandle);
+    }
+
     std::vector<char> VulkanShader::readFile(const std::filesystem::path& filePath) noexcept {
         std::ifstream file{filePath, std::ios::ate | std::ios::binary};
 
@@ -37,6 +42,13 @@ namespace Creepy {
 
         VULKAN_CHECK_ERROR(m_vertexShaderHandle = VulkanContext::GetInstance()->GetLogicalDevice().createShaderModule(vertexInfo));
 
+        vk::PipelineShaderStageCreateInfo vertexStage{};
+        vertexStage.flags = vk::PipelineShaderStageCreateFlags{};
+        vertexStage.pName = "main";
+        vertexStage.stage = vk::ShaderStageFlagBits::eVertex;
+        vertexStage.module = m_vertexShaderHandle;
+
+        m_shaderStages.emplace_back(vertexStage);
     }
 
     void VulkanShader::createFragmentShader() noexcept {
@@ -48,6 +60,14 @@ namespace Creepy {
         fragmentInfo.pCode = reinterpret_cast<uint32_t*>(fragment.data());
 
         VULKAN_CHECK_ERROR(m_fragmentShaderHandle = VulkanContext::GetInstance()->GetLogicalDevice().createShaderModule(fragmentInfo));
+
+        vk::PipelineShaderStageCreateInfo fragmentStage{};
+        fragmentStage.flags = vk::PipelineShaderStageCreateFlags{};
+        fragmentStage.pName = "main";
+        fragmentStage.stage = vk::ShaderStageFlagBits::eFragment;
+        fragmentStage.module = m_fragmentShaderHandle;
+
+        m_shaderStages.emplace_back(fragmentStage);
     }
 
 }

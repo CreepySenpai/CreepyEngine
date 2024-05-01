@@ -6,7 +6,7 @@
 namespace Creepy {
 
     struct VulkanUtils{
-        static VkBool32 VKAPI_PTR VulkanDebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* data, void* userData);
+        static vk::Bool32 VKAPI_PTR VulkanDebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* data, void* userData);
 
         static void LogInfo(const std::string& message) noexcept;
         static void LogTrace(const std::string& message) noexcept;

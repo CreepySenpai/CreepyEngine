@@ -9,7 +9,7 @@ namespace Creepy {
     {
         public:
             VulkanShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept;
-
+            void Destroy() noexcept;
         private:
             std::vector<char> readFile(const std::filesystem::path& filePath) noexcept;
             void createVertexShader() noexcept;
@@ -17,6 +17,7 @@ namespace Creepy {
         private:
            vk::ShaderModule m_vertexShaderHandle{nullptr};
            vk::ShaderModule m_fragmentShaderHandle{nullptr};
+           std::vector<vk::PipelineShaderStageCreateInfo> m_shaderStages;
            std::filesystem::path m_vertexFilePath;
            std::filesystem::path m_fragmentFilePath;
     };
