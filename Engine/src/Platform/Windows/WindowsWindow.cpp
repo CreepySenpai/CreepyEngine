@@ -96,6 +96,12 @@ namespace Creepy {
     constexpr void WindowsWindow::AttachEvent() noexcept {
 
         glfwSetWindowSizeCallback(m_window.get(), [](GLFWwindow* window, int width, int height) {
+
+            while(width == 0 || height == 0){
+                glfwGetWindowSize(window, &width, &height);
+                glfwWaitEvents();
+            }
+            
             auto&& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
             windowData.Width = width;

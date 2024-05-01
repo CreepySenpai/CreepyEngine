@@ -236,10 +236,6 @@ namespace Creepy{
         FrameBufferWidth = m_cacheFrameBufferWidth;
         FrameBufferHeight = m_cacheFrameBufferHeight;
 
-        {   // Minimize window
-            onMinimizeWindow();
-        }
-
         m_devices->GetLogicalDevice().waitIdle();
 
         m_devices->ReQuerySwapChainSupport(m_surface);
@@ -273,21 +269,6 @@ namespace Creepy{
         
         
         m_isRecreatingSwapChain = false;
-    }
-
-    void VulkanContext::onMinimizeWindow() noexcept
-    {
-        int tempW{0};
-        int tempH{0};
-
-        while (tempW == 0 || tempH == 0)
-        {
-            glfwGetWindowSize(m_windowHandle, &tempW, &tempH);
-            glfwWaitEvents();
-        }
-
-        FrameBufferWidth = tempW;
-        FrameBufferHeight = tempH;
     }
 
     void VulkanContext::ShutDown() noexcept {

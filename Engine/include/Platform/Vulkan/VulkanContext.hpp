@@ -69,9 +69,6 @@ namespace Creepy {
             void createCommandBuffer() noexcept;
             void createSyncObject() noexcept;
             void recreateSwapChain() noexcept;
-
-        private:
-            void onMinimizeWindow() noexcept;
         
         public:
             GLFWwindow* m_windowHandle{nullptr};

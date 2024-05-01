@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(VULKANINCLUDE "D:/Enviroments/vulkan/Include")
 set(VULKANLIB "D:/Enviroments/vulkan/Lib")
 
-project(CreepyEngine VERSION 0.1.0 LANGUAGES C CXX)
+project(CreepyEngine VERSION 0.2.0 LANGUAGES C CXX)
 
 file(GLOB COREENGINE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Core/*.cpp)
 file(GLOB EVENTENGINE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Events/*.cpp)
@@ -41,7 +41,7 @@ target_link_directories(${PROJECT_NAME} PUBLIC
                     ${VULKANLIB}
                 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32 yaml-cpp.dll box2d assimp.dll vulkan-1 shaderc_combined glslang spirv-cross-cpp spirv-cross-core spirv-cross-glsl spirv-cross-reflect spirv-cross-util SPIRV-Tools-opt SPIRV-Tools SPIRV MachineIndependent GenericCodeGen OSDependent SPVRemapper)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32 yaml-cpp.dll box2d assimp.dll vulkan-1)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
 
