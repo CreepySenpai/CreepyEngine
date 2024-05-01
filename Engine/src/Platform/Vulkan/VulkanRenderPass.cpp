@@ -1,3 +1,4 @@
+#include <iostream>
 #include <Platform/Vulkan/VulkanRenderPass.hpp>
 #include <Platform/Vulkan/VulkanTypes.hpp>
 #include <Platform/Vulkan/VulkanContext.hpp>

@@ -61,8 +61,8 @@ namespace Creepy{
     }
 
     void VulkanDevice::initDevice() noexcept{
-        VulkanUtils::Log("Gonna Select Physical Dev");
-        VulkanUtils::Log(std::format("Gonna Select Physical Dev: {} - {}", 1, 2));
+        VulkanUtils::LogWarning("Gonna Select Physical Dev");
+        VulkanUtils::LogWarning(std::format("Gonna Select Physical Dev: {} - {}", 1, 2));
         // std::clog << "Gonna Select Physical Dev\n";
         this->selectPhysicalDevice();
         

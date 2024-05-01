@@ -2,7 +2,7 @@
 #include <Platform/Vulkan/VulkanShader.hpp>
 #include <Platform/Vulkan/VulkanContext.hpp>
 #include <CreepyEngine/Utils/VulkanUtils.hpp>
-
+#include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
 
 namespace Creepy {
 
@@ -35,12 +35,8 @@ namespace Creepy {
         vertexInfo.codeSize = vertexData.size();
         vertexInfo.pCode = reinterpret_cast<uint32_t*>(vertexData.data());
 
-        try{
-            m_vertexShaderHandle = VulkanContext::GetInstance()->GetLogicalDevice().createShaderModule(vertexInfo);
-        }
-        catch(const vk::SystemError& e){
-            VulkanUtils::Log("Create Vertex Shader Error: " + std::string{e.what()});
-        }
+        VULKAN_CHECK_ERROR(m_vertexShaderHandle = VulkanContext::GetInstance()->GetLogicalDevice().createShaderModule(vertexInfo));
+
     }
 
     void VulkanShader::createFragmentShader() noexcept {
@@ -51,12 +47,7 @@ namespace Creepy {
         fragmentInfo.codeSize = fragment.size();
         fragmentInfo.pCode = reinterpret_cast<uint32_t*>(fragment.data());
 
-        try{
-            m_fragmentShaderHandle = VulkanContext::GetInstance()->GetLogicalDevice().createShaderModule(fragmentInfo);
-        }
-        catch(const vk::SystemError& e){
-            VulkanUtils::Log("Create Fragment Shader Error: " + std::string{e.what()});
-        }
+        VULKAN_CHECK_ERROR(m_fragmentShaderHandle = VulkanContext::GetInstance()->GetLogicalDevice().createShaderModule(fragmentInfo));
     }
 
 }

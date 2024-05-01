@@ -30,8 +30,19 @@ namespace Creepy{
         return VK_FALSE;
     }
 
-    void VulkanUtils::Log(std::string message) noexcept {
+    void VulkanUtils::LogInfo(const std::string& message) noexcept {
+        ENGINE_LOG_INFO(message);
+    }
+    void VulkanUtils::LogTrace(const std::string& message) noexcept {
+        ENGINE_LOG_TRACE(message);
+    }
+
+    void VulkanUtils::LogWarning(const std::string& message) noexcept {
         ENGINE_LOG_WARNING(message);
+    }
+
+    void VulkanUtils::LogError(const std::string& message) noexcept {
+        ENGINE_LOG_ERROR(message);
     }
     
 }
