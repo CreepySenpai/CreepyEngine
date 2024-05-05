@@ -1,6 +1,6 @@
 #include <fstream>
 #include <Platform/Vulkan/VulkanShader.hpp>
-#include <Platform/Vulkan/VulkanContext.hpp>
+#include <Platform/Vulkan/VulkanDevice.hpp>
 #include <CreepyEngine/Utils/VulkanUtils.hpp>
 #include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
 
@@ -14,8 +14,10 @@ namespace Creepy {
     }
 
     void VulkanShader::Destroy() noexcept {
-        VulkanContext::GetInstance()->GetLogicalDevice().destroyShaderModule(m_vertexShaderHandle);
-        VulkanContext::GetInstance()->GetLogicalDevice().destroyShaderModule(m_fragmentShaderHandle);
+        VulkanDevice::GetLogicalDevice().destroyShaderModule(m_vertexShaderHandle);
+        m_vertexShaderHandle = nullptr;
+        VulkanDevice::GetLogicalDevice().destroyShaderModule(m_fragmentShaderHandle);
+        m_fragmentShaderHandle = nullptr;
     }
 
     std::vector<char> VulkanShader::readFile(const std::filesystem::path& filePath) noexcept {
@@ -26,7 +28,7 @@ namespace Creepy {
         data.resize(fileSize);
 
         file.seekg(0);
-        file.read(&data[0], fileSize);
+        file.read(data.data(), fileSize);
         file.close();
 
         return data;
@@ -40,7 +42,7 @@ namespace Creepy {
         vertexInfo.codeSize = vertexData.size();
         vertexInfo.pCode = reinterpret_cast<uint32_t*>(vertexData.data());
 
-        VULKAN_CHECK_ERROR(m_vertexShaderHandle = VulkanContext::GetInstance()->GetLogicalDevice().createShaderModule(vertexInfo));
+        VULKAN_CHECK_ERROR(m_vertexShaderHandle = VulkanDevice::GetLogicalDevice().createShaderModule(vertexInfo));
 
         vk::PipelineShaderStageCreateInfo vertexStage{};
         vertexStage.flags = vk::PipelineShaderStageCreateFlags{};
@@ -59,7 +61,7 @@ namespace Creepy {
         fragmentInfo.codeSize = fragment.size();
         fragmentInfo.pCode = reinterpret_cast<uint32_t*>(fragment.data());
 
-        VULKAN_CHECK_ERROR(m_fragmentShaderHandle = VulkanContext::GetInstance()->GetLogicalDevice().createShaderModule(fragmentInfo));
+        VULKAN_CHECK_ERROR(m_fragmentShaderHandle = VulkanDevice::GetLogicalDevice().createShaderModule(fragmentInfo));
 
         vk::PipelineShaderStageCreateInfo fragmentStage{};
         fragmentStage.flags = vk::PipelineShaderStageCreateFlags{};

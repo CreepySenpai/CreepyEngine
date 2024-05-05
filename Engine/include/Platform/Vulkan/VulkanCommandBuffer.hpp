@@ -13,9 +13,9 @@ namespace Creepy {
         public:
             constexpr VulkanCommandBuffer() noexcept = default;
 
-            VulkanCommandBuffer(vk::Device logicalDev, vk::CommandPool commandPool, vk::CommandBufferLevel level) noexcept;
+            VulkanCommandBuffer(const vk::Device logicalDev, const vk::CommandPool commandPool, const vk::CommandBufferLevel level) noexcept;
             
-            void Free(vk::Device logicalDev, vk::CommandPool commandPool) noexcept;
+            void Free(const vk::Device logicalDev, const vk::CommandPool commandPool) noexcept;
 
             void Begin(bool isSingleUse, bool isRenderPassContinue, bool isSimultaneousUse) noexcept;
 

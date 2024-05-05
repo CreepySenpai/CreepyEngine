@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <span>
 #include <memory>
 #include <vulkan/vulkan.hpp>
 #include <glm/glm.hpp>
@@ -60,11 +61,33 @@ namespace Creepy {
     struct VulkanPipelineSpec{
         vk::VertexInputBindingDescription Description;
         vk::RenderPass RenderPass;
-        std::vector<vk::VertexInputAttributeDescription> Attributes;
-        std::vector<vk::DescriptorSetLayout> DescriptorSetLayouts;
-        std::vector<vk::PipelineShaderStageCreateInfo> ShaderStages;
+        std::span<const vk::VertexInputAttributeDescription> Attributes;
+        std::span<const vk::DescriptorSetLayout> DescriptorSetLayouts;
+        std::span<const vk::PipelineShaderStageCreateInfo> ShaderStages;
         vk::Viewport Viewport;
         vk::Rect2D Scissor;
         bool IsWireFrame;
+    };
+
+    struct VulkanBufferSpec{
+        uint32_t Size;
+        vk::BufferUsageFlags BufferUsage;
+        vk::SharingMode SharingMode;
+        vk::MemoryPropertyFlags MemoryProperty;
+    };
+
+    struct VulkanDescriptorSetLayoutSpec{
+        uint32_t Binding{};
+        uint32_t DescriptorCount{};
+        vk::DescriptorType DescriptorType;
+        vk::ShaderStageFlagBits StageFlags;
+    };
+
+    struct VulkanWriteDescriptorSetSpec{
+        uint32_t DescriptorSetIndex;
+        vk::DeviceSize Offset;
+        vk::DeviceSize Range;
+        vk::DescriptorType DescriptorType;
+        uint32_t DescriptorCount;
     };
 }

@@ -50,7 +50,7 @@ namespace Creepy {
 
         while(m_isRunning){
             // Get current time
-            float time = static_cast<float>(glfwGetTime());
+            const float time = static_cast<float>(glfwGetTime());
 
             // We get current time - last time -> delta time and save it
             TimeStep timeStep{time - m_lastFrameTime};

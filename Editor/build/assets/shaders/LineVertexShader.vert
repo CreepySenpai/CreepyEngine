@@ -4,7 +4,7 @@ layout(location = 0) in vec3 a_position;
 layout(location = 1) in vec4 a_color;
 layout(location = 2) in int a_entityID;
 
-layout(std140, binding = 0) uniform Camera {
+layout(std140, set = 0, binding = 0) uniform Camera {
     mat4 ViewProjectionMatrix;
 } u_Camera;
 

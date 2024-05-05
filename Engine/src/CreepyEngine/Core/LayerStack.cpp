@@ -11,8 +11,9 @@ namespace Creepy
 
     LayerStack::~LayerStack() noexcept
     {
-        for (auto &layer : m_layers)
+        for (auto&& layer : m_layers)
         {
+
             layer->OnDetach();
             delete layer;
             layer = nullptr;
@@ -34,9 +35,9 @@ namespace Creepy
 
     void LayerStack::PopLayer(Layer *layer) noexcept
     {
-        auto &&needDelete = std::ranges::find(m_layers, layer);
+        const auto&& needDelete = std::ranges::find(m_layers, layer);
 
-        if (needDelete != m_layers.end())
+        if(needDelete != m_layers.cend())
         {
             m_layers.erase(needDelete);
             --m_layerInsertIndex;
@@ -45,9 +46,9 @@ namespace Creepy
 
     void LayerStack::PopOverlay(Layer *overlay) noexcept
     {
-        auto &&needDelete = std::ranges::find(m_layers, overlay);
+        const auto&& needDelete = std::ranges::find(m_layers, overlay);
 
-        if (needDelete != m_layers.end())
+        if(needDelete != m_layers.cend())
         {
             m_layers.erase(needDelete);
         }

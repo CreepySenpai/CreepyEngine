@@ -15,10 +15,10 @@ namespace Creepy{
                 return m_imageView;
             }
 
-            void Destroy(vk::Device logicalDev) noexcept;
+            void Destroy(const vk::Device logicalDev) noexcept;
 
         private:
-            void createImageView(vk::Device logicalDev, vk::Format format, vk::ImageAspectFlags aspect) noexcept;
+            void createImageView(const vk::Device logicalDev, vk::Format format, vk::ImageAspectFlags aspect) noexcept;
 
         private:
             vk::Image m_handle{nullptr};

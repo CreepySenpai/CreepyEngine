@@ -11,15 +11,16 @@ namespace Creepy{
             
             void DestroyDevice() noexcept;
 
-            VulkanSwapChainSupportInfo QuerySwapChainSupport(vk::SurfaceKHR surface, vk::PhysicalDevice physicalDev) noexcept;
-            VulkanSwapChainSupportInfo QuerySwapChainSupport(vk::SurfaceKHR surface) noexcept;
+            VulkanSwapChainSupportInfo QuerySwapChainSupport(const vk::SurfaceKHR surface, const vk::PhysicalDevice physicalDev) noexcept;
+            VulkanSwapChainSupportInfo QuerySwapChainSupport(const vk::SurfaceKHR surface) noexcept;
+            
             bool DetectDepthFormat() noexcept;
 
-            vk::PhysicalDevice GetPhysicalDevice() const noexcept {
+            vk::PhysicalDevice GetPhysicalDeviceHandle() const noexcept {
                 return m_physicalDevice;
             }
 
-            vk::Device GetLogicalDevice() const noexcept {
+            vk::Device GetLogicalDeviceHandle() const noexcept {
                 return m_logicalDevice;
             }
 
@@ -59,7 +60,7 @@ namespace Creepy{
                 return m_depthBufferFormat;
             }
 
-            void ReQuerySwapChainSupport(vk::SurfaceKHR surface) noexcept;
+            void ReQuerySwapChainSupport(const vk::SurfaceKHR surface) noexcept;
 
         private:
             struct VulkanPhysicalDeviceRequirements{
@@ -74,13 +75,20 @@ namespace Creepy{
 
         private:
             void initDevice() noexcept;
-            bool selectQueueFamily(VulkanPhysicalDeviceRequirements& requirements, vk::PhysicalDevice physicalDev) noexcept;
+            bool selectQueueFamily(VulkanPhysicalDeviceRequirements& requirements, const vk::PhysicalDevice physicalDev) noexcept;
             void selectPhysicalDevice() noexcept;
             void createLogicalDevice() noexcept;
             void createCommandPool() noexcept;
 
+        private:
+            static VulkanDevice* s_devicesInstance;
+
         public:
             vk::CommandPool GraphicCommandPool;
+            
+            static vk::PhysicalDevice GetPhysicalDevice() noexcept;
+            static vk::Device GetLogicalDevice() noexcept;
+            static int FindMemoryIndex(uint32_t filterType, vk::MemoryPropertyFlags memoryFlags) noexcept;
 
         private:
             vk::PhysicalDevice m_physicalDevice;

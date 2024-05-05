@@ -19,7 +19,7 @@ namespace Creepy{
         createSwapChain(swapChainSpec);
     }
 
-    void VulkanSwapChain::Destroy(vk::Device logicalDev) noexcept {
+    void VulkanSwapChain::Destroy(const vk::Device logicalDev) noexcept {
         
         m_depthBuffer->Destroy(logicalDev);
 
@@ -38,11 +38,11 @@ namespace Creepy{
         m_handle = nullptr;
     }
 
-    uint32_t VulkanSwapChain::AcquireNextImageIndex(uint64_t timeOut, vk::Semaphore imgAvailableSemaphore, vk::Fence fence) noexcept {
-        return VulkanContext::GetInstance()->GetLogicalDevice().acquireNextImageKHR(m_handle, timeOut, imgAvailableSemaphore, fence).value;
+    uint32_t VulkanSwapChain::AcquireNextImageIndex(uint64_t timeOut, const vk::Semaphore imgAvailableSemaphore, const vk::Fence fence) noexcept {
+        return VulkanDevice::GetLogicalDevice().acquireNextImageKHR(m_handle, timeOut, imgAvailableSemaphore, fence).value;
     }
     
-    vk::Result VulkanSwapChain::Present(vk::Queue presentQueue, vk::Semaphore renderComplete, uint32_t presentImageIndex) noexcept {
+    vk::Result VulkanSwapChain::Present(const vk::Queue presentQueue, const vk::Semaphore renderComplete, uint32_t presentImageIndex) noexcept {
         vk::PresentInfoKHR presentInfo{};
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = &renderComplete;
@@ -192,7 +192,7 @@ namespace Creepy{
         createDepthBuffer(swapChainSpec.LogicalDev, swapChainExtent.width, swapChainExtent.height, devicesInstance->GetDepthBufferFormat());
     }
 
-    void VulkanSwapChain::createDepthBuffer(vk::Device logicalDev, uint32_t width, uint32_t height, vk::Format depthFormat) noexcept {
+    void VulkanSwapChain::createDepthBuffer(const vk::Device logicalDev, uint32_t width, uint32_t height, vk::Format depthFormat) noexcept {
         
         VulkanImageSpec imgSpec;
         imgSpec.ImageType = vk::ImageType::e2D;

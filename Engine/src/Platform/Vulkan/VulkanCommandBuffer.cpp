@@ -4,7 +4,7 @@
 
 namespace Creepy {
 
-    VulkanCommandBuffer::VulkanCommandBuffer(vk::Device logicalDev, vk::CommandPool commandPool, vk::CommandBufferLevel level) noexcept {
+    VulkanCommandBuffer::VulkanCommandBuffer(const vk::Device logicalDev, const vk::CommandPool commandPool, const vk::CommandBufferLevel level) noexcept {
 
         vk::CommandBufferAllocateInfo allocInfo{};
         allocInfo.commandPool = commandPool;
@@ -19,8 +19,9 @@ namespace Creepy {
         m_state = CommandBufferState::READY;
     }
     
-    void VulkanCommandBuffer::Free(vk::Device logicalDev, vk::CommandPool commandPool) noexcept {
+    void VulkanCommandBuffer::Free(const vk::Device logicalDev, const vk::CommandPool commandPool) noexcept {
         logicalDev.freeCommandBuffers(commandPool, m_handle);
+        m_handle = nullptr;
         m_state = CommandBufferState::NOT_ALLOCATED;
     }
 

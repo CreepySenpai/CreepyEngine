@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <span>
 #include <vulkan/vulkan.hpp>
 
 namespace Creepy {
@@ -9,7 +10,12 @@ namespace Creepy {
     {
         public:
             VulkanShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept;
+            
             void Destroy() noexcept;
+
+            constexpr std::span<const vk::PipelineShaderStageCreateInfo> GetShaderStages() const noexcept {
+                return m_shaderStages;
+            }
         private:
             std::vector<char> readFile(const std::filesystem::path& filePath) noexcept;
             void createVertexShader() noexcept;

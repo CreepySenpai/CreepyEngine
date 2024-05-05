@@ -1,7 +1,7 @@
 #include <Platform/Vulkan/VulkanImage.hpp>
 #include <Platform/Vulkan/VulkanTypes.hpp>
 #include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
-#include <Platform/Vulkan/VulkanContext.hpp>
+#include <Platform/Vulkan/VulkanDevice.hpp>
 
 namespace Creepy {
 
@@ -26,7 +26,7 @@ namespace Creepy {
         
         auto&& memoryRequire = spec.LogicalDev.getImageMemoryRequirements(m_handle);
         
-        int&& memoryIndex = VulkanContext::GetInstance()->FindMemoryIndex(memoryRequire.memoryTypeBits, spec.MemoryFlags);
+        int&& memoryIndex = VulkanDevice::FindMemoryIndex(memoryRequire.memoryTypeBits, spec.MemoryFlags);
 
         vk::MemoryAllocateInfo allocInfo{};
         allocInfo.allocationSize = memoryRequire.size;
@@ -43,7 +43,7 @@ namespace Creepy {
 
     }
 
-    void VulkanImage::Destroy(vk::Device logicalDev) noexcept
+    void VulkanImage::Destroy(const vk::Device logicalDev) noexcept
     {
         logicalDev.destroyImageView(m_imageView);
         m_imageView = nullptr;
@@ -53,7 +53,7 @@ namespace Creepy {
         m_handle = nullptr;
     }
 
-    void VulkanImage::createImageView(vk::Device logicalDev, vk::Format format, vk::ImageAspectFlags aspect) noexcept {
+    void VulkanImage::createImageView(const vk::Device logicalDev, vk::Format format, vk::ImageAspectFlags aspect) noexcept {
         vk::ImageViewCreateInfo imageViewInfo{};
         imageViewInfo.flags = vk::ImageViewCreateFlags{};
         imageViewInfo.image = m_handle;

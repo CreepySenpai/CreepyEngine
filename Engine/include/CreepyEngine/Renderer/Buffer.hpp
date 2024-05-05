@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <span>
 #include <string>
 #include <CreepyEngine/Core/Core.hpp>
 
@@ -124,7 +125,7 @@ namespace Creepy {
                 calculateOffsetAndStride();
             }
 
-            constexpr const inline std::vector<BufferElement>& GetElements() const noexcept {
+            constexpr inline std::span<const BufferElement> GetElements() const noexcept {
                 return m_elements;
             }
 

@@ -67,8 +67,9 @@ namespace Creepy {
         }
 
         // Use For Vulkan
-        
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        if constexpr(UseVulkanAPI){
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        }
 
         m_window = std::shared_ptr<GLFWwindow>(
             glfwCreateWindow(static_cast<int>(m_windowData.Width), static_cast<int>(m_windowData.Height), m_windowData.Title.c_str(), nullptr, nullptr),

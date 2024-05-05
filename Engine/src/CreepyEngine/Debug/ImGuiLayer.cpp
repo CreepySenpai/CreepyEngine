@@ -5,7 +5,11 @@
 
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
+#include <imgui/imgui_impl_vulkan.h>
 #include <imgui/ImGuizmo.h>
+
+#include <Platform/Vulkan/VulkanContext.hpp>
+#include <Platform/Vulkan/VulkanDevice.hpp>
 
 namespace Creepy
 {
@@ -41,13 +45,37 @@ namespace Creepy
         this->SetTheme();
         
         // Be careful when get instance of this obj
-        ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow()), true);
+        if constexpr(UseOpenGLAPI){
+            ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow()), true);
             
-        ImGui_ImplOpenGL3_Init("#version 460");
+            ImGui_ImplOpenGL3_Init("#version 460");
+        }
+
+        if constexpr(UseVulkanAPI){
+
+            ImGui_ImplGlfw_InitForVulkan(static_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow()), true);
+            ImGui_ImplVulkan_InitInfo vulkanInfo{};
+            vulkanInfo.Instance = static_cast<VkInstance>(VulkanContext::GetInstance()->GetVulkanInstance());
+            vulkanInfo.PhysicalDevice = static_cast<VkPhysicalDevice>(VulkanDevice::GetPhysicalDevice());
+            vulkanInfo.Device = static_cast<VkDevice>(VulkanDevice::GetLogicalDevice());
+            vulkanInfo.Allocator = nullptr;
+            vulkanInfo.Subpass = 0;
+            ImGui_ImplVulkan_Init(&vulkanInfo);
+
+        }
+        
     }
 
     void ImGuiLayer::OnDetach() noexcept {
-        ImGui_ImplOpenGL3_Shutdown();
+
+        if constexpr(UseOpenGLAPI){
+            ImGui_ImplOpenGL3_Shutdown();
+        }
+
+        if constexpr(UseVulkanAPI){
+            ImGui_ImplVulkan_Shutdown();
+        }
+
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
@@ -57,7 +85,15 @@ namespace Creepy
     }
 
     void ImGuiLayer::Begin() noexcept {
-        ImGui_ImplOpenGL3_NewFrame();
+        
+        if constexpr(UseOpenGLAPI){
+            ImGui_ImplOpenGL3_NewFrame();
+        }
+
+        if constexpr(UseVulkanAPI){
+            ImGui_ImplVulkan_NewFrame();
+        }
+
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
@@ -70,7 +106,15 @@ namespace Creepy
 
 
         ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        
+        if constexpr(UseOpenGLAPI){
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
+
+        // TODO: Add Command Buffer
+        if constexpr(UseVulkanAPI){
+            ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), {});
+        }
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {

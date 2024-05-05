@@ -18,7 +18,7 @@ namespace Creepy{
         public:
             VulkanRenderPass(const VulkanRenderPassSpec& renderPassSpec) noexcept;
 
-            void Destroy(vk::Device logicalDev) noexcept;
+            void Destroy(const vk::Device logicalDev) noexcept;
 
             void Begin(VulkanCommandBuffer& commandBuffer, vk::Framebuffer frameBuffer) noexcept;
 

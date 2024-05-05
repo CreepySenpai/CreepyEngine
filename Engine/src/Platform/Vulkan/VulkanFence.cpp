@@ -4,7 +4,7 @@
 
 namespace Creepy {
 
-    VulkanFence::VulkanFence(vk::Device logicalDev, bool isSignaled) noexcept : m_isSignaled{isSignaled} {
+    VulkanFence::VulkanFence(const vk::Device logicalDev, bool isSignaled) noexcept : m_isSignaled{isSignaled} {
         vk::FenceCreateInfo fenceInfo{};
 
         if(isSignaled){
@@ -14,7 +14,7 @@ namespace Creepy {
         VULKAN_CHECK_ERROR(m_handle = logicalDev.createFence(fenceInfo));
     }
             
-    void VulkanFence::Wait(vk::Device logicalDev, uint64_t timeOut) noexcept {
+    void VulkanFence::Wait(const vk::Device logicalDev, uint64_t timeOut) noexcept {
 
         if(!m_isSignaled){
             auto&& res = logicalDev.waitForFences(m_handle, true, timeOut);
@@ -44,15 +44,16 @@ namespace Creepy {
         }
     }
 
-    void VulkanFence::Reset(vk::Device logicalDev) noexcept {
+    void VulkanFence::Reset(const vk::Device logicalDev) noexcept {
         if(m_isSignaled) {
             logicalDev.resetFences(m_handle);
             m_isSignaled = false;
         }
     }
     
-    void VulkanFence::Destroy(vk::Device logicalDev) noexcept {
+    void VulkanFence::Destroy(const vk::Device logicalDev) noexcept {
         logicalDev.destroyFence(m_handle);
+        m_handle = nullptr;
         m_isSignaled = false;
     }
 

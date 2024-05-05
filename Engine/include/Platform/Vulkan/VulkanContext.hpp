@@ -17,6 +17,10 @@ namespace Creepy {
 
     // TODO: Remove
     class VulkanShader;
+    class VulkanPipeline;
+    class VulkanDescriptorPool;
+    class VulkanDescriptorSetLayout;
+    class VulkanDescriptorSet;
 
     class VulkanContext : public GraphicContext
     {
@@ -27,8 +31,6 @@ namespace Creepy {
             void SwapBuffers() noexcept override;
             void Update(TimeStep timeStep) noexcept override;
             void ShutDown() noexcept override;
-
-            int FindMemoryIndex(uint32_t filterType, vk::MemoryPropertyFlags memoryFlags) noexcept;
 
             void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) noexcept;
 
@@ -43,8 +45,6 @@ namespace Creepy {
             std::shared_ptr<VulkanSwapChain> GetSwapChain() const noexcept;
 
             std::shared_ptr<VulkanDevice> GetDevices() const noexcept;
-
-            vk::Device GetLogicalDevice() const noexcept;
 
             void BeginFrame(TimeStep timeStep) noexcept;
             void EndFrame() noexcept;
@@ -75,7 +75,9 @@ namespace Creepy {
 
         private:
             // TODO: Remove
+            void createDescriptor() noexcept;
             void createShader() noexcept;
+            void createPipeline() noexcept;
         
         public:
             GLFWwindow* m_windowHandle{nullptr};
@@ -104,7 +106,11 @@ namespace Creepy {
         private:
             // TODO: Remove
             std::shared_ptr<VulkanShader> m_nahShader{nullptr};
-        
+            std::shared_ptr<VulkanPipeline> m_pipeLine{nullptr};
+            std::shared_ptr<VulkanDescriptorPool> m_descriptorPool{nullptr};
+            std::shared_ptr<VulkanDescriptorSetLayout> m_descriptorSetLayout{nullptr};
+            std::shared_ptr<VulkanDescriptorSet> m_descriptorSet{nullptr};
+
         private:
             uint32_t m_cacheFrameBufferWidth{1600};
             uint32_t m_cacheFrameBufferHeight{900};

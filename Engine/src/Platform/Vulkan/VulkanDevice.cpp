@@ -7,7 +7,11 @@
 
 namespace Creepy{
 
+    VulkanDevice* VulkanDevice::s_devicesInstance = nullptr;
+
     VulkanDevice::VulkanDevice() noexcept {
+        s_devicesInstance = this;
+
         this->initDevice();
     }
 
@@ -15,10 +19,11 @@ namespace Creepy{
         m_logicalDevice.destroyCommandPool(GraphicCommandPool);
         
         m_logicalDevice.destroy();
+        m_logicalDevice = nullptr;
     }
 
 
-    VulkanSwapChainSupportInfo VulkanDevice::QuerySwapChainSupport(vk::SurfaceKHR surface, vk::PhysicalDevice physicalDev) noexcept {
+    VulkanSwapChainSupportInfo VulkanDevice::QuerySwapChainSupport(const vk::SurfaceKHR surface, const vk::PhysicalDevice physicalDev) noexcept {
         VulkanSwapChainSupportInfo supportInfo;
         supportInfo.Capabilities = physicalDev.getSurfaceCapabilitiesKHR(surface);
         supportInfo.Formats = physicalDev.getSurfaceFormatsKHR(surface);
@@ -26,7 +31,7 @@ namespace Creepy{
         return supportInfo;
     }
 
-    VulkanSwapChainSupportInfo VulkanDevice::QuerySwapChainSupport(vk::SurfaceKHR surface) noexcept {
+    VulkanSwapChainSupportInfo VulkanDevice::QuerySwapChainSupport(const vk::SurfaceKHR surface) noexcept {
         return QuerySwapChainSupport(surface, m_physicalDevice);
     }
 
@@ -56,7 +61,7 @@ namespace Creepy{
         return false;
     }
 
-    void VulkanDevice::ReQuerySwapChainSupport(vk::SurfaceKHR surface) noexcept {
+    void VulkanDevice::ReQuerySwapChainSupport(const vk::SurfaceKHR surface) noexcept {
         m_swapChainInfo = this->QuerySwapChainSupport(surface);
     }
 
@@ -73,7 +78,7 @@ namespace Creepy{
         this->createCommandPool();
     }
 
-    bool VulkanDevice::selectQueueFamily(VulkanPhysicalDeviceRequirements& requirements, vk::PhysicalDevice physicalDev) noexcept
+    bool VulkanDevice::selectQueueFamily(VulkanPhysicalDeviceRequirements& requirements, const vk::PhysicalDevice physicalDev) noexcept
     {
         std::clog << "Select Queue\n";
         auto&& physicDevPro = physicalDev.getProperties();
@@ -274,4 +279,26 @@ namespace Creepy{
 
         VULKAN_CHECK_ERROR(GraphicCommandPool = m_logicalDevice.createCommandPool(commandPoolInfo));
     }
+
+    vk::PhysicalDevice VulkanDevice::GetPhysicalDevice() noexcept {
+        return s_devicesInstance->GetPhysicalDeviceHandle();
+    }
+
+    vk::Device VulkanDevice::GetLogicalDevice() noexcept {
+        return s_devicesInstance->GetLogicalDeviceHandle();
+    }
+
+    int VulkanDevice::FindMemoryIndex(uint32_t filterType, vk::MemoryPropertyFlags memoryFlags) noexcept {
+        
+        auto&& property = GetPhysicalDevice().getMemoryProperties();
+        
+        for(uint32_t i{}; i < property.memoryTypeCount; ++i){
+            if(filterType & (1 << i) && (property.memoryTypes[i].propertyFlags & memoryFlags) == memoryFlags){
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    
 }

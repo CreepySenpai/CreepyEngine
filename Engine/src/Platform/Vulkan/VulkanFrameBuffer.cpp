@@ -18,8 +18,9 @@ namespace Creepy {
         VULKAN_CHECK_ERROR(m_handle = frameBufferSpec.LogicalDev.createFramebuffer(frameInfo));
     }
 
-    void VulkanFrameBuffer::Destroy(vk::Device logicalDev) noexcept {
+    void VulkanFrameBuffer::Destroy(const vk::Device logicalDev) noexcept {
         logicalDev.destroyFramebuffer(m_handle);
+        m_handle = nullptr;
     }
 
     void VulkanFrameBuffer::BeginFrame() noexcept {

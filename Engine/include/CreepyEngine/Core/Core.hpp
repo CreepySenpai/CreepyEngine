@@ -52,6 +52,11 @@ namespace Creepy {
     template <typename T>
     using Scope = std::unique_ptr<T>;
 
+
+
+    inline constexpr bool UseOpenGLAPI = false;
+
+    inline constexpr bool UseVulkanAPI = true;
 }
 
 

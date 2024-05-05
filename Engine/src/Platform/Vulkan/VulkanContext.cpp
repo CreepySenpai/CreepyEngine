@@ -7,6 +7,8 @@
 #include <Platform/Vulkan/VulkanRenderPass.hpp>
 #include <Platform/Vulkan/VulkanImage.hpp>
 #include <Platform/Vulkan/VulkanShader.hpp>
+#include <Platform/Vulkan/VulkanPipeline.hpp>
+#include <Platform/Vulkan/VulkanDescriptor.hpp>
 #include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
 #include <CreepyEngine/Utils/VulkanUtils.hpp>
 #include <GLFW/glfw3.h>
@@ -50,9 +52,15 @@ namespace Creepy{
         std::clog << "Create Sync Obj\n";
         createSyncObject();
 
+        std::clog << "Create Descriptor\n";
+        createDescriptor();
+
         std::clog << "Create Shader\n";
         // TODO: Remove
         createShader();
+
+        std::clog << "Create Pipeline\n";
+        createPipeline();
     }
 
     void VulkanContext::Init() noexcept {
@@ -64,7 +72,7 @@ namespace Creepy{
     }
 
     void VulkanContext::Update(TimeStep timeStep) noexcept {
-        std::clog << "W: " << m_cacheFrameBufferWidth << ", H: " << m_cacheFrameBufferHeight << '\n';
+        // std::clog << "W: " << m_cacheFrameBufferWidth << ", H: " << m_cacheFrameBufferHeight << '\n';
         // if(m_cacheFrameBufferWidth != 0 && m_cacheFrameBufferHeight != 0){
             
         // }
@@ -155,7 +163,7 @@ namespace Creepy{
         swapChainSpec.GraphicFamilyIndex = m_devices->GetGraphicsFamilyIndex();
         swapChainSpec.PresentFamilyIndex = m_devices->GetPresentFamilyIndex();
         swapChainSpec.Surface = m_surface;
-        swapChainSpec.LogicalDev = m_devices->GetLogicalDevice();
+        swapChainSpec.LogicalDev = m_devices->GetLogicalDeviceHandle();
         m_swapChains = std::make_shared<VulkanSwapChain>(swapChainSpec);
     }
 
@@ -166,7 +174,7 @@ namespace Creepy{
         renderPassSpec.ClearColor = glm::vec4{0.0f, 0.0f, 0.2f, 0.1f};
         renderPassSpec.Depth = 1.0f;
         renderPassSpec.Stencil = 0;
-        renderPassSpec.LogicalDev = m_devices->GetLogicalDevice();
+        renderPassSpec.LogicalDev = m_devices->GetLogicalDeviceHandle();
 
         m_mainRenderPass = std::make_shared<VulkanRenderPass>(renderPassSpec);
     }
@@ -174,7 +182,7 @@ namespace Creepy{
     void VulkanContext::createFrameBuffer() noexcept {
         auto&& frameBuffers = m_swapChains->GetFrameBuffers();
         for(auto&& frame : frameBuffers) {
-            frame.Destroy(m_devices->GetLogicalDevice());
+            frame.Destroy(m_devices->GetLogicalDeviceHandle());
         }
 
         frameBuffers.clear();
@@ -187,7 +195,7 @@ namespace Creepy{
             frameBufferSpec.Width = FrameBufferWidth;
             frameBufferSpec.Height = FrameBufferHeight;
             frameBufferSpec.RenderPassHandle = m_mainRenderPass->GetHandle();
-            frameBufferSpec.LogicalDev = m_devices->GetLogicalDevice();
+            frameBufferSpec.LogicalDev = m_devices->GetLogicalDeviceHandle();
 
             frameBuffers.emplace_back(frameBufferSpec);
         }
@@ -198,13 +206,13 @@ namespace Creepy{
     void VulkanContext::createCommandBuffer() noexcept {
 
         for(auto&& command : m_graphicCommandBuffers){
-            command.Free(m_devices->GetLogicalDevice(), m_devices->GraphicCommandPool);
+            command.Free(m_devices->GetLogicalDeviceHandle(), m_devices->GraphicCommandPool);
         }
 
         m_graphicCommandBuffers.clear();
 
         for(auto&& image : m_swapChains->GetImages()){
-            m_graphicCommandBuffers.emplace_back(m_devices->GetLogicalDevice(), m_devices->GraphicCommandPool, vk::CommandBufferLevel::ePrimary);
+            m_graphicCommandBuffers.emplace_back(m_devices->GetLogicalDeviceHandle(), m_devices->GraphicCommandPool, vk::CommandBufferLevel::ePrimary);
         }
 
         std::clog << "Total Command Buff: " << m_graphicCommandBuffers.size() << '\n';
@@ -219,9 +227,9 @@ namespace Creepy{
         for(uint32_t i{}; i < m_swapChains->GetMaxFramesInFlight(); ++i){
             vk::SemaphoreCreateInfo semaphoreInfo{};
             semaphoreInfo.flags = vk::SemaphoreCreateFlags{};
-            m_imagesAvailable.emplace_back(m_devices->GetLogicalDevice().createSemaphore(semaphoreInfo));
-            m_queuesComplete.emplace_back(m_devices->GetLogicalDevice().createSemaphore(semaphoreInfo));
-            m_inFlights.emplace_back(m_devices->GetLogicalDevice(), true);
+            m_imagesAvailable.emplace_back(m_devices->GetLogicalDeviceHandle().createSemaphore(semaphoreInfo));
+            m_queuesComplete.emplace_back(m_devices->GetLogicalDeviceHandle().createSemaphore(semaphoreInfo));
+            m_inFlights.emplace_back(m_devices->GetLogicalDeviceHandle(), true);
         }
 
         std::clog << "Total ImgSem: " << m_imagesAvailable.size() << '\n';
@@ -241,7 +249,7 @@ namespace Creepy{
         FrameBufferWidth = m_cacheFrameBufferWidth;
         FrameBufferHeight = m_cacheFrameBufferHeight;
 
-        m_devices->GetLogicalDevice().waitIdle();
+        m_devices->GetLogicalDeviceHandle().waitIdle();
 
         m_devices->ReQuerySwapChainSupport(m_surface);
         VulkanSwapChainSpec swapChainSpec{};
@@ -250,13 +258,13 @@ namespace Creepy{
         swapChainSpec.GraphicFamilyIndex = m_devices->GetGraphicsFamilyIndex();
         swapChainSpec.PresentFamilyIndex = m_devices->GetPresentFamilyIndex();
         swapChainSpec.Surface = m_surface;
-        swapChainSpec.LogicalDev = m_devices->GetLogicalDevice();
+        swapChainSpec.LogicalDev = m_devices->GetLogicalDeviceHandle();
         m_swapChains->Recreate(swapChainSpec);
         m_mainRenderPass->GetRenderArea().z = FrameBufferWidth;
         m_mainRenderPass->GetRenderArea().w = FrameBufferHeight;
 
         for(auto&& command : m_graphicCommandBuffers){
-            command.Free(m_devices->GetLogicalDevice(), m_devices->GraphicCommandPool);
+            command.Free(m_devices->GetLogicalDeviceHandle(), m_devices->GraphicCommandPool);
         }
 
         m_graphicCommandBuffers.clear();
@@ -277,10 +285,20 @@ namespace Creepy{
     }
 
     void VulkanContext::ShutDown() noexcept {
-        auto&& logicalDev = m_devices->GetLogicalDevice();
+        auto&& logicalDev = m_devices->GetLogicalDeviceHandle();
         logicalDev.waitIdle();
 
         {
+            
+            std::clog << "Call Destroy Pipeline\n";
+            m_pipeLine->Destroy(logicalDev);
+            
+            std::clog << "Call Destroy Des\n";
+            m_descriptorSet->Destroy();
+            m_descriptorSetLayout->Destroy();
+            m_descriptorPool->Destroy();
+
+
             std::clog << "Call Destroy Shader\n";
             m_nahShader->Destroy();
         }
@@ -342,33 +360,16 @@ namespace Creepy{
         return m_devices;
     }
 
-    vk::Device VulkanContext::GetLogicalDevice() const noexcept {
-        return m_devices->GetLogicalDevice();
-    }
-
-    int VulkanContext::FindMemoryIndex(uint32_t filterType, vk::MemoryPropertyFlags memoryFlags) noexcept {
-        
-        auto&& property = m_devices->GetPhysicalDevice().getMemoryProperties();
-        
-        for(uint32_t i{}; i < property.memoryTypeCount; ++i){
-            if(filterType & (1 << i) && (property.memoryTypes[i].propertyFlags & memoryFlags) == memoryFlags){
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
     void VulkanContext::BeginFrame(TimeStep timeStep) noexcept {
         if(m_isRecreatingSwapChain){
-            m_devices->GetLogicalDevice().waitIdle();
+            m_devices->GetLogicalDeviceHandle().waitIdle();
         }
 
         if(FrameBufferWidth != m_cacheFrameBufferWidth || FrameBufferHeight != m_cacheFrameBufferHeight){
             recreateSwapChain();
         }
 
-        m_inFlights.at(m_currentFrame).Wait(m_devices->GetLogicalDevice(), std::numeric_limits<uint64_t>::max());
+        m_inFlights.at(m_currentFrame).Wait(m_devices->GetLogicalDeviceHandle(), std::numeric_limits<uint64_t>::max());
 
         try{
             m_currentImageIndex = m_swapChains->AcquireNextImageIndex(std::numeric_limits<uint64_t>::max(), m_imagesAvailable.at(m_currentFrame), nullptr);
@@ -404,9 +405,9 @@ namespace Creepy{
 
         commandBuffer.End();
 
-        m_inFlights.at(m_currentFrame).Wait(m_devices->GetLogicalDevice(), std::numeric_limits<uint64_t>::max());
+        m_inFlights.at(m_currentFrame).Wait(m_devices->GetLogicalDeviceHandle(), std::numeric_limits<uint64_t>::max());
 
-        m_inFlights.at(m_currentFrame).Reset(m_devices->GetLogicalDevice());
+        m_inFlights.at(m_currentFrame).Reset(m_devices->GetLogicalDeviceHandle());
 
         vk::SubmitInfo submitInfo{};
         submitInfo.commandBufferCount = 1;
@@ -465,7 +466,50 @@ namespace Creepy{
 
     
     // TODO: Remove
+    void VulkanContext::createDescriptor() noexcept {
+        m_descriptorPool = std::make_shared<VulkanDescriptorPool>();
+        
+        m_descriptorSetLayout = std::make_shared<VulkanDescriptorSetLayout>(std::initializer_list<VulkanDescriptorSetLayoutSpec>{
+            {0, 1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex}
+        });
+
+        const std::array layout{m_descriptorSetLayout->GetLayout(), m_descriptorSetLayout->GetLayout(), m_descriptorSetLayout->GetLayout()};
+        m_descriptorSet = std::make_shared<VulkanDescriptorSet>(layout);
+
+    }
+
     void VulkanContext::createShader() noexcept {
         m_nahShader = std::make_shared<VulkanShader>("./assets/shaders/cache/vulkan/RectVertexShader.vulkan.spv", "./assets/shaders/cache/vulkan/RectFragmentShader.vulkan.spv");
+    }
+
+    void VulkanContext::createPipeline() noexcept {
+        vk::Viewport viewPort;
+        viewPort.x = 0.0f;
+        viewPort.y = (float)FrameBufferHeight;
+        viewPort.width = (float)FrameBufferWidth;
+        viewPort.height = (float)FrameBufferHeight;
+        viewPort.minDepth = 0.0f;
+        viewPort.maxDepth = 1.0f;
+
+        vk::Rect2D scissor;
+        scissor.offset.x = scissor.offset.y = 0;
+        scissor.extent.width = FrameBufferWidth;
+        scissor.extent.height = FrameBufferHeight;
+        
+        std::vector<vk::VertexInputAttributeDescription> attributes;
+
+        VulkanPipelineSpec pipeSpec;
+        pipeSpec.Viewport = viewPort;
+        pipeSpec.Scissor = scissor;
+        pipeSpec.Attributes = attributes;
+        pipeSpec.ShaderStages = m_nahShader->GetShaderStages();
+        pipeSpec.IsWireFrame = false;
+        pipeSpec.RenderPass = m_mainRenderPass->GetHandle();
+
+        const std::array layouts{m_descriptorSetLayout->GetLayout(), m_descriptorSetLayout->GetLayout(), m_descriptorSetLayout->GetLayout()};
+
+        pipeSpec.DescriptorSetLayouts = layouts;
+        
+        m_pipeLine = std::make_shared<VulkanPipeline>(pipeSpec);
     }
 }

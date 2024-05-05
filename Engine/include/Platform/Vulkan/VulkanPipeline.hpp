@@ -12,9 +12,9 @@ namespace Creepy {
         public:
             VulkanPipeline(const VulkanPipelineSpec& pipelineSpec) noexcept;
 
-            void Destroy(vk::Device logicalDev) noexcept;
+            void Destroy(const vk::Device logicalDev) noexcept;
 
-            void Bind(vk::CommandBuffer commandBuffer, vk::PipelineBindPoint bindingPoint) noexcept;
+            void Bind(const vk::CommandBuffer commandBuffer, vk::PipelineBindPoint bindingPoint) noexcept;
 
         private:
             vk::PipelineViewportStateCreateInfo createViewportState(const vk::Viewport& viewport, const vk::Rect2D& scissor) noexcept;

@@ -7,7 +7,7 @@ layout(location = 3) in float a_textureIndex;
 layout(location = 4) in float a_tilingFactor;
 layout(location = 5) in int a_entityID;
 
-layout(std140, binding = 0) uniform Camera {
+layout(std140, set = 0, binding = 0) uniform Camera {
     mat4 ViewProjectionMatrix;
 } u_Camera;
 

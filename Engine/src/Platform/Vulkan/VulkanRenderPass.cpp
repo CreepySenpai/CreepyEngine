@@ -15,8 +15,9 @@ namespace Creepy{
         this->init(renderPassSpec.LogicalDev);
     }
 
-    void VulkanRenderPass::Destroy(vk::Device logicalDev) noexcept {
+    void VulkanRenderPass::Destroy(const vk::Device logicalDev) noexcept {
         logicalDev.destroyRenderPass(m_handle);
+        m_handle = nullptr;
     }
 
     void VulkanRenderPass::Begin(VulkanCommandBuffer& commandBuffer, vk::Framebuffer frameBuffer) noexcept {
@@ -26,7 +27,7 @@ namespace Creepy{
         beginInfo.framebuffer = frameBuffer;
         // beginInfo.renderArea.offset = {renderPass.RenderArea.x, renderPass.RenderArea.y};
         // beginInfo.renderArea.extent = {renderPass.RenderArea.z, renderPass.RenderArea.w};
-        std::clog << "Begin Render Pass: " << m_renderArea.x << " : " << m_renderArea.y << " : " << m_renderArea.z << " : " << m_renderArea.w << '\n';
+        // std::clog << "Begin Render Pass: " << m_renderArea.x << " : " << m_renderArea.y << " : " << m_renderArea.z << " : " << m_renderArea.w << '\n';
         beginInfo.renderArea.offset.x = m_renderArea.x;
         beginInfo.renderArea.offset.y = m_renderArea.y;
         beginInfo.renderArea.extent.width = m_renderArea.z;
@@ -53,7 +54,7 @@ namespace Creepy{
         commandBuffer.SetState(CommandBufferState::RECORDING);
     }
 
-    void VulkanRenderPass::init(vk::Device logicalDev) noexcept {
+    void VulkanRenderPass::init(const vk::Device logicalDev) noexcept {
         vk::SubpassDescription subPass{};
         subPass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
 
