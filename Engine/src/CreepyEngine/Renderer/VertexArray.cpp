@@ -5,24 +5,8 @@
 namespace Creepy {
 
     Ref<VertexArray> VertexArray::Create() noexcept {
-
-        switch (Renderer::GetRenderAPI())
-        {
-            case RendererAPI::API::NONE: {
-                ENGINE_LOG_ERROR("Not support none!");
-                return nullptr;
-            }
-            case RendererAPI::API::OPENGL: {
-                return std::make_shared<OpenGLVertexArray>();
-            }
-            case RendererAPI::API::VULKAN : {
-                ENGINE_LOG_ERROR("Not support vulkan!");
-                return nullptr;
-            }
-            case RendererAPI::API::DIRECTX : {
-                ENGINE_LOG_ERROR("Not support directx!");
-                return nullptr;
-            }
+        if constexpr(UseOpenGLAPI){
+            return std::make_shared<OpenGLVertexArray>();
         }
 
         ENGINE_LOG_ERROR("Error Wrong Render API!");

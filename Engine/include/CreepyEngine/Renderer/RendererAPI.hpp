@@ -38,10 +38,13 @@ namespace Creepy
             virtual void SetLineThickness(float thickness) noexcept = 0;
 
             [[nodiscard]] constexpr inline static API GetAPI() noexcept {
-                return s_api;
+                if constexpr(UseOpenGLAPI){
+                    return API::OPENGL;
+                }
+
+                if constexpr(UseVulkanAPI){
+                    return API::VULKAN;
+                }
             }
-            
-        private:
-            static API s_api;
     };
 }

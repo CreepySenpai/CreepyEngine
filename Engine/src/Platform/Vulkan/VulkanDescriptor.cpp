@@ -82,8 +82,6 @@ namespace Creepy {
 
     void VulkanDescriptorSet::Bind(const vk::CommandBuffer commandBuffer, uint32_t index, vk::PipelineBindPoint bindPoint, vk::PipelineLayout lay, uint32_t firstSet) noexcept {
         commandBuffer.bindDescriptorSets(bindPoint, lay, firstSet, m_descriptorSets, nullptr);
-
-        
     }
 
     void VulkanDescriptorSet::Write(const std::initializer_list<VulkanWriteDescriptorSetSpec> writeSpec) noexcept {

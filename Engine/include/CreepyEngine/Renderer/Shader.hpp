@@ -11,15 +11,12 @@ namespace Creepy
 {
     class Shader
     {
-
         public:
             virtual ~Shader() noexcept = default;
             virtual void Bind() const noexcept = 0;
             virtual void UnBind() const noexcept = 0;
             virtual const std::string& GetName() const noexcept = 0;
             virtual void SetName(const std::string& name) noexcept = 0;
-
-            [[nodiscard]] static Ref<Shader> Create(const std::string& name, const std::string& vertexShaderSources, const std::string& fragmentShaderSources) noexcept;
 
             [[nodiscard]] static Ref<Shader> Create(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept;
     }; 

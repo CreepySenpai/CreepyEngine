@@ -1,70 +1,27 @@
 #include <CreepyEngine/Renderer/Shader.hpp>
 #include <Platform/OpenGL/OpenGLShader.hpp>
+#include <Platform/Vulkan/VulkanShader.hpp>
 #include <CreepyEngine/Renderer/Renderer.hpp>
 
 namespace Creepy {
     
-    Ref<Shader> Shader::Create(const std::string& name, const std::string &vertexShaderSources, const std::string &fragmentShaderSources) noexcept
-    {
-        switch (Renderer::GetRenderAPI())
-        {
-            case RendererAPI::API::NONE:
-            {
-                ENGINE_LOG_ERROR("Not support");
-                return nullptr;
-            }
-            case RendererAPI::API::OPENGL:
-            {
-                return std::make_shared<OpenGLShader>(name, vertexShaderSources, fragmentShaderSources);
-            }
-            case RendererAPI::API::VULKAN:
-            {
-                ENGINE_LOG_ERROR("Not support");
-                return nullptr;
-            }
-            case RendererAPI::API::DIRECTX:
-            {
-                ENGINE_LOG_ERROR("Not support");
-                return nullptr;
-            }
-        }
-
-        std::unreachable();
-        ENGINE_LOG_ERROR("Unknow API");
-        return nullptr;
-    }
-    
     Ref<Shader> Shader::Create(const std::filesystem::path& vertexPath, const std::filesystem::path&  fragmentPath) noexcept {
+        
         if(!std::filesystem::exists(vertexPath) || !std::filesystem::exists(fragmentPath)){
             ENGINE_LOG_ERROR("Error Shader Path {}, {}", vertexPath.string(), fragmentPath.string());
             return nullptr;
         }
-        switch (Renderer::GetRenderAPI())
-        {
-            case RendererAPI::API::NONE:
-            {
-                ENGINE_LOG_ERROR("Not support");
-                return nullptr;
-            }
-            case RendererAPI::API::OPENGL:
-            {
-                return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
-            }
-            case RendererAPI::API::VULKAN:
-            {
-                ENGINE_LOG_ERROR("Not support");
-                return nullptr;
-            }
-            case RendererAPI::API::DIRECTX:
-            {
-                ENGINE_LOG_ERROR("Not support");
-                return nullptr;
-            }
-        }
 
-        std::unreachable();
-        ENGINE_LOG_ERROR("Unknow API");
-        return nullptr;
+        if constexpr(UseOpenGLAPI){
+            return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
+        }
+        else if constexpr(UseVulkanAPI){
+            return std::make_shared<VulkanShader>(vertexPath, fragmentPath);
+        }
+        else{
+            ENGINE_LOG_ERROR("Unknow API");
+            return nullptr;
+        } 
     }
 
     void ShaderLibrary::Add(Ref<Shader> &shader) noexcept {

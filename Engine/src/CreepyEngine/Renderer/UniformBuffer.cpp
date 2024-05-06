@@ -1,33 +1,25 @@
 #include <CreepyEngine/Renderer/UniformBuffer.hpp>
-#include <CreepyEngine/Renderer/Renderer.hpp>
 #include <Platform/OpenGL/OpenGLUniformBuffer.hpp>
+#include <Platform/Vulkan/VulkanUniformBuffer.hpp>
 
 namespace Creepy{
 
     Ref<UniformBuffer> UniformBuffer::Create(uint32_t size, uint32_t binding) noexcept {
-        switch (Renderer::GetRenderAPI())
-        {
-            case RendererAPI::API::NONE: {
-                ENGINE_LOG_ERROR("Dont Support!!!");
-                return nullptr;
-            }
-            case RendererAPI::API::OPENGL: {
-                return std::make_shared<OpenGLUniformBuffer>(size, binding);
-            }
-            case RendererAPI::API::VULKAN: {
-                ENGINE_LOG_ERROR("Dont Support!!!");
-                return nullptr;
-            }
-            case RendererAPI::API::DIRECTX: {
-                ENGINE_LOG_ERROR("Dont Support!!!");
-                return nullptr;
-            }
+
+        if constexpr(UseOpenGLAPI){
+            return std::make_shared<OpenGLUniformBuffer>(size, binding);
         }
 
-            std::unreachable();
-            ENGINE_LOG_ERROR("");
-            
+        else if constexpr(UseVulkanAPI){
+            return std::make_shared<VulkanUniformBuffer>(size);
+        }
+
+        else{
+            ENGINE_LOG_ERROR("Wrong API");
+        
             return nullptr;
+        }
+        
     }
 
 }

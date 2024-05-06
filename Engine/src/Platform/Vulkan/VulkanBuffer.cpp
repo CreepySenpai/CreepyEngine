@@ -30,7 +30,7 @@ namespace Creepy {
         this->Bind();
     }
 
-    void VulkanBuffer::Bind() noexcept
+    void VulkanBuffer::Bind() const noexcept
     {
         VULKAN_CHECK_ERROR(VulkanDevice::GetLogicalDevice().bindBufferMemory(m_handle, m_memory, 0));
     }
@@ -90,7 +90,7 @@ namespace Creepy {
         this->SetData(data, size);
     }
 
-    void VulkanVertexBuffer::Bind() noexcept {
+    void VulkanVertexBuffer::Bind() const noexcept {
         m_buffer.Bind();
     }
 
@@ -104,17 +104,14 @@ namespace Creepy {
 
     // Index Buffer
 
-    VulkanIndexBuffer::VulkanIndexBuffer(uint32_t count) noexcept
-        : m_buffer{{count * static_cast<uint32_t>(sizeof(uint32_t)), vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc, vk::SharingMode::eExclusive, vk::MemoryPropertyFlagBits::eDeviceLocal}}
+    VulkanIndexBuffer::VulkanIndexBuffer(const void* data, uint32_t count) noexcept
+        : m_buffer{{count * static_cast<uint32_t>(sizeof(uint32_t)), vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc, vk::SharingMode::eExclusive, vk::MemoryPropertyFlagBits::eDeviceLocal}},
+        m_count{count}
     {
-        
-    }
-
-    VulkanIndexBuffer::VulkanIndexBuffer(const void* data, uint32_t count) noexcept : VulkanIndexBuffer{count} {
         this->SetData(data, count);
     }
 
-    void VulkanIndexBuffer::Bind() noexcept {
+    void VulkanIndexBuffer::Bind() const noexcept {
         m_buffer.Bind();
     }
 
@@ -124,27 +121,6 @@ namespace Creepy {
 
     void VulkanIndexBuffer::SetData(const void* data, uint32_t count) noexcept {
         m_buffer.SetData(data, count * sizeof(uint32_t));
-    }
-
-
-    // Uniform Buffer
-
-    VulkanUniformBuffer::VulkanUniformBuffer(uint32_t size) noexcept
-        : m_buffer{{size, vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst, vk::SharingMode::eExclusive, vk::MemoryPropertyFlagBits::eDeviceLocal | vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent}}
-    {
-
-    }
-
-    void VulkanUniformBuffer::Bind() noexcept {
-        m_buffer.Bind();
-    }
-
-    void VulkanUniformBuffer::Destroy() noexcept {
-        m_buffer.Destroy();
-    }
-
-    void VulkanUniformBuffer::SetData(const void* data, uint32_t size) noexcept {
-        m_buffer.SetData(data, size);
     }
 
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <CreepyEngine/Renderer/Buffer.hpp>
 #include <vulkan/vulkan.hpp>
 
 
@@ -15,7 +16,7 @@ namespace Creepy {
 
             VulkanBuffer(const VulkanBufferSpec& bufferSpec) noexcept;
 
-            void Bind() noexcept;
+            void Bind() const noexcept;
 
             void Destroy() noexcept;
 
@@ -40,14 +41,21 @@ namespace Creepy {
             uint32_t m_bufferSize{};
             void* m_bufferData{nullptr};
     };
-    
 
-    class VulkanVertexBuffer {
+    class VulkanVertexBuffer : public VertexBuffer {
         public:
             VulkanVertexBuffer(uint32_t size) noexcept;
             VulkanVertexBuffer(const void* data, uint32_t size) noexcept;
 
-            void Bind() noexcept;
+            void Bind() const noexcept override;
+
+            void UnBind() const noexcept override {}
+            
+            const BufferLayout& GetLayout() const noexcept override {
+                return {};
+            }
+
+            void SetLayout(const BufferLayout& layout) noexcept {};
 
             void Destroy() noexcept;
 
@@ -62,15 +70,20 @@ namespace Creepy {
     };
 
 
-    class VulkanIndexBuffer {
+    class VulkanIndexBuffer : public IndexBuffer {
 
         public:
-            VulkanIndexBuffer(uint32_t count) noexcept;
             VulkanIndexBuffer(const void* data, uint32_t count) noexcept;
 
-            void Bind() noexcept;
+            void Bind() const noexcept override;
             
             void Destroy() noexcept;
+
+            void UnBind() const noexcept override {}
+
+            uint32_t GetCount() const noexcept override {
+                return m_count;
+            }
         
             void SetData(const void* data, uint32_t count) noexcept;
 
@@ -80,19 +93,6 @@ namespace Creepy {
 
         private:
             VulkanBuffer m_buffer;
+            uint32_t m_count{};
     };
-
-    class VulkanUniformBuffer{
-        public:
-            VulkanUniformBuffer(uint32_t size) noexcept;
-
-            void Bind() noexcept;
-            void Destroy() noexcept;
-
-            void SetData(const void* data, uint32_t size) noexcept;
-            
-        private:
-            VulkanBuffer m_buffer;
-    };
-
 }
