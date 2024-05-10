@@ -9,7 +9,11 @@
 
 namespace Creepy{
 
+    VulkanSwapChain* VulkanSwapChain::s_instance = nullptr;
+
     VulkanSwapChain::VulkanSwapChain(const VulkanSwapChainSpec& swapChainSpec) noexcept : m_maxFramesInFlight{2} {
+        s_instance = this;
+        
         std::clog << "Create Swapchain 1\n";
         createSwapChain(swapChainSpec);
     }
@@ -207,7 +211,6 @@ namespace Creepy{
         imgSpec.LogicalDev = logicalDev;
 
         m_depthBuffer = std::make_shared<VulkanImage>(imgSpec);
-
     }
 
     std::shared_ptr<VulkanImage> VulkanSwapChain::GetDepthBuffer() const noexcept {

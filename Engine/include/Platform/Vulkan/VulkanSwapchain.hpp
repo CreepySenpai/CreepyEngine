@@ -4,7 +4,6 @@
 #include <memory>
 #include <span>
 #include <vulkan/vulkan.hpp>
-#include "VulkanFrameBuffer.hpp"
 #include "VulkanTypes.hpp"
 
 namespace Creepy {
@@ -44,12 +43,16 @@ namespace Creepy {
                 return m_maxFramesInFlight;
             }
 
-            std::vector<VulkanFrameBuffer>& GetFrameBuffers() noexcept {
-                return m_frameBuffers;
-            }
-
             std::shared_ptr<VulkanImage> GetDepthBuffer() const noexcept;
         
+        public:
+            static constexpr uint32_t GetMaxFrames() noexcept {
+                return s_instance->GetMaxFramesInFlight();
+            }
+
+        private:
+            static VulkanSwapChain* s_instance;
+
         private:
             void createSwapChain(const VulkanSwapChainSpec& swapChainSpec) noexcept;
             void createHandle(const VulkanSwapChainSpec& swapChainSpec, vk::PresentModeKHR presentMode) noexcept;
@@ -60,7 +63,6 @@ namespace Creepy {
             vk::SwapchainKHR m_handle{nullptr};
             std::vector<vk::Image> m_images;
             std::vector<vk::ImageView> m_imageViews;
-            std::vector<VulkanFrameBuffer> m_frameBuffers;
             std::shared_ptr<VulkanImage> m_depthBuffer{nullptr};
     };
 

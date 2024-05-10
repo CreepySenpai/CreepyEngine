@@ -1,9 +1,9 @@
 #pragma once
 
-#define GLFW_DLL
 #include <memory>
-#include <GLFW/glfw3.h>
 #include <CreepyEngine/Core/Window.hpp>
+
+struct GLFWwindow;
 
 namespace Creepy {
 

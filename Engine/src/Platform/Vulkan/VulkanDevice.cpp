@@ -1,4 +1,5 @@
 #include <iostream>
+#include <print>
 #include <utility>
 #include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
 #include <Platform/Vulkan/VulkanDevice.hpp>
@@ -245,17 +246,28 @@ namespace Creepy{
         vk::PhysicalDeviceFeatures physicalDevFeatures{};
         physicalDevFeatures.samplerAnisotropy = vk::True;
             
-        constexpr std::array<const char*, 1> extensions{
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        constexpr std::array<const char*, 3> extensions{
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            "VK_KHR_dynamic_rendering",
+            VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
         };
 
+        // Enable Features
+
+        // vk::PhysicalDeviceVulkan12Features features12;
+        vk::PhysicalDeviceVulkan13Features features13;
+        features13.dynamicRendering = vk::True;
+        features13.synchronization2 = vk::True;
+        
         vk::DeviceCreateInfo deviceInfo{};
         deviceInfo.flags = vk::DeviceCreateFlags{};
         deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(deviceQueueInfos.size());
         deviceInfo.pQueueCreateInfos = deviceQueueInfos.data();
         deviceInfo.pEnabledFeatures = &physicalDevFeatures;
+        
         deviceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         deviceInfo.ppEnabledExtensionNames = extensions.data();
+        deviceInfo.pNext = &features13;
 
         std::clog << "Dev Size: " << deviceQueueInfos.size() << ", Ex C: " << extensions.size() << '\n';
             
@@ -264,11 +276,14 @@ namespace Creepy{
         std::clog << "Created Logical Dev\n";
 
         // Select Queue
+        // std::println("G: {}, P: {}, T: {}", m_graphicsFamilyIndex, m_presentFamilyIndex, m_transferFamilyIndex);
         m_graphicsQueue = m_logicalDevice.getQueue(m_graphicsFamilyIndex, 0);
 
         m_presentQueue = m_logicalDevice.getQueue(m_presentFamilyIndex, 0);
             
         m_transferQueue = m_logicalDevice.getQueue(m_transferFamilyIndex, 0);
+
+
     }
 
     void VulkanDevice::createCommandPool() noexcept

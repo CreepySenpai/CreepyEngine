@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 set(CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(VULKANINCLUDE "D:/Enviroments/vulkan/Include")
 set(VULKANLIB "D:/Enviroments/vulkan/Lib")
 
@@ -24,11 +24,13 @@ file(GLOB SCRIPTING ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Scripting/*.cpp)
 file(GLOB UTILS ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Utils/*.cpp)
 file(GLOB PROJECTCORE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Project/*.cpp)
 file(GLOB PHYSIC2DCORE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Physics/2D/*.cpp)
+file(GLOB VULKANBOOSTSTRAP ${CMAKE_SOURCE_DIR}/src/VulkanBootstrap/*.cpp)
+file(GLOB VULKANMEMORYALLOCATOR ${CMAKE_SOURCE_DIR}/src/VulkanMemoryAllocator/*.cpp)
 # file(GLOB PHYSIC3DCORE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Physics/3D/*.cpp)
 
 # add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${EVENTENGINE} ${RENDERERENGINE} ${PLATFORMWINDOWS} ${GLAD} ${IMGUI} ${DEBUG} ${OPENGL} ${VULKAN} ${SCENE} ${MATH} ${EXTENDED_YAMLCPP} ${CORAL} ${SCRIPTING} ${UTILS} ${PROJECTCORE} ${PHYSIC2DCORE} ${PHYSIC3DCORE})
 
-add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${EVENTENGINE} ${RENDERERENGINE} ${PLATFORMWINDOWS} ${GLAD} ${IMGUI} ${DEBUG} ${OPENGL} ${VULKAN} ${SCENE} ${MATH} ${EXTENDED_YAMLCPP} ${CORAL} ${SCRIPTING} ${UTILS} ${PROJECTCORE} ${PHYSIC2DCORE})
+add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${EVENTENGINE} ${RENDERERENGINE} ${PLATFORMWINDOWS} ${GLAD} ${IMGUI} ${DEBUG} ${OPENGL} ${VULKAN} ${SCENE} ${MATH} ${EXTENDED_YAMLCPP} ${CORAL} ${SCRIPTING} ${UTILS} ${PROJECTCORE} ${PHYSIC2DCORE} ${VULKANBOOSTSTRAP} ${VULKANMEMORYALLOCATOR})
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC 
@@ -41,7 +43,7 @@ target_link_directories(${PROJECT_NAME} PUBLIC
                     ${VULKANLIB}
                 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32 yaml-cpp.dll box2d assimp.dll vulkan-1)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32 yaml-cpp.dll box2d assimp.dll vulkan-1 stdc++exp)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
 

@@ -1,9 +1,11 @@
+#include <ranges>
 #include <CreepyEngine/Core/Application.hpp>
 #include <CreepyEngine/Core/TimeStep.hpp>
 #include <CreepyEngine/Events/ApplicationEvent.hpp>
 #include <CreepyEngine/Renderer/Renderer.hpp>
 #include <CreepyEngine/Scripting/ScriptEngine.hpp>
 #include <GLFW/glfw3.h>
+
 
 namespace Creepy {
 
@@ -99,15 +101,15 @@ namespace Creepy {
         
         // ENGINE_LOG_INFO("CALL EVENT {}", event.ToString());
 
-        // We iterator from top of stack
-        for(auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); it++) {
-            (*it)->OnEvent(event);
+        for(auto&& layer : m_layerStack | std::views::reverse){
+            layer->OnEvent(event);
 
             // If we set event was handle so we dont need pass event information to another layer, so if event is unique or only that func
             // handle, we need set == true, if not we set == false
             if(event.IsHandled()) {
                 break;
             }
+
         }
     }
 

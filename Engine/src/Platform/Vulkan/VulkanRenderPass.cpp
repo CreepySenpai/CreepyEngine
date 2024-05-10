@@ -22,11 +22,10 @@ namespace Creepy{
 
     void VulkanRenderPass::Begin(VulkanCommandBuffer& commandBuffer, vk::Framebuffer frameBuffer) noexcept {
 
-         vk::RenderPassBeginInfo beginInfo{};
+        vk::RenderPassBeginInfo beginInfo{};
         beginInfo.renderPass = m_handle;
         beginInfo.framebuffer = frameBuffer;
-        // beginInfo.renderArea.offset = {renderPass.RenderArea.x, renderPass.RenderArea.y};
-        // beginInfo.renderArea.extent = {renderPass.RenderArea.z, renderPass.RenderArea.w};
+        
         // std::clog << "Begin Render Pass: " << m_renderArea.x << " : " << m_renderArea.y << " : " << m_renderArea.z << " : " << m_renderArea.w << '\n';
         beginInfo.renderArea.offset.x = m_renderArea.x;
         beginInfo.renderArea.offset.y = m_renderArea.y;

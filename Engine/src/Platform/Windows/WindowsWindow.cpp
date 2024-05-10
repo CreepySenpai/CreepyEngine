@@ -7,6 +7,9 @@
 #include <CreepyEngine/Core/TimeStep.hpp>
 #include <Platform/Vulkan/VulkanContext.hpp>
 
+#define GLFW_DLL
+#include <GLFW/glfw3.h>
+
 
 namespace Creepy {
     

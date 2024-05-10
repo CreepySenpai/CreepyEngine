@@ -58,6 +58,14 @@ namespace Creepy {
                 return s_instance;
             }
 
+            static constexpr uint32_t GetCurrentFrame() noexcept {
+                return s_instance->m_currentFrame;
+            }
+
+            static constexpr uint32_t GetCurrentImageIndex() noexcept {
+                return s_instance->m_currentImageIndex;
+            }
+
         private:
             static VulkanContext* s_instance;
 
@@ -67,11 +75,13 @@ namespace Creepy {
             void initSurface() noexcept;
             void initDevice() noexcept;
             void initSwapChain() noexcept;
-            void initRenderPass() noexcept;
-            void createFrameBuffer() noexcept;
             void createCommandBuffer() noexcept;
             void createSyncObject() noexcept;
             void recreateSwapChain() noexcept;
+
+        private:
+            void transitionImage(vk::Image image, vk::ImageLayout currentLayout, vk::ImageLayout newLayout) noexcept;
+            // void transitionImageEnd(vk::Image image, vk::ImageLayout currentLayout, vk::ImageLayout newLayout) noexcept;
 
         private:
             // TODO: Remove

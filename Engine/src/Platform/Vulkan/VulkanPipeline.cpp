@@ -6,7 +6,6 @@
 namespace Creepy {
 
     VulkanPipeline::VulkanPipeline(const VulkanPipelineSpec& pipelineSpec) noexcept {
-
         // ViewPort State
         const auto&& viewPortState = createViewportState(pipelineSpec.Viewport, pipelineSpec.Scissor);
 
@@ -65,13 +64,32 @@ namespace Creepy {
         // Input Assembly State
         const auto&& inputAssemblyState = createInputAssemblyState();
 
+        // Push Constant
+        std::vector<vk::PushConstantRange> constantRanges;
+        constantRanges.reserve(pipelineSpec.PushConstantSpec.size());
+
+        for(auto&& constantSpec : pipelineSpec.PushConstantSpec) {
+            vk::PushConstantRange constantRange{};
+            constantRange.stageFlags = constantSpec.StageFlags;
+            constantRange.offset = constantSpec.Offset;
+            constantRange.size = constantSpec.Size;
+
+            constantRanges.emplace_back(constantRange);
+        }
+
         vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.flags = vk::PipelineLayoutCreateFlags{};
         pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(pipelineSpec.DescriptorSetLayouts.size());
         pipelineLayoutInfo.pSetLayouts = pipelineSpec.DescriptorSetLayouts.data();
+        pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(constantRanges.size());
+        pipelineLayoutInfo.pPushConstantRanges = constantRanges.data();
 
         VULKAN_CHECK_ERROR(m_layout = VulkanDevice::GetLogicalDevice().createPipelineLayout(pipelineLayoutInfo));
 
+        vk::PipelineRenderingCreateInfo pipelineRenderingInfo{};
+        pipelineRenderingInfo.colorAttachmentCount = 1;
+        pipelineRenderingInfo.pColorAttachmentFormats = &pipelineSpec.ColorAttachmentFormat;
+        pipelineRenderingInfo.depthAttachmentFormat = pipelineSpec.DepthAttachmentFormat;
 
         vk::GraphicsPipelineCreateInfo graphicPipelineInfo{};
         graphicPipelineInfo.flags = vk::PipelineCreateFlags{};
@@ -88,10 +106,11 @@ namespace Creepy {
         graphicPipelineInfo.pDynamicState = &dynamicState;
         graphicPipelineInfo.pTessellationState = nullptr;
         graphicPipelineInfo.layout = m_layout;
-        graphicPipelineInfo.renderPass = pipelineSpec.RenderPass;
+        graphicPipelineInfo.renderPass = nullptr;
         graphicPipelineInfo.subpass = 0;
         graphicPipelineInfo.basePipelineHandle = nullptr;
         graphicPipelineInfo.basePipelineIndex = -1;
+        graphicPipelineInfo.pNext = &pipelineRenderingInfo;
 
         
         VULKAN_CHECK_ERROR(m_handle = VulkanDevice::GetLogicalDevice().createGraphicsPipeline(nullptr, graphicPipelineInfo).value);

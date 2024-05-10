@@ -4,7 +4,7 @@
 #include <vulkan/vulkan.hpp>
 
 
-namespace Creepy{
+namespace Creepy {
 
     struct VulkanFrameBufferSpec;
 
@@ -25,6 +25,24 @@ namespace Creepy{
         private:
             vk::Framebuffer m_handle;
             // std::vector<vk::ImageView> m_imageViews;
+    };
+
+    struct VulkanFrame{
+        vk::Framebuffer FrameHandle;
+    };
+
+    class VulkanFrameBufferT{
+        public:
+            VulkanFrameBufferT(const VulkanFrameBufferSpec& frameBufferSpec) noexcept;
+
+            void Destroy() noexcept;
+
+            void BeginFrame() noexcept;
+
+            void EndFrame() noexcept;
+        private:
+            std::vector<VulkanFrame> m_frames;
+            
     };
    
 }

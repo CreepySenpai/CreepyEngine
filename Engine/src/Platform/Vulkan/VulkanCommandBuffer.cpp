@@ -10,7 +10,6 @@ namespace Creepy {
         allocInfo.commandPool = commandPool;
         allocInfo.level = level;
         allocInfo.commandBufferCount = 1;
-        
         m_state = CommandBufferState::NOT_ALLOCATED;
 
         // Only Alloc 1 Command Buffer

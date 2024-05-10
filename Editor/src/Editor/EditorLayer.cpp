@@ -14,34 +14,32 @@ namespace Creepy {
         if(s_instance){
             APP_LOG_ERROR("Only once Editor Instance exit");
         }
+
         s_instance = this;
-        
-        // TODO: 
-        // this->openProject("./Sandbox.cxproj");
 
-        FrameBufferSpecification spec{.Width = 700, .Height = 700, .Attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::GREEN_INT, FrameBufferTextureFormat::DEPTH}};
-        m_frameBuffer = FrameBuffer::Create(spec);
+        // FrameBufferSpecification spec{.Width = 700, .Height = 700, .Attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::GREEN_INT, FrameBufferTextureFormat::DEPTH}};
+        // m_frameBuffer = FrameBuffer::Create(spec);
 
-        // Point to same scene
-        m_editorScene = std::make_shared<Scene>();
-        m_activeScene = m_editorScene;
+        // // Point to same scene
+        // m_editorScene = std::make_shared<Scene>();
+        // m_activeScene = m_editorScene;
 
-        auto&& assetDir = Project::GetActive()->GetAssetDirectory();
+        // auto&& assetDir = Project::GetActive()->GetAssetDirectory();
 
-        m_playIcon = Texture2D::Create(assetDir / "icons/play_icon.png");
+        // m_playIcon = Texture2D::Create(assetDir / "icons/play_icon.png");
 
-        m_stopIcon = Texture2D::Create(assetDir / "icons/stop_icon.png");
+        // m_stopIcon = Texture2D::Create(assetDir / "icons/stop_icon.png");
 
-        m_simulationIcon = Texture2D::Create(assetDir / "icons/simulation_icon.png");
+        // m_simulationIcon = Texture2D::Create(assetDir / "icons/simulation_icon.png");
 
-        m_pauseIcon = Texture2D::Create(assetDir / "icons/pause_icon.png");
+        // m_pauseIcon = Texture2D::Create(assetDir / "icons/pause_icon.png");
 
-        m_steppingIcon = Texture2D::Create(assetDir / "icons/step-icon.png");
+        // m_steppingIcon = Texture2D::Create(assetDir / "icons/step-icon.png");
 
-        m_editorCamera = EditorCamera{45.0f, 1.0f, 0.01f, 1000.0f};
+        // m_editorCamera = EditorCamera{45.0f, 1.0f, 0.01f, 1000.0f};
         
 
-        m_hierarchyPanel.SetScene(m_activeScene);
+        // m_hierarchyPanel.SetScene(m_activeScene);
     }
 
     EditorLayer::~EditorLayer() noexcept {
@@ -58,88 +56,87 @@ namespace Creepy {
 
     void EditorLayer::OnUpdate(TimeStep timeStep) noexcept {
 
-        m_activeScene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
+        // m_activeScene->OnViewPortResize(m_viewPortSize.x, m_viewPortSize.y);
         
         // Resize
-        if(FrameBufferSpecification spec = m_frameBuffer->GetSpecification();
-            m_viewPortSize.x > 0.0f && m_viewPortSize.y > 0.0f && (spec.Width != static_cast<uint32_t>(m_viewPortSize.x) 
-            || spec.Height != static_cast<uint32_t>(m_viewPortSize.y))
-        ) {
+        // if(FrameBufferSpecification spec = m_frameBuffer->GetSpecification();
+        //     m_viewPortSize.x > 0.0f && m_viewPortSize.y > 0.0f && (spec.Width != static_cast<uint32_t>(m_viewPortSize.x) 
+        //     || spec.Height != static_cast<uint32_t>(m_viewPortSize.y))
+        // ) {
 
-            m_frameBuffer->Resize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+        //     m_frameBuffer->Resize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
 
-            m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
+        //     m_editorCamera.SetViewPortSize(static_cast<uint32_t>(m_viewPortSize.x), static_cast<uint32_t>(m_viewPortSize.y));
             
-        }
+        // }
 
-        m_frameBuffer->Bind();
+        // m_frameBuffer->Bind();
 
-        RenderCommand::SetClearColor({182.0f / 255.0f, 200.0f / 255.0f, 231.0f / 255.0f, 1.0f});
-        RenderCommand::Clear();
-        Renderer::ResetStatistics();
+        // RenderCommand::SetClearColor({182.0f / 255.0f, 200.0f / 255.0f, 231.0f / 255.0f, 1.0f});
+        // RenderCommand::Clear();
+        // Renderer::ResetStatistics();
         
-        // Clear Color Attachment
-        m_frameBuffer->ClearColorBufferAttachment(1, -1);
+        // // Clear Color Attachment
+        // m_frameBuffer->ClearColorBufferAttachment(1, -1);
 
-        switch (m_sceneState)
-        {
-            case SceneState::EDIT:
-                {
-                    if(m_viewPortHovered){
-                        m_editorCamera.OnUpdate(timeStep);
-                    }
-                    m_activeScene->OnUpdateEditor(timeStep, m_editorCamera);
-                    break;
-                }
-            case SceneState::SIMULATION:
-                {
-                    if(m_viewPortHovered){
-                        m_editorCamera.OnUpdate(timeStep);
-                    }
-                    m_activeScene->OnUpdateSimulation(timeStep, m_editorCamera);
-                    break;
-                }
-            case SceneState::PLAY:
-                m_activeScene->OnUpdateRunTime(timeStep);
-                break;
-        }
+        // switch (m_sceneState)
+        // {
+        //     case SceneState::EDIT:
+        //         {
+        //             if(m_viewPortHovered){
+        //                 m_editorCamera.OnUpdate(timeStep);
+        //             }
+        //             m_activeScene->OnUpdateEditor(timeStep, m_editorCamera);
+        //             break;
+        //         }
+        //     case SceneState::SIMULATION:
+        //         {
+        //             if(m_viewPortHovered){
+        //                 m_editorCamera.OnUpdate(timeStep);
+        //             }
+        //             m_activeScene->OnUpdateSimulation(timeStep, m_editorCamera);
+        //             break;
+        //         }
+        //     case SceneState::PLAY:
+        //         m_activeScene->OnUpdateRunTime(timeStep);
+        //         break;
+        // }
 
 
-        {   // Mouse Picking
-            auto [mX, mY] = ImGui::GetMousePos();
+        // {   // Mouse Picking
+        //     auto [mX, mY] = ImGui::GetMousePos();
 
-            mX -= m_viewPortBounds[0].x;
-            mY -= m_viewPortBounds[0].y;
+        //     mX -= m_viewPortBounds[0].x;
+        //     mY -= m_viewPortBounds[0].y;
 
-            const glm::vec2 viewPortSize{m_viewPortBounds[1] - m_viewPortBounds[0]};
+        //     const glm::vec2 viewPortSize{m_viewPortBounds[1] - m_viewPortBounds[0]};
 
-            // Flip Coord From Top Left -> Bottom Left To Match Texture Coord
-            mY = viewPortSize.y - mY;
-            int mouseXInViewPort = static_cast<int>(mX);
-            int mouseYInViewPort = static_cast<int>(mY);
+        //     // Flip Coord From Top Left -> Bottom Left To Match Texture Coord
+        //     mY = viewPortSize.y - mY;
+        //     int mouseXInViewPort = static_cast<int>(mX);
+        //     int mouseYInViewPort = static_cast<int>(mY);
             
-            if(mouseXInViewPort > 0 && mouseYInViewPort > 0 && mouseXInViewPort < viewPortSize.x && mouseYInViewPort < viewPortSize.y){
-                int entityID = m_frameBuffer->ReadPixel(1, mouseXInViewPort, mouseYInViewPort);
-                if(entityID == -1){
-                    m_hoverEntity = {};
-                } else {
-                    m_hoverEntity = {static_cast<entt::entity>(entityID), m_activeScene.get()};
-                }
-            }
-        }
+        //     if(mouseXInViewPort > 0 && mouseYInViewPort > 0 && mouseXInViewPort < viewPortSize.x && mouseYInViewPort < viewPortSize.y){
+        //         int entityID = m_frameBuffer->ReadPixel(1, mouseXInViewPort, mouseYInViewPort);
+        //         if(entityID == -1){
+        //             m_hoverEntity = {};
+        //         } else {
+        //             m_hoverEntity = {static_cast<entt::entity>(entityID), m_activeScene.get()};
+        //         }
+        //     }
+        // }
 
-        {
+        // {
             
-            this->onOverlayRender();
-        }
+        //     this->onOverlayRender();
+        // }
         
-        m_frameBuffer->UnBind();
+        // m_frameBuffer->UnBind();
     }
 
     void EditorLayer::OnImGuiRender() noexcept {
         static bool opt_fullscreen = true;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
         
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
         if (opt_fullscreen)
@@ -280,56 +277,56 @@ namespace Creepy {
         }
         
 
-        auto id = (uint64_t)m_frameBuffer->GetColorAttachmentID();
-        ImGui::Image(reinterpret_cast<ImTextureID>(id), ImVec2{m_viewPortSize.x, m_viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
+        // auto id = (uint64_t)m_frameBuffer->GetColorAttachmentID();
+        // ImGui::Image(reinterpret_cast<ImTextureID>(id), ImVec2{m_viewPortSize.x, m_viewPortSize.y}, ImVec2{0.0f, 1.0f}, ImVec2{1.0f, 0.0f});
         
-        if(ImGui::BeginDragDropTarget()){
+        // if(ImGui::BeginDragDropTarget()){
             
-            // Payload maybe null
-            if(auto payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
-                auto path = reinterpret_cast<const char*>(payload->Data);
+        //     // Payload maybe null
+        //     if(auto payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
+        //         auto path = reinterpret_cast<const char*>(payload->Data);
 
-                this->openScene(Project::GetActive()->GetAssetDirectory() / path);
-            }
+        //         this->openScene(Project::GetActive()->GetAssetDirectory() / path);
+        //     }
 
-            ImGui::EndDragDropTarget();
-        }
-        // Gizmos
+        //     ImGui::EndDragDropTarget();
+        // }
+        // // Gizmos
 
-        this->drawGizmos();
+        // this->drawGizmos();
 
-        ImGui::End();
-        ImGui::PopStyleVar();
+        // ImGui::End();
+        // ImGui::PopStyleVar();
 
-        m_hierarchyPanel.OnImGuiRender();
+        // m_hierarchyPanel.OnImGuiRender();
 
-        m_contentBrowserPanel.OnImGuiRender();
+        // m_contentBrowserPanel.OnImGuiRender();
 
-        ImGui::Begin("Statics");
+        // ImGui::Begin("Statics");
 
-        auto stats = Creepy::Renderer::GetStatistics();
+        // auto stats = Creepy::Renderer::GetStatistics();
 
-        std::string hoveredName ="None";
-        if(m_hoverEntity.IsExits()){
-            hoveredName.assign(m_hoverEntity.GetComponent<TagComponent>().Tag);
-        }
-        ImGui::Text("Hover Entity %s", hoveredName.c_str());
-        ImGui::Text("Render2D Stats");
-        ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-        ImGui::Text("Rect Count: %d", stats.RectCount);
-        ImGui::Text("Total Vertex: %d", stats.GetTotalVertexCount());
-        ImGui::Text("Total Index: %d", stats.GetTotalIndexCount());
-        ImGui::Text("Camera Position: %f , %f , %f", m_editorCamera.GetPosition().x, m_editorCamera.GetPosition().y, m_editorCamera.GetPosition().z);
-        ImGui::Checkbox("Show Physic Collider", &m_showPhysicCollider);
-        ImGui::End();
+        // std::string hoveredName ="None";
+        // if(m_hoverEntity.IsExits()){
+        //     hoveredName.assign(m_hoverEntity.GetComponent<TagComponent>().Tag);
+        // }
+        // ImGui::Text("Hover Entity %s", hoveredName.c_str());
+        // ImGui::Text("Render2D Stats");
+        // ImGui::Text("Draw Calls: %d", stats.DrawCalls);
+        // ImGui::Text("Rect Count: %d", stats.RectCount);
+        // ImGui::Text("Total Vertex: %d", stats.GetTotalVertexCount());
+        // ImGui::Text("Total Index: %d", stats.GetTotalIndexCount());
+        // ImGui::Text("Camera Position: %f , %f , %f", m_editorCamera.GetPosition().x, m_editorCamera.GetPosition().y, m_editorCamera.GetPosition().z);
+        // ImGui::Checkbox("Show Physic Collider", &m_showPhysicCollider);
+        // ImGui::End();
 
-        {
-            this->drawThemePanel();
-        }
+        // {
+        //     this->drawThemePanel();
+        // }
 
-        {
-             this->uiDrawToolBar();
-        }
+        // {
+        //      this->uiDrawToolBar();
+        // }
 
         ImGui::End();
     }

@@ -4,7 +4,6 @@
 #include <Platform/Vulkan/VulkanContext.hpp>
 #include <Platform/Vulkan/VulkanDevice.hpp>
 #include <Platform/Vulkan/VulkanSwapChain.hpp>
-#include <Platform/Vulkan/VulkanRenderPass.hpp>
 #include <Platform/Vulkan/VulkanImage.hpp>
 #include <Platform/Vulkan/VulkanShader.hpp>
 #include <Platform/Vulkan/VulkanPipeline.hpp>
@@ -40,12 +39,6 @@ namespace Creepy{
         // Create SwapChain
         initSwapChain();
 
-        std::clog << "Create Main RenderPass\n";
-        initRenderPass();
-
-        std::clog << "Create Frame Buffer\n";
-        createFrameBuffer();
-
         std::clog << "Create Command Buffer\n";
         createCommandBuffer();
 
@@ -72,12 +65,10 @@ namespace Creepy{
     }
 
     void VulkanContext::Update(TimeStep timeStep) noexcept {
-        // std::clog << "W: " << m_cacheFrameBufferWidth << ", H: " << m_cacheFrameBufferHeight << '\n';
-        // if(m_cacheFrameBufferWidth != 0 && m_cacheFrameBufferHeight != 0){
-            
-        // }
 
         BeginFrame(timeStep);
+
+
 
         EndFrame();
         
@@ -85,6 +76,7 @@ namespace Creepy{
 
     void VulkanContext::initInstance() noexcept {
         uint32_t version{0};
+        
         auto _ = vk::enumerateInstanceVersion(&version);
 
         vk::ApplicationInfo appInfo("Test", version, "Creepy Engine Test", version, version);
@@ -167,42 +159,6 @@ namespace Creepy{
         m_swapChains = std::make_shared<VulkanSwapChain>(swapChainSpec);
     }
 
-    void VulkanContext::initRenderPass() noexcept {
-        VulkanRenderPassSpec renderPassSpec;
-        
-        renderPassSpec.RenderArea = glm::vec4{0.0f, 0.0f, FrameBufferWidth, FrameBufferHeight};
-        renderPassSpec.ClearColor = glm::vec4{0.0f, 0.0f, 0.2f, 0.1f};
-        renderPassSpec.Depth = 1.0f;
-        renderPassSpec.Stencil = 0;
-        renderPassSpec.LogicalDev = m_devices->GetLogicalDeviceHandle();
-
-        m_mainRenderPass = std::make_shared<VulkanRenderPass>(renderPassSpec);
-    }
-
-    void VulkanContext::createFrameBuffer() noexcept {
-        auto&& frameBuffers = m_swapChains->GetFrameBuffers();
-        for(auto&& frame : frameBuffers) {
-            frame.Destroy(m_devices->GetLogicalDeviceHandle());
-        }
-
-        frameBuffers.clear();
-        
-        for(uint32_t i{}; i < m_swapChains->GetMaxFramesInFlight(); ++i){
-            VulkanFrameBufferSpec frameBufferSpec;
-            
-            frameBufferSpec.Attachments = {m_swapChains->GetImageViews()[i], m_swapChains->GetDepthBuffer()->GetImageView()};
-
-            frameBufferSpec.Width = FrameBufferWidth;
-            frameBufferSpec.Height = FrameBufferHeight;
-            frameBufferSpec.RenderPassHandle = m_mainRenderPass->GetHandle();
-            frameBufferSpec.LogicalDev = m_devices->GetLogicalDeviceHandle();
-
-            frameBuffers.emplace_back(frameBufferSpec);
-        }
-
-        std::clog << "Total Frame Buffer: " << frameBuffers.size() << '\n';
-    }
-
     void VulkanContext::createCommandBuffer() noexcept {
 
         for(auto&& command : m_graphicCommandBuffers){
@@ -260,8 +216,6 @@ namespace Creepy{
         swapChainSpec.Surface = m_surface;
         swapChainSpec.LogicalDev = m_devices->GetLogicalDeviceHandle();
         m_swapChains->Recreate(swapChainSpec);
-        m_mainRenderPass->GetRenderArea().z = FrameBufferWidth;
-        m_mainRenderPass->GetRenderArea().w = FrameBufferHeight;
 
         for(auto&& command : m_graphicCommandBuffers){
             command.Free(m_devices->GetLogicalDeviceHandle(), m_devices->GraphicCommandPool);
@@ -269,13 +223,6 @@ namespace Creepy{
 
         m_graphicCommandBuffers.clear();
         
-        m_mainRenderPass->GetRenderArea().x = 0.0f;
-        m_mainRenderPass->GetRenderArea().y = 0.0f;
-        m_mainRenderPass->GetRenderArea().z = FrameBufferWidth;
-        m_mainRenderPass->GetRenderArea().w = FrameBufferHeight;
-
-        
-        createFrameBuffer();
         createCommandBuffer();
         // createSyncObject();
 
@@ -322,16 +269,6 @@ namespace Creepy{
         for(auto&& command : m_graphicCommandBuffers){
             command.Free(logicalDev, m_devices->GraphicCommandPool);
         }
-
-        std::clog << "Call Destroy Frame Buffer\n";
-
-        for(auto&& frame : m_swapChains->GetFrameBuffers()) {
-            frame.Destroy(logicalDev);
-        }
-
-        std::clog << "Call Destroy RenderPass\n";
-
-        m_mainRenderPass->Destroy(logicalDev);
 
         std::clog << "Call Destroy Swapchain\n";
 
@@ -392,35 +329,108 @@ namespace Creepy{
         commandBuffer.GetHandle().setViewport(0, viewPort);
         commandBuffer.GetHandle().setScissor(0, scissor);
 
-        m_mainRenderPass->GetRenderArea().z = FrameBufferWidth;
-        m_mainRenderPass->GetRenderArea().w = FrameBufferHeight;
+        constexpr const vk::ClearValue clearColor{vk::ClearColorValue{1.0f, 0.5f, 0.25f, 1.0f}};
 
-        m_mainRenderPass->Begin(m_graphicCommandBuffers.at(m_currentImageIndex), m_swapChains->GetFrameBuffers().at(m_currentImageIndex).GetHandle());
+        vk::RenderingAttachmentInfo colorAttackInfo{};
+        colorAttackInfo.imageView = m_swapChains->GetImageViews()[m_currentImageIndex];
+        colorAttackInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+        colorAttackInfo.loadOp = vk::AttachmentLoadOp::eClear;
+        colorAttackInfo.storeOp = vk::AttachmentStoreOp::eStore;
+        colorAttackInfo.clearValue = clearColor;
+
+        constexpr const vk::ClearValue clearDepthStencil{vk::ClearDepthStencilValue{1.0f, 0u}};
+
+        vk::RenderingAttachmentInfo depthAttachInfo{};
+        depthAttachInfo.imageView = m_swapChains->GetDepthBuffer()->GetImageView();
+        depthAttachInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+        depthAttachInfo.loadOp = vk::AttachmentLoadOp::eClear;
+        depthAttachInfo.storeOp = vk::AttachmentStoreOp::eStore;
+        depthAttachInfo.clearValue = clearDepthStencil;
+        depthAttachInfo.loadOp = vk::AttachmentLoadOp::eClear;
+        depthAttachInfo.storeOp = vk::AttachmentStoreOp::eStore;
+
+        vk::RenderingInfo renderInfo{};
+        renderInfo.flags = vk::RenderingFlagBits::eResuming;
+        renderInfo.colorAttachmentCount = 1u;
+        renderInfo.pColorAttachments = &colorAttackInfo;
+        renderInfo.pDepthAttachment = &depthAttachInfo;
+        renderInfo.layerCount = 1;
+        renderInfo.renderArea = scissor;
+        
+        {
+            vk::ImageMemoryBarrier imageBarrier{};
+            imageBarrier.image = m_swapChains->GetImages()[m_currentImageIndex];
+            imageBarrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+            imageBarrier.oldLayout = vk::ImageLayout::eUndefined;
+            imageBarrier.newLayout = vk::ImageLayout::eColorAttachmentOptimal;
+            imageBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+            imageBarrier.subresourceRange.baseMipLevel = 0;
+            imageBarrier.subresourceRange.levelCount = 1;
+            imageBarrier.subresourceRange.baseArrayLayer = 0;
+            imageBarrier.subresourceRange.layerCount = 1;
+
+            m_graphicCommandBuffers.at(m_currentImageIndex).GetHandle().pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::DependencyFlags{}, 0, nullptr, 0, nullptr, 1, &imageBarrier);
+        }
+
+        m_graphicCommandBuffers.at(m_currentImageIndex).GetHandle().beginRendering(renderInfo);
+
     }
     
     void VulkanContext::EndFrame() noexcept{
+
         auto&& commandBuffer = m_graphicCommandBuffers.at(m_currentImageIndex);
+    
+        commandBuffer.GetHandle().endRendering();
 
-        m_mainRenderPass->End(commandBuffer);
+        // TODO:
+        {
+            vk::ImageMemoryBarrier imageBarrier{};
+            imageBarrier.image = m_swapChains->GetImages()[m_currentImageIndex];
+            imageBarrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+            imageBarrier.oldLayout = vk::ImageLayout::eColorAttachmentOptimal;
+            imageBarrier.newLayout = vk::ImageLayout::ePresentSrcKHR;
+            imageBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+            imageBarrier.subresourceRange.baseMipLevel = 0;
+            imageBarrier.subresourceRange.levelCount = 1;
+            imageBarrier.subresourceRange.baseArrayLayer = 0;
+            imageBarrier.subresourceRange.layerCount = 1;
 
+            m_graphicCommandBuffers.at(m_currentImageIndex).GetHandle().pipelineBarrier(vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eBottomOfPipe, vk::DependencyFlags{}, 0, nullptr, 0, nullptr, 1, &imageBarrier);
+
+        }
         commandBuffer.End();
 
         m_inFlights.at(m_currentFrame).Wait(m_devices->GetLogicalDeviceHandle(), std::numeric_limits<uint64_t>::max());
 
         m_inFlights.at(m_currentFrame).Reset(m_devices->GetLogicalDeviceHandle());
 
-        vk::SubmitInfo submitInfo{};
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer.GetHandle();
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &m_queuesComplete.at(m_currentFrame);
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &m_imagesAvailable.at(m_currentFrame);
+        vk::SemaphoreSubmitInfo waitInfo{};
+        waitInfo.semaphore = m_imagesAvailable.at(m_currentFrame);
+        waitInfo.stageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+        waitInfo.deviceIndex = 0;
+        waitInfo.value = 1;
 
-        vk::PipelineStageFlags flags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-        submitInfo.pWaitDstStageMask = &flags;
+        // waitInfo.
+        vk::SemaphoreSubmitInfo signalInfo{};
+        signalInfo.semaphore = m_queuesComplete.at(m_currentFrame);
+        signalInfo.stageMask = vk::PipelineStageFlagBits2::eAllGraphics;
+        signalInfo.deviceIndex = 0;
+        signalInfo.value = 1;
 
-        m_devices->GetGraphicsQueue().submit(submitInfo, m_inFlights.at(m_currentFrame).GetHandle());
+        vk::CommandBufferSubmitInfo cmdInfo{};
+        cmdInfo.commandBuffer = commandBuffer.GetHandle();
+        cmdInfo.deviceMask = 0;
+
+        vk::SubmitInfo2 submitInfo{};
+        submitInfo.commandBufferInfoCount = 1;
+        submitInfo.pCommandBufferInfos = &cmdInfo;
+        submitInfo.waitSemaphoreInfoCount = 1;
+        submitInfo.pWaitSemaphoreInfos = &waitInfo;
+        submitInfo.signalSemaphoreInfoCount = 1;
+        submitInfo.pSignalSemaphoreInfos = &signalInfo;
+
+
+        m_devices->GetGraphicsQueue().submit2(submitInfo, m_inFlights.at(m_currentFrame).GetHandle());
         commandBuffer.UpdateSubmitted();
 
         // vk::Result ress{};
@@ -441,20 +451,6 @@ namespace Creepy{
             std::clog << "Need Recreate Swap\n";
             recreateSwapChain();
         }
-
-        // try {
-            // ress = m_swapChains->Present(m_devices->GetPresentQueue(), m_queuesComplete.at(m_currentFrame), m_currentImageIndex);
-        // }
-        // catch(const vk::OutOfDateKHRError& e){
-        //     std::clog << "Need Recreate SwapChain\n";
-        //     recreateSwapChain();
-        //     ress = vk::Result::eErrorOutOfDateKHR;
-        // }
-        
-        // if(ress == vk::Result::eErrorOutOfDateKHR | ress == vk::Result::eSuboptimalKHR){
-        //     std::clog << "Need Recreate SwapChain2\n";
-        //     recreateSwapChain();
-        // }
 
         m_currentFrame = (m_currentFrame + 1) % m_swapChains->GetMaxFramesInFlight();
     }
@@ -504,7 +500,8 @@ namespace Creepy{
         pipeSpec.Attributes = attributes;
         pipeSpec.ShaderStages = m_nahShader->GetShaderStages();
         pipeSpec.IsWireFrame = false;
-        pipeSpec.RenderPass = m_mainRenderPass->GetHandle();
+        pipeSpec.DepthAttachmentFormat = m_devices->GetDepthBufferFormat();
+        pipeSpec.ColorAttachmentFormat = m_swapChains->GetImageFormat().format;
 
         const std::array layouts{m_descriptorSetLayout->GetLayout(), m_descriptorSetLayout->GetLayout(), m_descriptorSetLayout->GetLayout()};
 
@@ -512,4 +509,44 @@ namespace Creepy{
         
         m_pipeLine = std::make_shared<VulkanPipeline>(pipeSpec);
     }
+
+    void VulkanContext::transitionImage(vk::Image image, vk::ImageLayout currentLayout, vk::ImageLayout newLayout) noexcept {
+
+        vk::ImageMemoryBarrier2 imageBarrier{};
+        imageBarrier.image = image;
+        imageBarrier.srcStageMask = vk::PipelineStageFlagBits2::eAllCommands;
+        imageBarrier.srcAccessMask = vk::AccessFlagBits2::eMemoryWrite;
+        imageBarrier.dstStageMask = vk::PipelineStageFlagBits2::eAllCommands;
+        imageBarrier.dstAccessMask = vk::AccessFlagBits2::eMemoryWrite | vk::AccessFlagBits2::eMemoryRead;
+        imageBarrier.oldLayout = currentLayout;
+        imageBarrier.newLayout = newLayout;
+        imageBarrier.subresourceRange.aspectMask = newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+        imageBarrier.subresourceRange.baseMipLevel = 0;
+        imageBarrier.subresourceRange.levelCount = vk::RemainingMipLevels;
+        imageBarrier.subresourceRange.baseArrayLayer = 0;
+        imageBarrier.subresourceRange.layerCount = vk::RemainingArrayLayers;
+
+        vk::DependencyInfo dependencyInfo{};
+        dependencyInfo.imageMemoryBarrierCount = 1;
+        dependencyInfo.pImageMemoryBarriers = &imageBarrier;
+
+        m_graphicCommandBuffers.at(m_currentImageIndex).GetHandle().pipelineBarrier2(dependencyInfo);
+    }
+
+    // void VulkanContext::transitionImageEnd(vk::Image image, vk::ImageLayout currentLayout, vk::ImageLayout newLayout) noexcept {
+    //     vk::ImageMemoryBarrier imageBarrier{};
+    //     imageBarrier.image = image;
+    //     imageBarrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+    //     imageBarrier.oldLayout = currentLayout;
+    //     imageBarrier.newLayout = newLayout;
+    //     imageBarrier.subresourceRange.aspectMask = newLayout == vk::ImageLayout::eDepthAttachmentOptimal ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+    //     imageBarrier.subresourceRange.baseMipLevel = 0;
+    //     imageBarrier.subresourceRange.levelCount = 1;
+    //     imageBarrier.subresourceRange.baseArrayLayer = 0;
+    //     imageBarrier.subresourceRange.layerCount = 1;
+
+    //     m_graphicCommandBuffers.at(m_currentImageIndex).GetHandle().pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::DependencyFlags{}, 0, nullptr, 0, nullptr, 1, &imageBarrier);
+
+        
+    // }
 }

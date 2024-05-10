@@ -60,12 +60,22 @@ namespace Creepy {
 
     struct VulkanPipelineSpec{
         vk::VertexInputBindingDescription Description;
-        vk::RenderPass RenderPass;
+        vk::Format ColorAttachmentFormat;
+        vk::Format DepthAttachmentFormat;
         std::span<const vk::VertexInputAttributeDescription> Attributes;
         std::span<const vk::DescriptorSetLayout> DescriptorSetLayouts;
         std::span<const vk::PipelineShaderStageCreateInfo> ShaderStages;
         vk::Viewport Viewport;
         vk::Rect2D Scissor;
+
+        struct VulkanPushConstantSpec{
+            vk::ShaderStageFlags StageFlags;
+            uint32_t Offset;
+            uint32_t Size;
+        };
+
+        std::span<const VulkanPushConstantSpec> PushConstantSpec;
+
         bool IsWireFrame;
     };
 
