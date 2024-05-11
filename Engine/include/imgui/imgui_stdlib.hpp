@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "imgui_internal.h"
 #include <string>
+#include "imgui.hpp"
 
 namespace ImGui
 {

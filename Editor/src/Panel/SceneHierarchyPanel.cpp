@@ -6,8 +6,8 @@
 
 #include <Panel/SceneHierarchyPanel.hpp>
 #include <Editor/EditorLayer.hpp>
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
+#include <imgui/imgui.hpp>
+#include <imgui/imgui_internal.hpp>
 
 namespace Creepy {
 

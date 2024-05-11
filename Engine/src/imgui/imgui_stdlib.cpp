@@ -7,8 +7,8 @@
 // See more C++ related extension (fmt, RAII, syntaxis sugar) on Wiki:
 //   https://github.com/ocornut/imgui/wiki/Useful-Extensions#cness
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_stdlib.h>
+#include <imgui/imgui.hpp>
+#include <imgui/imgui_stdlib.hpp>
 
 // Clang warnings with -Weverything
 #if defined(__clang__)

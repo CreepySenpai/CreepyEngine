@@ -23,9 +23,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <imgui/ImCurveEdit.h>
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
+#include <imgui/ImCurveEdit.hpp>
+#include <imgui/imgui.hpp>
+#include <imgui/imgui_internal.hpp>
 #include <stdint.h>
 #include <set>
 #include <vector>

@@ -10,7 +10,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include <imgui/imgui.h>
+#include <imgui/imgui.hpp>
 
 namespace Creepy
 {

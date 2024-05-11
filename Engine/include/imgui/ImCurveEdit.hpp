@@ -25,7 +25,7 @@
 //
 #pragma once
 #include <stdint.h>
-#include "imgui.h"
+#include "imgui.hpp"
 
 struct ImRect;
 

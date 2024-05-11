@@ -6,7 +6,6 @@
 #include <CreepyEngine/Scripting/ScriptEngine.hpp>
 #include <GLFW/glfw3.h>
 
-
 namespace Creepy {
 
     Application* Application::instance = nullptr;

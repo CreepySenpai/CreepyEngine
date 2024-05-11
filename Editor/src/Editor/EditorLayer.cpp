@@ -1,6 +1,6 @@
 #include <Editor/EditorLayer.hpp>
 #include <CreepyEngine/Scripting/ScriptEngine.hpp>
-#include <imgui/ImGuizmo.h>
+#include <imgui/ImGuizmo.hpp>
 
 namespace Creepy {
 

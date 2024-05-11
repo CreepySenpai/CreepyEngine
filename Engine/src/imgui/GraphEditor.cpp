@@ -25,13 +25,13 @@
 //
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
+#include <imgui/imgui.hpp>
+#include <imgui/imgui_internal.hpp>
 #include <math.h>
 #include <vector>
 #include <float.h>
 #include <array>
-#include <imgui/GraphEditor.h>
+#include <imgui/GraphEditor.hpp>
 
 namespace GraphEditor {
 

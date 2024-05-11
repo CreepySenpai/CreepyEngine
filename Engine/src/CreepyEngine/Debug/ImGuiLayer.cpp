@@ -3,10 +3,10 @@
 #include <glad/glad.h>
 #include <yaml-cpp/yaml_ex.hpp>
 
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
-#include <imgui/imgui_impl_vulkan.h>
-#include <imgui/ImGuizmo.h>
+#include <imgui/imgui_impl_glfw.hpp>
+#include <imgui/imgui_impl_opengl3.hpp>
+#include <imgui/imgui_impl_vulkan.hpp>
+#include <imgui/ImGuizmo.hpp>
 
 #include <Platform/Vulkan/VulkanContext.hpp>
 #include <Platform/Vulkan/VulkanDevice.hpp>

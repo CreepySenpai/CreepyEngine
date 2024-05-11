@@ -40,7 +40,7 @@ if(!cond){                              \
 
 
 namespace Creepy {
-
+    
     template <typename T, size_t Size>
     static consteval inline size_t GetArraySize(T (&array)[Size]) {
         return Size;

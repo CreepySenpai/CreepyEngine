@@ -197,7 +197,7 @@ namespace Creepy{
             requirements.Transfer = true;
             requirements.SamplerAnisotropy = true;
             requirements.DiscreteGPU = true;
-            requirements.DeviceExtensionName.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+            requirements.DeviceExtensionName.emplace_back(vk::KHRSwapchainExtensionName);
             
             if(selectQueueFamily(requirements, physicDev)) {
                 m_physicalDevice = physicDev;
@@ -246,19 +246,27 @@ namespace Creepy{
         vk::PhysicalDeviceFeatures physicalDevFeatures{};
         physicalDevFeatures.samplerAnisotropy = vk::True;
             
-        constexpr std::array<const char*, 3> extensions{
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-            "VK_KHR_dynamic_rendering",
-            VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
+        constexpr std::array<const char*, 1> extensions{
+            vk::KHRSwapchainExtensionName
         };
 
         // Enable Features
 
-        // vk::PhysicalDeviceVulkan12Features features12;
-        vk::PhysicalDeviceVulkan13Features features13;
-        features13.dynamicRendering = vk::True;
-        features13.synchronization2 = vk::True;
+        vk::PhysicalDeviceDynamicRenderingFeatures dynamicRender{};
+        dynamicRender.dynamicRendering = vk::True;
+        vk::PhysicalDeviceSynchronization2Features sync2{};
+        sync2.synchronization2 = vk::True;
+        vk::PhysicalDeviceBufferDeviceAddressFeatures bufferAddress{};
+        bufferAddress.bufferDeviceAddress = vk::True;
+        vk::PhysicalDeviceDescriptorIndexingFeatures descIndex{};
+        descIndex.descriptorBindingSampledImageUpdateAfterBind = vk::True;
+
+        // Chain
+        dynamicRender.pNext = &sync2;
+        sync2.pNext = &bufferAddress;
+        bufferAddress.pNext = &descIndex;
         
+
         vk::DeviceCreateInfo deviceInfo{};
         deviceInfo.flags = vk::DeviceCreateFlags{};
         deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(deviceQueueInfos.size());
@@ -267,7 +275,7 @@ namespace Creepy{
         
         deviceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         deviceInfo.ppEnabledExtensionNames = extensions.data();
-        deviceInfo.pNext = &features13;
+        deviceInfo.pNext = &dynamicRender;  // Point to first chain features
 
         std::clog << "Dev Size: " << deviceQueueInfos.size() << ", Ex C: " << extensions.size() << '\n';
             
@@ -276,7 +284,6 @@ namespace Creepy{
         std::clog << "Created Logical Dev\n";
 
         // Select Queue
-        // std::println("G: {}, P: {}, T: {}", m_graphicsFamilyIndex, m_presentFamilyIndex, m_transferFamilyIndex);
         m_graphicsQueue = m_logicalDevice.getQueue(m_graphicsFamilyIndex, 0);
 
         m_presentQueue = m_logicalDevice.getQueue(m_presentFamilyIndex, 0);
