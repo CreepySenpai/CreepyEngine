@@ -1,12 +1,29 @@
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:1: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Debug/ImGuiLayer.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:2: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Core/Application.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:3: warning: missingIncludeSystem (information): Include file: <glad/glad.h> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:4: warning: missingIncludeSystem (information): Include file: <yaml-cpp/yaml_ex.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:6: warning: missingIncludeSystem (information): Include file: <imgui/imgui_impl_glfw.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:7: warning: missingIncludeSystem (information): Include file: <imgui/imgui_impl_opengl3.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:8: warning: missingIncludeSystem (information): Include file: <imgui/imgui_impl_vulkan.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:9: warning: missingIncludeSystem (information): Include file: <imgui/ImGuizmo.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:11: warning: missingIncludeSystem (information): Include file: <Platform/Vulkan/VulkanContext.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:12: warning: missingIncludeSystem (information): Include file: <Platform/Vulkan/VulkanDevice.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
-'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\CreepyEngine\Debug\ImGuiLayer.cpp:133: warning: constVariableReference (style): Variable 'io' can be declared as reference to const'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanContext.cpp:1: warning: missingIncludeSystem (information): Include file: <iostream> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanContext.cpp:2: warning: missingIncludeSystem (information): Include file: <CreepyEngine/Core/TimeStep.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyE'nofile:0: warning: checkersReport (information): Active checkers: 172/592 (use --checkers-report=<filename> to see details)'
+rm/Vulkan/VulkanTypes.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanContext.cpp:4: warning: missingIncludeSystem (information): Include file: <Platform/Vulkan/VulkanContext.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanContext.cpp:5: warning: missingIncludeSystem (information): Include file: <Platform/Vulkan/VulkanDevice.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanContext.cpp:6: warning: missingIncludeSystem (information): Include file: <Platform/Vulkan/VulkanSwapChain.hpp> not found. Please note: Cppcheck does not need standard library headers to get proper results.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Pla'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanFrameBuffer.cpp:44: warning: unreadVariable (style): Variable 'isMultiSamples' is assigned'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:131: warning: redundantCondition (style): The condition '!requirements.Graphics || requirements.Graphics && m_graphicsFamilyIndex!=-1' is equivalent to '!requirements.Graphics || m_graphicsFamilyIndex!=-1'.'
+'D:\WorkSpace\GameEngineProjects\Cree'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanSwapChain.cpp:69: warning: useStlAlgorithm (style): Consider using std::find_if algorithm instead of a raw loop.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanSwapChain.cpp:82: warning: useStlAlgorithm (style): Consider using std::find_if algorithm instead of a raw loop.'
+'nofile:0: warning: checkersReport (information): Active checkers: 172/592 (use --checkers-report=<filename> to see details)'
+ute || m_computeFamilyIndex!=-1'.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:134: warning: redundantCondition (style): The condition '!requirements.Transfer || requirements.Transfer && m_transferFamilyIndex!=-1' is equivalent to '!requirements.Transfer || m_transferFamilyIndex!=-1'.'
+'D:\WorkSpace\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanDevice.cpp:98: warning: variableScope (style): The scope of the variable 'transferScore' can be reduced. Warning: Be careful when fixing this message, especially when there are inner loops. Here is an example where cppcheck will write that the scope for 'i' can be reduced:
+void f(int x)
+{
+    int i = 0;
+    if (x) {
+        // it's safe to move 'int i = 0;' here
+        for (int n = 0; n < 10; ++n) {
+            // it is possible but not safe to move 'int i = 0;' here
+            do_something(&i);
+        }
+    }
+}
+When you see this message it is always safe to reduce the variable scope 1 level.'
+'nofile:0: warning: checkersReport (information): Active checkers: 172/592 (use --checkers-report=<filename> to see details)'
+ce\GameEngineProjects\CreepyEngine_Cherno\Engine\src\Platform\Vulkan\VulkanContext.cpp:349: warning: redundantAssignment (style): Variable 'depthAttachInfo.storeOp' is reassigned a value before the old one has been used.'
 'nofile:0: warning: checkersReport (information): Active checkers: 172/592 (use --checkers-report=<filename> to see details)'

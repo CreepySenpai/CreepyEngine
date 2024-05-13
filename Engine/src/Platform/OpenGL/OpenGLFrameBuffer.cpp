@@ -1,20 +1,12 @@
 #include <Platform/OpenGL/OpenGLFrameBuffer.hpp>
 #include <CreepyEngine/Debug/OpenGLErrorHandle.hpp>
+#include <CreepyEngine/Utils/FrameBufferUtils.hpp>
 #include <glad/glad.h>
 
 
 namespace Creepy {
     
     // TODO: Move static function to frame buffer utils
-    static bool IsDepthFormat(FrameBufferTextureFormat format) noexcept {
-
-        switch(format){
-            case FrameBufferTextureFormat::DEPTH24STENCIL8:
-                return true;
-        }
-
-        return false;
-    }
 
     static GLenum TextureTarget(bool isMultiSamples) noexcept {
         return isMultiSamples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
@@ -139,7 +131,7 @@ namespace Creepy {
 
     }
 
-    static constexpr uint32_t maxFrameSize = 9000;
+    constexpr uint32_t maxFrameSize = 9000u;
 
     void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height) noexcept {
         if((width == 0) || (height == 0) || (width > maxFrameSize) || (height > maxFrameSize)){

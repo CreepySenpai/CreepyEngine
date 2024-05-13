@@ -11,8 +11,6 @@
 
 namespace Creepy {
 
-    // extern const std::filesystem::path AssetDirectory;
-
     SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& scene) noexcept : m_scene{scene} {
 
     }

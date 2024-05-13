@@ -9,8 +9,9 @@ namespace Creepy {
 
         // Color
         RGBA8, RED_INT, GREEN_INT, BLUE_INT,
-
+        RGBA16_SFLOAT, RGBA16_SINT, RGBA16_UINT,
         // Depth, Stencil
+        DEPTH32,
         DEPTH24STENCIL8,
 
         DEPTH = DEPTH24STENCIL8,

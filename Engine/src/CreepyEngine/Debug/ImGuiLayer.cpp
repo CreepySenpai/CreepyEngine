@@ -52,15 +52,52 @@ namespace Creepy
         }
 
         if constexpr(UseVulkanAPI){
+            
+            constexpr vk::DescriptorPoolSize poolSize[] = {
+                { vk::DescriptorType::eSampler, 1000u },
+                { vk::DescriptorType::eCombinedImageSampler, 1000u },
+                { vk::DescriptorType::eSampledImage, 1000u },
+                { vk::DescriptorType::eStorageImage, 1000u },
+                { vk::DescriptorType::eUniformTexelBuffer, 1000u },
+                { vk::DescriptorType::eStorageTexelBuffer, 1000u },
+                { vk::DescriptorType::eUniformBuffer, 1000u },
+                { vk::DescriptorType::eStorageBuffer, 1000u },
+                { vk::DescriptorType::eUniformBufferDynamic, 1000u },
+                { vk::DescriptorType::eStorageBufferDynamic, 1000u },
+                { vk::DescriptorType::eInputAttachment, 1000u }
+            };
+
+            vk::DescriptorPoolCreateInfo imguiPoolInfo{};
+            imguiPoolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+            imguiPoolInfo.maxSets = 1000;
+            imguiPoolInfo.poolSizeCount = static_cast<uint32_t>(std::size(poolSize));
+            imguiPoolInfo.pPoolSizes = poolSize;
+
+            vk::DescriptorPool imGuiPool = VulkanDevice::GetLogicalDevice().createDescriptorPool(imguiPoolInfo);
 
             ImGui_ImplGlfw_InitForVulkan(static_cast<GLFWwindow*>(Application::GetInstance().GetWindow().GetNativeWindow()), true);
+
             ImGui_ImplVulkan_InitInfo vulkanInfo{};
             vulkanInfo.Instance = static_cast<VkInstance>(VulkanContext::GetInstance()->GetVulkanInstance());
             vulkanInfo.PhysicalDevice = static_cast<VkPhysicalDevice>(VulkanDevice::GetPhysicalDevice());
             vulkanInfo.Device = static_cast<VkDevice>(VulkanDevice::GetLogicalDevice());
             vulkanInfo.Allocator = nullptr;
             vulkanInfo.Subpass = 0;
+            vulkanInfo.UseDynamicRendering = true;
+            vulkanInfo.MinImageCount = 3;
+            vulkanInfo.ImageCount = 3;
+            vulkanInfo.DescriptorPool = imGuiPool;
+
+            vk::PipelineRenderingCreateInfoKHR imguiPipeInfo{};
+            imguiPipeInfo.colorAttachmentCount = 1;
+            // imguiPipeInfo.pColorAttachmentFormats = &m_swapchainImageFormat;
+            vulkanInfo.PipelineRenderingCreateInfo = imguiPipeInfo;
+
+            vulkanInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+
             ImGui_ImplVulkan_Init(&vulkanInfo);
+            ImGui_ImplVulkan_CreateFontsTexture();
 
         }
         
@@ -73,6 +110,7 @@ namespace Creepy
         }
 
         if constexpr(UseVulkanAPI){
+            ImGui_ImplVulkan_DestroyFontsTexture();
             ImGui_ImplVulkan_Shutdown();
         }
 

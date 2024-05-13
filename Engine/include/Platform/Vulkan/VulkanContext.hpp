@@ -13,7 +13,6 @@ namespace Creepy {
     class TimeStep;
     class VulkanDevice;
     class VulkanSwapChain;
-    class VulkanRenderPass;
 
     // TODO: Remove
     class VulkanShader;
@@ -81,7 +80,6 @@ namespace Creepy {
 
         private:
             void transitionImage(vk::Image image, vk::ImageLayout currentLayout, vk::ImageLayout newLayout) noexcept;
-            // void transitionImageEnd(vk::Image image, vk::ImageLayout currentLayout, vk::ImageLayout newLayout) noexcept;
 
         private:
             // TODO: Remove
@@ -98,7 +96,6 @@ namespace Creepy {
             vk::SurfaceKHR m_surface{nullptr};
             std::shared_ptr<VulkanDevice> m_devices{nullptr};
             std::shared_ptr<VulkanSwapChain> m_swapChains{nullptr};
-            std::shared_ptr<VulkanRenderPass> m_mainRenderPass{nullptr};
             uint32_t m_currentFrame{0};
             uint32_t m_currentImageIndex{0};
             uint32_t FrameBufferWidth{1600};

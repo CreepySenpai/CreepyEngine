@@ -8,8 +8,6 @@ namespace Creepy {
 
     EditorLayer* EditorLayer::s_instance = nullptr;
 
-    // extern const std::filesystem::path AssetDirectory;
-
     EditorLayer::EditorLayer() noexcept : Layer{"LevelEditor"}{
         if(s_instance){
             APP_LOG_ERROR("Only once Editor Instance exit");

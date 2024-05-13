@@ -6,8 +6,6 @@
 
 namespace Creepy {
 
-    // extern const std::filesystem::path AssetDirectory{"./assets"};
-
     ContentBrowserPanel::ContentBrowserPanel() noexcept : m_currentDirectory{Project::GetActive()->GetAssetDirectory()} {
         ENGINE_LOG_ERROR("Gonna Access1");
         if(Project::GetActive() == nullptr){

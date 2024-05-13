@@ -41,14 +41,6 @@ namespace Creepy {
         vk::Device LogicalDev;
     };
 
-    struct VulkanFrameBufferSpec{
-        uint32_t Width{};
-        uint32_t Height{};
-        vk::RenderPass RenderPassHandle;
-        std::vector<vk::ImageView> Attachments;
-        vk::Device LogicalDev;
-    };
-
     struct VulkanSwapChainSpec{
         uint32_t Width{};
         uint32_t Height{};

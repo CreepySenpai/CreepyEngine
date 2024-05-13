@@ -9,7 +9,12 @@ namespace Creepy{
     class VulkanImage
     {
         public:
+            VulkanImage() noexcept = default;
             VulkanImage(const VulkanImageSpec& spec) noexcept;
+
+            constexpr vk::Image GetImage() const noexcept {
+                return m_handle;
+            }
 
             constexpr vk::ImageView GetImageView() const noexcept {
                 return m_imageView;
