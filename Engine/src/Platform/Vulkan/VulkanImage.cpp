@@ -21,7 +21,7 @@ namespace Creepy {
         imageInfo.usage = spec.Usage;
         imageInfo.samples = vk::SampleCountFlagBits::e1;
         imageInfo.sharingMode = vk::SharingMode::eExclusive;
-
+        
         VULKAN_CHECK_ERROR(m_handle = spec.LogicalDev.createImage(imageInfo));
         
         auto&& memoryRequire = spec.LogicalDev.getImageMemoryRequirements(m_handle);
@@ -67,5 +67,40 @@ namespace Creepy {
         imageViewInfo.subresourceRange.layerCount = 1;
 
         VULKAN_CHECK_ERROR(m_imageView = logicalDev.createImageView(imageViewInfo));
+    }
+
+    void VulkanImage::CopyImage(const vk::CommandBuffer commandBuffer, const vk::Image srcImage, const vk::Image dstImage, vk::Extent2D srcSize, vk::Extent2D dstSize) noexcept {
+        
+        vk::ImageBlit2 blitRegion{};
+        blitRegion.srcOffsets.at(1).x = srcSize.width;
+        blitRegion.srcOffsets.at(1).y = srcSize.height;
+        blitRegion.srcOffsets.at(1).z = 1;
+
+        blitRegion.dstOffsets.at(1).x = dstSize.width;
+        blitRegion.dstOffsets.at(1).y = dstSize.height;
+        blitRegion.dstOffsets.at(1).z = 1;
+
+        blitRegion.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+        blitRegion.srcSubresource.baseArrayLayer = 0;
+        blitRegion.srcSubresource.layerCount = 1;
+        blitRegion.srcSubresource.mipLevel = 0;
+
+        blitRegion.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+        blitRegion.dstSubresource.baseArrayLayer = 0;
+        blitRegion.dstSubresource.layerCount = 1;
+        blitRegion.dstSubresource.mipLevel = 0;
+
+        vk::BlitImageInfo2 blitInfo{};
+        blitInfo.srcImage = srcImage;
+        blitInfo.srcImageLayout = vk::ImageLayout::eTransferSrcOptimal;
+
+        blitInfo.dstImage = dstImage;
+        blitInfo.dstImageLayout = vk::ImageLayout::eTransferDstOptimal;
+
+        blitInfo.filter = vk::Filter::eLinear;
+        blitInfo.regionCount = 1;
+        blitInfo.pRegions = &blitRegion;
+
+        commandBuffer.blitImage2(blitInfo);
     }
 }

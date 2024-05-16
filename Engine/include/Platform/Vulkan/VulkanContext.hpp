@@ -16,6 +16,7 @@ namespace Creepy {
 
     // TODO: Remove
     class VulkanShader;
+    class VulkanImage;
     class VulkanPipeline;
     class VulkanDescriptorPool;
     class VulkanDescriptorSetLayout;
@@ -77,6 +78,7 @@ namespace Creepy {
             void createCommandBuffer() noexcept;
             void createSyncObject() noexcept;
             void recreateSwapChain() noexcept;
+            void createDrawImage() noexcept;
 
         private:
             void transitionImage(vk::Image image, vk::ImageLayout currentLayout, vk::ImageLayout newLayout) noexcept;
@@ -117,6 +119,8 @@ namespace Creepy {
             std::shared_ptr<VulkanDescriptorPool> m_descriptorPool{nullptr};
             std::shared_ptr<VulkanDescriptorSetLayout> m_descriptorSetLayout{nullptr};
             std::shared_ptr<VulkanDescriptorSet> m_descriptorSet{nullptr};
+            std::shared_ptr<VulkanImage> m_drawImage{nullptr};
+            std::shared_ptr<VulkanImage> m_depthImage{nullptr};
 
         private:
             uint32_t m_cacheFrameBufferWidth{1600};

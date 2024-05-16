@@ -5,6 +5,7 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 #include <glm/glm.hpp>
+#include <VulkanMemoryAllocator/vk_mem_alloc.hpp>
 
 namespace Creepy {
 
@@ -31,14 +32,6 @@ namespace Creepy {
         vk::ImageAspectFlags Aspect;
         vk::Device LogicalDev;
         bool IsCreateView;
-    };
-
-    struct VulkanRenderPassSpec{
-        glm::vec4 RenderArea;
-        glm::vec4 ClearColor;
-        float Depth{};
-        uint32_t Stencil{};
-        vk::Device LogicalDev;
     };
 
     struct VulkanSwapChainSpec{
@@ -76,6 +69,7 @@ namespace Creepy {
         vk::BufferUsageFlags BufferUsage;
         vk::SharingMode SharingMode;
         vk::MemoryPropertyFlags MemoryProperty;
+        VmaMemoryUsage MemoryUsage;
     };
 
     struct VulkanDescriptorSetLayoutSpec{

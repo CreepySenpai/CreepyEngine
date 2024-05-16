@@ -32,6 +32,7 @@ namespace Creepy {
 
             std::vector<VulkanImage> m_colorAttachments;
             VulkanImage m_depthAttachment;
+            // vk::Extent2D m_frameBufferExtent;
     };
    
 }

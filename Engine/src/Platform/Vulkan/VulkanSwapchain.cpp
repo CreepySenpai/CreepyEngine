@@ -7,11 +7,11 @@
 #include <Platform/Vulkan/VulkanTypes.hpp>
 #include <CreepyEngine/Debug/VulkanErrorHandle.hpp>
 
-namespace Creepy{
+namespace Creepy {
 
     VulkanSwapChain* VulkanSwapChain::s_instance = nullptr;
 
-    VulkanSwapChain::VulkanSwapChain(const VulkanSwapChainSpec& swapChainSpec) noexcept : m_maxFramesInFlight{2} {
+    VulkanSwapChain::VulkanSwapChain(const VulkanSwapChainSpec& swapChainSpec) noexcept : m_maxFramesInFlight{2}, m_swapChainExtent{swapChainSpec.Width, swapChainSpec.Height} {
         s_instance = this;
         
         std::clog << "Create Swapchain 1\n";
@@ -19,13 +19,14 @@ namespace Creepy{
     }
 
     void VulkanSwapChain::Recreate(const VulkanSwapChainSpec& swapChainSpec) noexcept {
+        m_swapChainExtent.width = swapChainSpec.Width;
+        m_swapChainExtent.height = swapChainSpec.Height;
+
         this->Destroy(swapChainSpec.LogicalDev);
         createSwapChain(swapChainSpec);
     }
 
     void VulkanSwapChain::Destroy(const vk::Device logicalDev) noexcept {
-        
-        m_depthBuffer->Destroy(logicalDev);
 
         m_images.clear();
 
@@ -36,7 +37,7 @@ namespace Creepy{
         m_imageViews.clear();
 
         std::clog << "Destroy Sw\n";
-
+        
         logicalDev.destroySwapchainKHR(m_handle);
         
         m_handle = nullptr;
@@ -124,7 +125,9 @@ namespace Creepy{
         swapChainInfo.imageColorSpace = m_imageFormat.colorSpace;
         swapChainInfo.imageExtent = swapChainExtent;
         swapChainInfo.imageArrayLayers = 1;
-        swapChainInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+        
+        //TODO: Change
+        swapChainInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
         swapChainInfo.oldSwapchain = nullptr;
 
         if (swapChainSpec.GraphicFamilyIndex != swapChainSpec.PresentFamilyIndex)
@@ -192,29 +195,6 @@ namespace Creepy{
             devicesInstance->SetDepthBufferFormat(vk::Format::eUndefined);
             std::clog << "Cannot Detect Depth Format\n";
         }
-
-        createDepthBuffer(swapChainSpec.LogicalDev, swapChainExtent.width, swapChainExtent.height, devicesInstance->GetDepthBufferFormat());
-    }
-
-    void VulkanSwapChain::createDepthBuffer(const vk::Device logicalDev, uint32_t width, uint32_t height, vk::Format depthFormat) noexcept {
-        
-        VulkanImageSpec imgSpec;
-        imgSpec.ImageType = vk::ImageType::e2D;
-        imgSpec.Width = width;
-        imgSpec.Height = height;
-        imgSpec.Format = depthFormat;
-        imgSpec.Tiling = vk::ImageTiling::eOptimal;
-        imgSpec.Usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
-        imgSpec.MemoryFlags = vk::MemoryPropertyFlagBits::eDeviceLocal;
-        imgSpec.IsCreateView = true;
-        imgSpec.Aspect = vk::ImageAspectFlagBits::eDepth;
-        imgSpec.LogicalDev = logicalDev;
-
-        m_depthBuffer = std::make_shared<VulkanImage>(imgSpec);
-    }
-
-    std::shared_ptr<VulkanImage> VulkanSwapChain::GetDepthBuffer() const noexcept {
-        return m_depthBuffer;
     }
 
 }

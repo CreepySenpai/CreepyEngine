@@ -43,7 +43,9 @@ namespace Creepy {
                 return m_maxFramesInFlight;
             }
 
-            std::shared_ptr<VulkanImage> GetDepthBuffer() const noexcept;
+            constexpr vk::Extent2D GetSwapChainExtent() const noexcept {
+                return m_swapChainExtent;
+            }
         
         public:
             static constexpr uint32_t GetMaxFrames() noexcept {
@@ -56,14 +58,14 @@ namespace Creepy {
         private:
             void createSwapChain(const VulkanSwapChainSpec& swapChainSpec) noexcept;
             void createHandle(const VulkanSwapChainSpec& swapChainSpec, vk::PresentModeKHR presentMode) noexcept;
-            void createDepthBuffer(const vk::Device logicalDev, uint32_t width, uint32_t height, vk::Format depthFormat) noexcept;
+            
         private:
             vk::SurfaceFormatKHR m_imageFormat;
             uint32_t m_maxFramesInFlight{};
             vk::SwapchainKHR m_handle{nullptr};
             std::vector<vk::Image> m_images;
             std::vector<vk::ImageView> m_imageViews;
-            std::shared_ptr<VulkanImage> m_depthBuffer{nullptr};
+            vk::Extent2D m_swapChainExtent;
     };
 
 }

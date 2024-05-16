@@ -1,4 +1,5 @@
 #include <iostream>
+#include <print>
 #include <CreepyEngine/Core/TimeStep.hpp>
 #include <Platform/Vulkan/VulkanTypes.hpp>
 #include <Platform/Vulkan/VulkanContext.hpp>
@@ -38,6 +39,9 @@ namespace Creepy{
 
         // Create SwapChain
         initSwapChain();
+
+        std::println("Create Image");
+        createDrawImage();
 
         std::clog << "Create Command Buffer\n";
         createCommandBuffer();
@@ -228,6 +232,28 @@ namespace Creepy{
         m_isRecreatingSwapChain = false;
     }
 
+    void VulkanContext::createDrawImage() noexcept {
+        VulkanImageSpec drawImageSpec{};
+        drawImageSpec.Width = 1900;
+        drawImageSpec.Height = 1200;
+        drawImageSpec.Aspect = vk::ImageAspectFlagBits::eColor;
+        drawImageSpec.Format = vk::Format::eR16G16B16A16Sfloat;
+        drawImageSpec.ImageType = vk::ImageType::e2D;
+        drawImageSpec.MemoryFlags = vk::MemoryPropertyFlagBits::eDeviceLocal;
+        drawImageSpec.IsCreateView = true;
+        drawImageSpec.Tiling = vk::ImageTiling::eOptimal;
+        drawImageSpec.Usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eStorage;
+        drawImageSpec.LogicalDev = m_devices->GetLogicalDevice();
+
+        m_drawImage = std::make_shared<VulkanImage>(drawImageSpec);
+
+        drawImageSpec.Usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+        drawImageSpec.Aspect = vk::ImageAspectFlagBits::eDepth;
+        drawImageSpec.Format = vk::Format::eD32Sfloat;
+
+        m_depthImage = std::make_shared<VulkanImage>(drawImageSpec);
+    }
+
     void VulkanContext::ShutDown() noexcept {
         auto&& logicalDev = m_devices->GetLogicalDeviceHandle();
         logicalDev.waitIdle();
@@ -246,6 +272,9 @@ namespace Creepy{
             std::clog << "Call Destroy Shader\n";
             m_nahShader->Destroy();
         }
+
+        m_drawImage->Destroy(m_devices->GetLogicalDevice());
+        m_depthImage->Destroy(m_devices->GetLogicalDevice());
 
         std::clog << "Call Destroy Sync Obj\n";
 
@@ -315,46 +344,74 @@ namespace Creepy{
 
         auto commandBuffer = m_graphicCommandBuffers.at(m_currentImageIndex);
         commandBuffer.Reset();
-        commandBuffer.Begin(false, false, false);
+        commandBuffer.Begin(true, false, false);
+        
+        transitionImage(m_drawImage->GetImage(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral);
 
-        transitionImage(m_swapChains->GetImages().at(m_currentImageIndex), vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
+        const vk::ClearColorValue clearColor(1.0f, 0.0f, 0.0f, 1.0f);
 
-        vk::Viewport viewPort{0.0f, static_cast<float>(FrameBufferHeight), static_cast<float>(FrameBufferWidth), -static_cast<float>(FrameBufferHeight), 0.0f, 1.0f};
+        vk::ImageSubresourceRange clearRange{};
+        clearRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        clearRange.baseMipLevel = 0;
+        clearRange.levelCount = vk::RemainingMipLevels;
+        clearRange.baseArrayLayer = 0;
+        clearRange.layerCount = vk::RemainingArrayLayers;
 
-        vk::Rect2D scissor{};
-        scissor.extent.width = FrameBufferWidth;
-        scissor.extent.height = FrameBufferHeight;
+        commandBuffer.GetHandle().clearColorImage(m_drawImage->GetImage(), vk::ImageLayout::eGeneral, clearColor, clearRange);
 
-        commandBuffer.GetHandle().setViewport(0, viewPort);
-        commandBuffer.GetHandle().setScissor(0, scissor);
+        transitionImage(m_drawImage->GetImage(), vk::ImageLayout::eGeneral, vk::ImageLayout::eColorAttachmentOptimal);
 
-        constexpr vk::ClearValue clearColor{vk::ClearColorValue{1.0f, 0.5f, 0.25f, 1.0f}};
+        // transitionImage(m_depthImage->GetImage(), vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthAttachmentOptimal);
 
-        vk::RenderingAttachmentInfo colorAttackInfo{};
-        colorAttackInfo.imageView = m_swapChains->GetImageViews()[m_currentImageIndex];
-        colorAttackInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-        colorAttackInfo.loadOp = vk::AttachmentLoadOp::eClear;
-        colorAttackInfo.storeOp = vk::AttachmentStoreOp::eStore;
-        colorAttackInfo.clearValue = clearColor;
+        transitionImage(m_drawImage->GetImage(), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal);
 
-        constexpr vk::ClearValue clearDepthStencil{vk::ClearDepthStencilValue{1.0f, 0u}};
+        transitionImage(m_swapChains->GetImages().at(m_currentImageIndex), vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 
-        vk::RenderingAttachmentInfo depthAttachInfo{};
-        depthAttachInfo.imageView = m_swapChains->GetDepthBuffer()->GetImageView();
-        depthAttachInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-        depthAttachInfo.loadOp = vk::AttachmentLoadOp::eClear;
-        depthAttachInfo.storeOp = vk::AttachmentStoreOp::eStore;
-        depthAttachInfo.clearValue = clearDepthStencil;
-        depthAttachInfo.loadOp = vk::AttachmentLoadOp::eClear;
-        depthAttachInfo.storeOp = vk::AttachmentStoreOp::eStore;
+        // Copy Image
 
-        vk::RenderingInfo renderInfo{};
-        renderInfo.flags = vk::RenderingFlagBits::eResuming;
-        renderInfo.colorAttachmentCount = 1u;
-        renderInfo.pColorAttachments = &colorAttackInfo;
-        renderInfo.pDepthAttachment = &depthAttachInfo;
-        renderInfo.layerCount = 1;
-        renderInfo.renderArea = scissor;
+        VulkanImage::CopyImage(commandBuffer.GetHandle(), m_drawImage->GetImage(), m_swapChains->GetImages().at(m_currentImageIndex), m_drawImage->GetImageExtent(), m_swapChains->GetSwapChainExtent());
+
+        transitionImage(m_swapChains->GetImages().at(m_currentImageIndex), vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::ePresentSrcKHR);
+
+        // Call draw background
+        // transitionImage(m_swapChains->GetImages().at(m_currentImageIndex), vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
+
+        // vk::Viewport viewPort{0.0f, static_cast<float>(FrameBufferHeight), static_cast<float>(FrameBufferWidth), -static_cast<float>(FrameBufferHeight), 0.0f, 1.0f};
+
+        // vk::Rect2D scissor{};
+        // scissor.extent.width = FrameBufferWidth;
+        // scissor.extent.height = FrameBufferHeight;
+
+        // commandBuffer.GetHandle().setViewport(0, viewPort);
+        // commandBuffer.GetHandle().setScissor(0, scissor);
+
+        // constexpr vk::ClearValue clearColor{vk::ClearColorValue{1.0f, 0.5f, 0.25f, 1.0f}};
+
+        // vk::RenderingAttachmentInfo colorAttackInfo{};
+        // colorAttackInfo.imageView = m_swapChains->GetImageViews()[m_currentImageIndex];
+        // colorAttackInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+        // colorAttackInfo.loadOp = vk::AttachmentLoadOp::eClear;
+        // colorAttackInfo.storeOp = vk::AttachmentStoreOp::eStore;
+        // colorAttackInfo.clearValue = clearColor;
+
+        // constexpr vk::ClearValue clearDepthStencil{vk::ClearDepthStencilValue{1.0f, 0u}};
+
+        // vk::RenderingAttachmentInfo depthAttachInfo{};
+        // depthAttachInfo.imageView = m_swapChains->GetDepthBuffer()->GetImageView();
+        // depthAttachInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+        // depthAttachInfo.loadOp = vk::AttachmentLoadOp::eClear;
+        // depthAttachInfo.storeOp = vk::AttachmentStoreOp::eStore;
+        // depthAttachInfo.clearValue = clearDepthStencil;
+        // depthAttachInfo.loadOp = vk::AttachmentLoadOp::eClear;
+        // depthAttachInfo.storeOp = vk::AttachmentStoreOp::eStore;
+
+        // vk::RenderingInfo renderInfo{};
+        // renderInfo.flags = vk::RenderingFlagBits::eResuming;
+        // renderInfo.colorAttachmentCount = 1u;
+        // renderInfo.pColorAttachments = &colorAttackInfo;
+        // renderInfo.pDepthAttachment = &depthAttachInfo;
+        // renderInfo.layerCount = 1;
+        // renderInfo.renderArea = scissor;
 
         // m_graphicCommandBuffers.at(m_currentImageIndex).GetHandle().beginRendering(renderInfo);
 
@@ -364,7 +421,7 @@ namespace Creepy{
         
         auto&& commandBuffer = m_graphicCommandBuffers.at(m_currentImageIndex);
 
-        transitionImage(m_swapChains->GetImages().at(m_currentImageIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::ePresentSrcKHR);
+        // transitionImage(m_swapChains->GetImages().at(m_currentImageIndex), vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::ePresentSrcKHR);
         // commandBuffer.GetHandle().endRendering();
 
         commandBuffer.End();
