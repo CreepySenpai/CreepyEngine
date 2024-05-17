@@ -28,6 +28,8 @@ namespace Creepy {
                 return m_handle;
             }
 
+            vk::DeviceAddress GetBufferDeviceAddress() noexcept;
+
         public:
             static void CopyBuffer(const VulkanBuffer& src, const VulkanBuffer& dest, vk::DeviceSize size, const vk::CommandBuffer commandBuffer) noexcept;
         

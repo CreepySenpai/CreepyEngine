@@ -79,6 +79,13 @@ namespace Creepy {
         commandBuffer.copyBuffer(src.GetHandle(), dest.GetHandle(), bufferCopy);
     }
 
+    vk::DeviceAddress VulkanBuffer::GetBufferDeviceAddress() noexcept {
+        vk::BufferDeviceAddressInfo bufferAddressInfo{};
+        bufferAddressInfo.buffer = m_handle;
+        
+        return VulkanDevice::GetLogicalDevice().getBufferAddress(bufferAddressInfo);
+    }
+
 
     VulkanVertexBuffer::VulkanVertexBuffer(uint32_t size) noexcept
        : m_buffer{{size, vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc, vk::SharingMode::eExclusive, vk::MemoryPropertyFlagBits::eDeviceLocal}}

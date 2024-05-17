@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.29.0)
 
 set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 26)
-set(VULKANINCLUDE "D:/Enviroments/vulkan/Include")
-set(VULKANLIB "D:/Enviroments/vulkan/Lib")
 
 project(CreepyEngine VERSION 0.2.0 LANGUAGES C CXX)
 
@@ -32,18 +30,18 @@ file(GLOB VULKANMEMORYALLOCATOR ${CMAKE_SOURCE_DIR}/src/VulkanMemoryAllocator/*.
 
 add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${EVENTENGINE} ${RENDERERENGINE} ${PLATFORMWINDOWS} ${GLAD} ${IMGUI} ${DEBUG} ${OPENGL} ${VULKAN} ${SCENE} ${MATH} ${EXTENDED_YAMLCPP} ${CORAL} ${SCRIPTING} ${UTILS} ${PROJECTCORE} ${PHYSIC2DCORE} ${VULKANBOOSTSTRAP} ${VULKANMEMORYALLOCATOR})
 
+find_package(Vulkan REQUIRED)
 
 target_include_directories(${PROJECT_NAME} PUBLIC 
                     ${CMAKE_SOURCE_DIR}/include
-                    ${VULKANINCLUDE}
+                    ${Vulkan_INCLUDE_DIRS}
                 )
                 
 target_link_directories(${PROJECT_NAME} PUBLIC 
                     ${CMAKE_SOURCE_DIR}/lib
-                    ${VULKANLIB}
                 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32 yaml-cpp.dll box2d assimp.dll vulkan-1 stdc++exp)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32 yaml-cpp.dll box2d assimp.dll ${Vulkan_LIBRARIES} stdc++exp)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
 
