@@ -1,12 +1,17 @@
 #pragma once
 
+#include <string>
+#include <cstdint>
+#include <utility>
+#include <format>
 #include "Event.hpp"
 
 namespace Creepy {
 
-    class WindowResizeEvent : public Event {
+    class WindowResizeEvent : public Event
+    {
         public:
-            constexpr WindowResizeEvent(uint32_t w, uint32_t h) noexcept : m_width{w}, m_height{h} {
+            constexpr WindowResizeEvent(uint32_t w, uint32_t h) noexcept : Event{EventType::WINDOW_RESIZE, EventCategory::APPLICATION}, m_width{w}, m_height{h} {
 
             }
 
@@ -22,89 +27,103 @@ namespace Creepy {
                 return EventType::WINDOW_RESIZE;
             };
 
-            constexpr virtual EventType GetEventType() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "WINDOW_RESIZE";
+            }
 
-            constexpr virtual std::string GetEventName() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                return std::to_underlying(m_eventCategory);
+            }
 
-            virtual std::string ToString() const noexcept override;
-
-            constexpr virtual int GetCategoryFlags() const noexcept override;
+            std::string ToString() const noexcept {
+                return std::format("Width : {}, Height: {}\n", m_width, m_height);
+            }
 
         private:
             uint32_t m_width, m_height;
     };
 
-
     class WindowCloseEvent : public Event {
         public:
-            constexpr WindowCloseEvent(){}
+            constexpr WindowCloseEvent() noexcept : Event{EventType::WINDOW_CLOSE, EventCategory::APPLICATION} {}
 
             constexpr inline static EventType GetStaticEventType() noexcept {
                 return EventType::WINDOW_CLOSE;
             };
 
-            constexpr virtual EventType GetEventType() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "WINDOW_CLOSE";
+            }
 
-            constexpr virtual std::string GetEventName() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                return std::to_underlying(m_eventCategory);
+            }
 
-            virtual std::string ToString() const noexcept override;
-
-            constexpr virtual int GetCategoryFlags() const noexcept override;
-        private:
+            std::string ToString() const noexcept {
+                return "Window Close";
+            }
     };
-
 
     class AppTickEvent : public Event {
         public:
-            constexpr AppTickEvent(){}
+            constexpr AppTickEvent() noexcept : Event{EventType::APP_TICK, EventCategory::APPLICATION} {}
 
             constexpr inline static EventType GetStaticEventType() noexcept {
                 return EventType::APP_TICK;
             };
 
-            constexpr virtual EventType GetEventType() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "APP_TICK";
+            }
 
-            constexpr virtual std::string GetEventName() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                return std::to_underlying(m_eventCategory);
+            }
 
-            virtual std::string ToString() const noexcept override;
-
-            constexpr virtual int GetCategoryFlags() const noexcept override;
-        private:
+            std::string ToString() const noexcept {
+                return "App Tick";
+            }
     };
 
     class AppUpdateEvent : public Event {
         public:
-            constexpr AppUpdateEvent(){}
+            constexpr AppUpdateEvent() noexcept : Event{EventType::APP_UPDATE, EventCategory::APPLICATION} {}
 
             constexpr inline static EventType GetStaticEventType() noexcept {
                 return EventType::APP_UPDATE;
             };
 
-            constexpr virtual EventType GetEventType() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "APP_UPDATE";
+            }
 
-            constexpr virtual std::string GetEventName() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                return std::to_underlying(m_eventCategory);
+            }
 
-            virtual std::string ToString() const noexcept override;
-
-            constexpr virtual int GetCategoryFlags() const noexcept override;
-        private:
+            std::string ToString() const noexcept {
+                return "App Update";
+            }
     };
 
     class AppRenderEvent : public Event {
         public:
-            constexpr AppRenderEvent(){}
+            constexpr AppRenderEvent() noexcept : Event{EventType::APP_RENDER, EventCategory::APPLICATION} {}
 
             constexpr inline static EventType GetStaticEventType() noexcept {
                 return EventType::APP_RENDER;
             };
 
-            constexpr virtual EventType GetEventType() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "APP_RENDER";
+            }
 
-            constexpr virtual std::string GetEventName() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                return std::to_underlying(m_eventCategory);
+            }
 
-            virtual std::string ToString() const noexcept override;
-
-            constexpr virtual int GetCategoryFlags() const noexcept override;
-        private:
+            std::string ToString() const noexcept {
+                return "App Render";
+            }
     };
 }

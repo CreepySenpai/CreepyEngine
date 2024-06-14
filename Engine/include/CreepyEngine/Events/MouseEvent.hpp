@@ -1,13 +1,16 @@
 #pragma once
 
+#include <format>
+
 #include "Event.hpp"
 #include <CreepyEngine/Core/MouseButtonCode.hpp>
 
 namespace Creepy {
+    
     class MouseMovedEvent : public Event {
-        public:
 
-            constexpr MouseMovedEvent(double x, double y) noexcept : m_mouseX{x}, m_mouseY{y} {
+        public:
+            constexpr MouseMovedEvent(double x, double y) noexcept : Event{EventType::MOUSE_ON_MOVED, EventCategory::MOUSE}, m_mouseX{x}, m_mouseY{y} {
 
             }
 
@@ -15,13 +18,18 @@ namespace Creepy {
                 return EventType::MOUSE_ON_MOVED;
             };
 
-            constexpr virtual EventType GetEventType() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "MOUSE_ON_MOVED";
+            }
 
-            constexpr virtual std::string GetEventName() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                // return std::to_underlying(EventCategory::MOUSE) | std::to_underlying(EventCategory::INPUT);
+                return std::to_underlying(m_eventCategory);
+            }
 
-            virtual std::string ToString() const noexcept override;
-
-            constexpr virtual int GetCategoryFlags() const noexcept override;
+            std::string ToString() const noexcept {
+                return std::format("MouseX : {}, MouseY: {}\n", m_mouseX, m_mouseY);
+            }
 
             constexpr inline double GetMouseX() const noexcept {
                 return m_mouseX;
@@ -40,7 +48,7 @@ namespace Creepy {
     class MouseScrolledEvent : public Event {
         public:
 
-            constexpr MouseScrolledEvent(double xoff, double yoff) noexcept : m_xOffset{xoff}, m_yOffset{yoff} {
+            constexpr MouseScrolledEvent(double xoff, double yoff) noexcept : Event{EventType::MOUSE_ON_SCROLLED, EventCategory::MOUSE}, m_xOffset{xoff}, m_yOffset{yoff} {
 
             }
 
@@ -48,13 +56,18 @@ namespace Creepy {
                 return EventType::MOUSE_ON_SCROLLED;
             };
 
-            constexpr virtual EventType GetEventType() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "MOUSE_ON_SCROLLED";
+            }
 
-            constexpr virtual std::string GetEventName() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                // return std::to_underlying(EventCategory::MOUSE) | std::to_underlying(EventCategory::INPUT);
+                return std::to_underlying(m_eventCategory);
+            }
 
-            virtual std::string ToString() const noexcept override;
-
-            constexpr virtual int GetCategoryFlags() const noexcept override;
+            std::string ToString() const noexcept {
+                return std::format("XOff: {}, YOff: {}\n", m_xOffset, m_yOffset);
+            }
 
             constexpr inline double GetXOffset() const noexcept {
                 return m_xOffset;
@@ -69,52 +82,60 @@ namespace Creepy {
             double m_yOffset;
     };
 
-
-    class MouseButtonEvent : public Event {
+    class MouseButtonPressedEvent : public Event {
         public:
-            constexpr MouseButtonEvent(MouseButtonCode button) noexcept : m_button{button} {}
+            constexpr MouseButtonPressedEvent(MouseButtonCode button) noexcept : Event{EventType::MOUSE_BUTTON_PRESSED, EventCategory::MOUSE_BUTTON}, m_button{button} {}
 
             constexpr inline MouseButtonCode GetButton() const noexcept {
                 return m_button;
             }
 
-            constexpr virtual int GetCategoryFlags() const noexcept override {
-                return std::to_underlying(EventCategory::MOUSE_BUTTON) | std::to_underlying(EventCategory::INPUT);
-            }
-        protected:
-            MouseButtonCode m_button;
-    };
-
-    class MouseButtonPressedEvent : public MouseButtonEvent {
-        public:
-            // Using Parent Constructor
-            using MouseButtonEvent::MouseButtonEvent;
-
             constexpr inline static EventType GetStaticEventType() noexcept {
                 return EventType::MOUSE_BUTTON_PRESSED;
             };
 
-            constexpr virtual EventType GetEventType() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                // return std::to_underlying(EventCategory::MOUSE_BUTTON) | std::to_underlying(EventCategory::INPUT);
+                return std::to_underlying(m_eventCategory);
+            }
 
-            constexpr virtual std::string GetEventName() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "MOUSE_BUTTON_PRESS";
+            }
 
-            virtual std::string ToString() const noexcept override;
+            std::string ToString() const noexcept {
+                return std::format("Button Press: {}", std::to_underlying(m_button));
+            }
         private:
+            MouseButtonCode m_button;
     };
 
-    class MouseButtonReleasedEvent : public MouseButtonEvent {
+    class MouseButtonReleasedEvent : public Event {
         public:
-            using MouseButtonEvent::MouseButtonEvent;
+            constexpr MouseButtonReleasedEvent(MouseButtonCode button) noexcept : Event{EventType::MOUSE_BUTTON_RELEASED, EventCategory::MOUSE_BUTTON}, m_button{button} {}
+
+            constexpr inline MouseButtonCode GetButton() const noexcept {
+                return m_button;
+            }
 
             constexpr inline static EventType GetStaticEventType() noexcept {
                 return EventType::MOUSE_BUTTON_RELEASED;
             };
 
-            constexpr virtual EventType GetEventType() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                // return std::to_underlying(EventCategory::MOUSE_BUTTON) | std::to_underlying(EventCategory::INPUT);
+                return std::to_underlying(m_eventCategory);
+            }
 
-            constexpr virtual std::string GetEventName() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "MOUSE_BUTTON_RELEASE";
+            }
 
-            virtual std::string ToString() const noexcept override;
+            std::string ToString() const noexcept {
+                return std::format("Button Release: {}", std::to_underlying(m_button));
+            }
+            
         private:
+            MouseButtonCode m_button;
     };
 }

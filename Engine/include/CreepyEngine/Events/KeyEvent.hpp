@@ -1,86 +1,108 @@
 #pragma once
 
+#include <format>
+
 #include "Event.hpp"
 #include <CreepyEngine/Core/KeyCode.hpp>
 
 namespace Creepy {
-    class KeyEvent : public Event 
-    {
+
+    class KeyPressedEvent : public Event {
         public:
-            constexpr virtual int GetCategoryFlags() const noexcept override {
-                return std::to_underlying(EventCategory::KEYBOARD) | std::to_underlying(EventCategory::INPUT);
+            constexpr KeyPressedEvent(KeyCode keyCode) noexcept : Event{EventType::KEY_PRESSED, EventCategory::KEYBOARD}, m_keyCode{keyCode} {
+
             }
-            
+            constexpr KeyPressedEvent(KeyCode keyCode, bool isRepeat) noexcept : Event{EventType::KEY_PRESSED, EventCategory::KEYBOARD}, m_keyCode(keyCode), m_isRepeat{isRepeat} {
+
+            }
+
             constexpr inline KeyCode GetKeyCode() const noexcept {
                 return m_keyCode;
             }
-        protected:
-            constexpr KeyEvent(KeyCode keyCode) noexcept : m_keyCode{keyCode} {
 
-            }
-
-            KeyCode m_keyCode;
-    };
-
-    class KeyPressedEvent : public KeyEvent {
-        public:
-            constexpr KeyPressedEvent(KeyCode keyCode, bool isRepeat) noexcept : KeyEvent(keyCode), m_isRepeat{isRepeat} {
-
-            }
-
-            // For Use With Class Name
             constexpr inline static EventType GetStaticEventType() noexcept {
                 return EventType::KEY_PRESSED;
             };
 
-            // For Use With Pointer, Ref To Get Actually Event
-            virtual EventType GetEventType() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "KEY_PRESSED";
+            }
 
-            virtual std::string GetEventName() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                // return std::to_underlying(EventType::KEY_PRESSED, ::KEYBOARD) | std::to_underlying(EventType::KEY_PRESSED, ::INPUT);
+                return std::to_underlying(m_eventCategory);
+            }
 
-            virtual std::string ToString() const noexcept override;
+            std::string ToString() const noexcept {
+                return std::format("Key Press: {}, Is Repeat: {}\n", std::to_underlying(m_keyCode), m_isRepeat);
+            }
 
             constexpr inline bool IsRepeat() const {
                 return m_isRepeat;
             }
         private:
+            KeyCode m_keyCode;
             bool m_isRepeat;
     };
 
-
-    class KeyReleasedEvent : public KeyEvent {
+    class KeyReleasedEvent : public Event {
         public:
-            constexpr KeyReleasedEvent(KeyCode keyCode) noexcept : KeyEvent(keyCode) {
+            constexpr KeyReleasedEvent(KeyCode keyCode) noexcept : Event{EventType::KEY_RELEASED, EventCategory::KEYBOARD}, m_keyCode(keyCode) {
 
+            }
+
+            constexpr inline KeyCode GetKeyCode() const noexcept {
+                return m_keyCode;
             }
 
             constexpr inline static EventType GetStaticEventType() noexcept {
                 return EventType::KEY_RELEASED;
             };
 
-            virtual EventType GetEventType() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "KEY_RELEASED";
+            }
 
-            virtual std::string GetEventName() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                // return std::to_underlying(EventType::KEY_PRESSED, ::KEYBOARD) | std::to_underlying(EventType::KEY_PRESSED, ::INPUT);
+                return std::to_underlying(m_eventCategory);
+            }
 
-            virtual std::string ToString() const noexcept override;
+            std::string ToString() const noexcept {
+                return std::format("Key Release: {}\n", std::to_underlying(m_keyCode));
+            }
         private:
-
+            KeyCode m_keyCode;
     };
 
-    class KeyTypedEvent : public KeyEvent {
+    class KeyTypedEvent : public Event {
         public:
-            constexpr KeyTypedEvent(KeyCode keyCode) noexcept : KeyEvent(keyCode) {
+            constexpr KeyTypedEvent(KeyCode keyCode) noexcept : Event{EventType::KEY_TYPED, EventCategory::KEYBOARD}, m_keyCode(keyCode) {
 
+            }
+
+            constexpr inline KeyCode GetKeyCode() const noexcept {
+                return m_keyCode;
             }
 
             constexpr inline static EventType GetStaticEventType() noexcept {
                 return EventType::KEY_TYPED;
             };
 
-            virtual EventType GetEventType() const noexcept override;
+            constexpr std::string GetEventName() const noexcept {
+                return "KEY_TYPED";
+            }
 
-            virtual std::string GetEventName() const noexcept override;
+            constexpr int GetCategoryFlags() const noexcept {
+                // return std::to_underlying(EventType::KEY_PRESSED, ::KEYBOARD) | std::to_underlying(EventType::KEY_PRESSED, ::INPUT);
+                return std::to_underlying(m_eventCategory);
+            }
 
-            virtual std::string ToString() const noexcept override;
+            std::string ToString() const noexcept {
+                return std::format("Key Typed: {}\n", std::to_underlying(m_keyCode));
+            }
+        private:
+            KeyCode m_keyCode;
     };
+
 }
