@@ -1,10 +1,16 @@
-cmake_minimum_required(VERSION 3.29.0)
+cmake_minimum_required(VERSION 3.30.0)
 
+# Project Setting
 set(CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD 26)
+set(ENABLE_TRACY_PROFILER OFF)
+set(ENABLE_CPPCHECK ON)
 
-project(CreepyEngine VERSION 0.2.0 LANGUAGES C CXX)
+project(CreepyEngine VERSION 0.3.0 LANGUAGES C CXX)
 
+
+# Libraries Sources
 file(GLOB COREENGINE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Core/*.cpp)
 file(GLOB RENDERERENGINE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Renderer/*.cpp)
 file(GLOB PLATFORMWINDOWS ${CMAKE_SOURCE_DIR}/src/Platform/Windows/*.cpp)
@@ -24,9 +30,12 @@ file(GLOB PHYSIC2DCORE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Physics/2D/*.cpp)
 file(GLOB VULKANBOOSTSTRAP ${CMAKE_SOURCE_DIR}/src/VulkanBootstrap/*.cpp)
 file(GLOB VULKANMEMORYALLOCATOR ${CMAKE_SOURCE_DIR}/src/VulkanMemoryAllocator/*.cpp)
 # file(GLOB PHYSIC3DCORE ${CMAKE_SOURCE_DIR}/src/CreepyEngine/Physics/3D/*.cpp)
+file(GLOB TRACYPROFILER ${CMAKE_SOURCE_DIR}/src/tracy/tracycore/*.cpp)
 
 # add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${EVENTENGINE} ${RENDERERENGINE} ${PLATFORMWINDOWS} ${GLAD} ${IMGUI} ${DEBUG} ${OPENGL} ${VULKAN} ${SCENE} ${MATH} ${EXTENDED_YAMLCPP} ${CORAL} ${SCRIPTING} ${UTILS} ${PROJECTCORE} ${PHYSIC2DCORE} ${PHYSIC3DCORE})
 
+
+# Add Lib, Include
 add_library(${PROJECT_NAME} SHARED ${COREENGINE} ${RENDERERENGINE} ${PLATFORMWINDOWS} ${GLAD} ${IMGUI} ${DEBUG} ${OPENGL} ${VULKAN} ${SCENE} ${MATH} ${EXTENDED_YAMLCPP} ${CORAL} ${SCRIPTING} ${UTILS} ${PROJECTCORE} ${PHYSIC2DCORE} ${VULKANBOOSTSTRAP} ${VULKANMEMORYALLOCATOR})
 
 find_package(Vulkan REQUIRED)
@@ -42,6 +51,14 @@ target_link_directories(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32 yaml-cpp.dll box2d assimp.dll ${Vulkan_LIBRARIES} stdc++exp)
 
+# Add Lib By Conditions
+if(ENABLE_TRACY_PROFILER)
+    message(STATUS "Tracy On")
+    add_library(${PROJECT_NAME} SHARED ${TRACYPROFILER})
+endif()
+
+
+# Compile Define
 add_compile_definitions(GLFW_INCLUDE_NONE)
 
 add_compile_definitions(GLFW_INCLUDE_VULKAN)
@@ -53,20 +70,29 @@ add_compile_definitions(YAML_CPP_STATIC_DEFINE)
 add_compile_definitions(CORAL_WINDOWS)
 
 
-set(cppcheck_exe "D:/Enviroments/cppcheck/build/bin/cppcheck.exe")
+# Cpp Check Best Practive
+if(ENABLE_CPPCHECK)
 
-message(STATUS "Cpp Check Dir: ${cppcheck_exe}")
+    message(STATUS "Use CppCheck")
 
-set(CMAKE_CXX_CPPCHECK "${cppcheck_exe}" --std=c++23
-            "--enable=all"
-            "--output-file=report.txt"
-            "--inconclusive"
-            "--inline-suppr"
-            "--quiet"
-            "--verbose"
-            "--suppress=unmatchedSuppression"
-            "--suppress=unusedFunction"
-            "--suppress=containerOutOfBounds"
-            "--template='{file}:{line}: warning: {id} ({severity}): {message}'")
+    find_program(cppcheck_exe NAMES cppcheck REQUIRED)
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_CPPCHECK "${CMAKE_CXX_CPPCHECK}")
+    # set(cppcheck_exe "D:/Enviroments/mingw64_msvcrt/bin/cppcheck.exe")
+
+    message(STATUS "Cpp Check Dir: ${cppcheck_exe}")
+
+    set(CMAKE_CXX_CPPCHECK "${cppcheck_exe}" --std=c++23
+                "--enable=all"
+                "--output-file=report.txt"
+                "--inconclusive"
+                "--inline-suppr"
+                "--quiet"
+                "--verbose"
+                "--suppress=unmatchedSuppression"
+                "--suppress=unusedFunction"
+                "--suppress=containerOutOfBounds"
+                "--template='{file}:{line}: warning: {id} ({severity}): {message}'")
+
+    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_CPPCHECK "${CMAKE_CXX_CPPCHECK}")
+
+endif()

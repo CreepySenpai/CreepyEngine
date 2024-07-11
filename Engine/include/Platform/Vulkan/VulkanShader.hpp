@@ -23,7 +23,9 @@ namespace Creepy {
             void UnBind() const noexcept {}
 
             const std::string& GetName() const noexcept {
-                return {};
+                // TODO: Fix
+                std::string a;
+                return a;
             }
 
             void SetName(const std::string& name) noexcept {}

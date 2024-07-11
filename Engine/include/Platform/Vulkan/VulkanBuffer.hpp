@@ -54,7 +54,9 @@ namespace Creepy {
             void UnBind() const noexcept override {}
             
             const BufferLayout& GetLayout() const noexcept override {
-                return {};
+                // TODO: Fix
+                BufferLayout layout{};
+                return layout;
             }
 
             void SetLayout(const BufferLayout& layout) noexcept {};
