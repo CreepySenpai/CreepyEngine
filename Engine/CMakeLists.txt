@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 3.30.0)
 set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD 26)
+
+set(ENABLE_RENDERER_OPENGL OFF)
+set(ENABLE_RENDERER_VULKAN OFF)
 set(ENABLE_TRACY_PROFILER OFF)
 set(ENABLE_CPPCHECK ON)
 
@@ -52,6 +55,20 @@ target_link_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw3dll opengl32 gdi32 yaml-cpp.dll box2d assimp.dll ${Vulkan_LIBRARIES} stdc++exp)
 
 # Add Lib By Conditions
+if(ENABLE_RENDERER_OPENGL)
+    message(STATUS "Renderer: OpenGL")
+    add_library(${PROJECT_NAME} SHARED ${OPENGL})
+endif()
+
+if(ENABLE_RENDERER_VULKAN)
+    message(STATUS "Renderer: Vulkan")
+    add_library(${PROJECT_NAME} SHARED ${VULKAN})
+
+    add_compile_definitions(GLFW_INCLUDE_NONE)
+    add_compile_definitions(GLFW_INCLUDE_VULKAN)
+    add_compile_definitions(VULKAN_HPP_NO_EXCEPTIONS)
+endif()
+
 if(ENABLE_TRACY_PROFILER)
     message(STATUS "Tracy On")
     add_library(${PROJECT_NAME} SHARED ${TRACYPROFILER})
@@ -76,8 +93,6 @@ if(ENABLE_CPPCHECK)
     message(STATUS "Use CppCheck")
 
     find_program(cppcheck_exe NAMES cppcheck REQUIRED)
-
-    # set(cppcheck_exe "D:/Enviroments/mingw64_msvcrt/bin/cppcheck.exe")
 
     message(STATUS "Cpp Check Dir: ${cppcheck_exe}")
 

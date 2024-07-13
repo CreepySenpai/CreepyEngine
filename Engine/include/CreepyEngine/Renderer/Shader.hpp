@@ -21,6 +21,25 @@ namespace Creepy
             [[nodiscard]] static Ref<Shader> Create(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) noexcept;
     }; 
 
+    class Shader2{
+        public:
+            void Bind(this auto&& self) noexcept {
+                self.BindImpl();
+            }
+
+            void UnBind(this auto&& self) noexcept {
+                self.UnBindImpl();
+            }
+
+            const std::string& GetName(this auto&& self) noexcept {
+                return self.GetNameImpl();
+            }
+
+            void SetName(this auto&& self, const std::string& name) noexcept {
+                self.SetNameImpl(name);
+            }
+    };
+
     class ShaderLibrary {
         public:
             void Add(Ref<Shader>& shader) noexcept;

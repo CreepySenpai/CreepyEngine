@@ -76,7 +76,7 @@ namespace Creepy {
             }
 
             template <typename U>
-            bool Dispatch(std::function<bool(U&)> func) {
+            constexpr bool Dispatch(std::function<bool(U&)> func) {
                 if(m_event.GetEventType() == U::GetStaticEventType()) {
                     m_event.Handled = func(*(static_cast<U*>(&m_event)));    // Cast Event To Real Type Then Call It
                     return true;
@@ -88,3 +88,4 @@ namespace Creepy {
             Event& m_event;
     };
 }
+

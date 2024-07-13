@@ -76,4 +76,39 @@ namespace Creepy {
         private:
             
     };
+
+    class FrameBuffer2 {
+        public:
+            void Bind(this auto&& self) noexcept {
+                self.BindImpl();
+            }
+
+            void UnBind(this auto&& self) noexcept {
+                self.UnBindImpl();
+            }
+
+            void Resize(this auto&& self, uint32_t width, uint32_t height) noexcept {
+                self.ResizeImpl(width, height);
+            }
+
+            uint32_t GetFrameBufferID(this auto&& self) noexcept {
+                return self.GetFrameBufferIDImpl();
+            }
+
+            uint32_t GetColorAttachmentID(this auto&& self, uint32_t index = 0) noexcept {
+                return self.GetColorAttachmentIDImpl(index);
+            }
+
+            int ReadPixel(this auto&& self, uint32_t attachmentIndex, int x, int y) noexcept {
+                return self.ReadPixelImpl(attachmentIndex, x, y);
+            }
+
+            void ClearColorBufferAttachment(this auto&& self, uint32_t attachmentIndex, int value) noexcept {
+                self.ClearColorBufferAttachmentImpl(attachmentIndex, value);
+            }
+
+            FrameBufferSpecification& GetSpecification(this auto&& self) noexcept {
+                return self.GetSpecificationImpl();
+            }
+    };
 }

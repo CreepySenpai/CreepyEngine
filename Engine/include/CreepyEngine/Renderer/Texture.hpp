@@ -21,10 +21,39 @@ namespace Creepy
             virtual void SetData(void* data, uint32_t size) noexcept = 0;
 
             virtual bool operator==(const Texture& other) const noexcept = 0;
-
-           
     };
     
+    class Texture2{
+        public:
+            uint32_t GetWidth(this auto&& self) noexcept {
+                return self.GetWidthImpl();
+            }
+            uint32_t GetHeight(this auto&& self) noexcept {
+                return self.GetHeightImpl();
+            }
+
+            uint32_t GetRendererID(this auto&& self) noexcept {
+                return self.GetRendererIDImpl();
+            }
+
+            [[nodiscard]] const std::filesystem::path& GetTexturePath(this auto&& self) noexcept {
+                return self.GetTexturePathImpl();
+            }
+
+            void Bind(this auto&& self, uint32_t slot = 0) noexcept {
+                self.BindImpl(slot);
+            }
+            
+            void UnBind(this auto&& self) noexcept {
+                self.UnBindImpl();
+            }
+
+            void SetData(this auto&& self, void* data, uint32_t size) noexcept {
+                self.SetDataImpl(size);
+            }
+    };
+
+    class Texture2D2 : public Texture2{};
 
     class Texture2D : public Texture
     {

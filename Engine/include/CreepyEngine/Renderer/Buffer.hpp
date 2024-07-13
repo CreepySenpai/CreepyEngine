@@ -218,4 +218,49 @@ namespace Creepy {
     };
 
     
+    class VertexBuffer2{
+        public:
+            void Bind(this auto&& self) noexcept{
+                self.BindImpl();
+            }
+
+            void UnBind(this auto&& self) noexcept {
+                self.UnBindImpl();
+            }
+            
+            const BufferLayout& GetLayout(this auto&& self) noexcept {
+                return self.GetLayoutImpl();
+            }
+
+            void SetLayout(this auto&& self, const BufferLayout& layout) noexcept {
+                self.SetLayoutImpl(layout);
+            }
+            
+            void SetData(this auto&& self, const void* data, uint32_t size) noexcept {
+                self.SetDataImpl(data, size);
+            }
+
+            // static Ref<VertexBuffer2> Create(const void* data, uint32_t size) noexcept;
+            // static Ref<VertexBuffer2> Create(uint32_t size) noexcept;
+    };
+
+    class IndexBuffer2
+    {
+        public:
+            // IndexBuffer2() noexcept {}
+
+            void Bind(this auto&& self) noexcept {
+                self.BindImpl();
+            }
+
+            void UnBind(this auto&& self) noexcept {
+                self.UnBindImpl();
+            }
+
+            uint32_t GetCount(this auto&& self) noexcept {
+                return self.GetCountImpl();
+            }
+
+            // static Ref<IndexBuffer2> Create(const void* indexData, uint32_t count) noexcept;
+    };
 }
